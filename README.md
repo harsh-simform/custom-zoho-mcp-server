@@ -6,8 +6,6 @@ so it can look up task/bug context directly instead of you copy-pasting it in.
 
 No write operations are performed against Zoho — this server only reads.
 
-Full technical spec: [docs/zoho-projects-mcp-plan.md](docs/zoho-projects-mcp-plan.md).
-
 ## Features
 
 - **One-call context fetch** — `get_task_context` / `get_bug_context` return details,
