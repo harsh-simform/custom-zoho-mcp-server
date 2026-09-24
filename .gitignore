@@ -1,0 +1,12 @@
+venv/
+docs/
+__pycache__/
+*.pyc
+*.egg-info/
+
+# Sensitive env / secrets
+.env
+.env.*
+!.env.example
+*.secrets
+secrets.json
