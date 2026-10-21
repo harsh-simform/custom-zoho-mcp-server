@@ -11,7 +11,7 @@ import os
 import stat
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Mapping
+from typing import Any, Mapping
 
 try:
     import tomllib
@@ -187,7 +187,7 @@ def load_settings(
     dotenv_legacy = {k: v for k, v in dotenv_values(legacy_dotenv_path).items() if v}
     env_legacy = {k: env[k] for k in _LEGACY_ENV if env.get(k)}
 
-    layers = [
+    layers: list[tuple[str, Mapping[str, object]]] = [
         ("flag", {k: v for k, v in (overrides or {}).items() if v is not None}),
         ("env", {n: env[f"ZOHO_AXI_{n.upper()}"] for n in _SPEC if env.get(f"ZOHO_AXI_{n.upper()}")}),
         ("file", file_values),
@@ -195,7 +195,7 @@ def load_settings(
         ("legacy-dotenv", {_LEGACY_ENV[k]: v for k, v in dotenv_legacy.items() if k in _LEGACY_ENV}),
     ]
 
-    values: dict[str, object] = {}
+    values: dict[str, Any] = {}
     sources: dict[str, str] = {}
     for name, (_, default) in _SPEC.items():
         for source, layer in layers:
