@@ -22,6 +22,7 @@ from typing import TYPE_CHECKING, Mapping, Sequence, TextIO
 from ..core.commands.base import Context
 from ..core.config import load_settings
 from ..core.render import Rendered, render, render_error
+from ..core.runner import execute, make_context
 from .help import command_help, top_help
 from .parser import parse
 from .registry import REGISTRY, Spec
@@ -95,14 +96,10 @@ def main(
         if inv.spec is not None and inv.spec.hook:  # reached with a global flag in front (`--json session-start`)
             return _run_hook(inv.spec, env, stdout, gateway, today)
         fmt = "json" if inv.json else "toon"
-        ctx = Context(load_settings(env), inv.params or {}, project=inv.project, fresh=inv.fresh, full=inv.full,
-                      _gateway=gateway, env=env, today=today,
-                      stdin=stdin if inv.spec is not None and inv.spec.stdin else None,
-                      command_flags={s.name: frozenset(f.name for f in s.flags) for s in registry})
         assert inv.spec is not None  # only top-level help has no spec, and it returned above
-        result = inv.spec.run(ctx)
-        result.warnings = list(dict.fromkeys([*ctx.settings.warnings, *result.warnings, *ctx.cache_warnings()]))
-        rendered: Rendered = render(result, "cli", full=inv.full, fmt=fmt)
+        ctx = make_context(inv.spec, registry, load_settings(env), inv.params or {}, project=inv.project,
+                           fresh=inv.fresh, full=inv.full, gateway=gateway, env=env, today=today, stdin=stdin)
+        rendered: Rendered = execute(inv.spec, ctx, "cli", fmt)
     except Exception as exc:  # the CLI never crashes with a traceback on stdout
         if debug:
             traceback.print_exc(file=stderr)
