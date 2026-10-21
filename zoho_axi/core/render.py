@@ -38,7 +38,7 @@ _EXPAND = {"cli": "--full", "mcp": "full=true"}
 def render(result: Result, mode: str = "cli", full: bool = False, fmt: str = "toon") -> Rendered:
     _check(mode, fmt)
     doc = _document(result, mode, full)
-    return Rendered(_encode(doc, fmt), 0)
+    return Rendered(_encode(doc, fmt, schema_for(result.entity)), 0)
 
 
 def render_error(exc: BaseException, mode: str = "cli", fmt: str = "toon") -> Rendered:
@@ -121,15 +121,16 @@ class _Shaper:
             names = list(dict.fromkeys(name for row in rows for name in row))
         else:
             names = list(schema.list_fields)
-        return [{n: self._text(row.get(n), ROW_TEXT_LIMIT, collapse=not schema.verbatim) for n in names} for row in rows]
+        return [{n: self._text(row.get(n), ROW_TEXT_LIMIT, collapse=not schema.verbatim, verbatim=schema.verbatim)
+                 for n in names} for row in rows]
 
     def detail_value(self, value: Any) -> Any:
         return self._text(value, self.detail_limit, collapse=False)
 
-    def _text(self, value: Any, limit: int, collapse: bool) -> Any:
+    def _text(self, value: Any, limit: int, collapse: bool, verbatim: bool = False) -> Any:
         if not isinstance(value, str):
             return value
-        text = html_to_text(value)
+        text = value if verbatim else html_to_text(value)  # a verbatim row is never HTML: it is shown as it is
         if collapse:
             text = " ".join(text.split())
         if self.full or len(text) <= limit:
@@ -160,20 +161,29 @@ class _TextExtractor(HTMLParser):
         super().__init__(convert_charrefs=True)
         self.parts: list[str] = []
         self._skip = 0
+        self._cells = 0  # cells already seen in the current table row
 
     def handle_starttag(self, tag, attrs):
         if tag in _SKIP:
             self._skip += 1
         elif tag == "li":
             self.parts.append("\n- ")
+        elif tag in ("td", "th"):
+            if self._cells:
+                self.parts.append(" | ")  # cells of one row never run together
+            self._cells += 1
         elif tag in _BLOCK:
             self.parts.append("\n")
+            if tag in ("tr", "table"):
+                self._cells = 0
 
     def handle_endtag(self, tag):
         if tag in _SKIP:
             self._skip = max(0, self._skip - 1)
         elif tag in _BLOCK or tag == "li":
             self.parts.append("\n")
+            if tag in ("tr", "table"):
+                self._cells = 0
 
     def handle_data(self, data):
         if not self._skip:
@@ -222,10 +232,26 @@ def _format_truncation(t: Truncation, mode: str) -> str:
 
 # --- encoding ----------------------------------------------------------------------------------
 
-def _encode(doc: dict, fmt: str) -> str:
+def _encode(doc: dict, fmt: str, schema: Schema | None = None) -> str:
     if fmt == "json":
         return json.dumps(doc, ensure_ascii=False, separators=(",", ":"))
-    return toon.encode(_toon_view(doc))
+    plain = schema.plain_sections if schema else ()
+    if not any(name in doc for name in plain):
+        return toon.encode(_toon_view(doc))
+    # A plain section (a unified diff) is printed as the raw lines it is, between the TOON parts around it.
+    chunks: list[str] = []
+    part: dict = {}
+    for key, value in doc.items():
+        if key in plain:
+            if part:
+                chunks.append(toon.encode(_toon_view(part)))
+                part = {}
+            chunks.append("\n".join(str(row.get("text", "")) for row in value))
+        else:
+            part[key] = value
+    if part:
+        chunks.append(toon.encode(_toon_view(part)))
+    return "\n".join(chunks)
 
 
 def _toon_view(doc: dict) -> dict:

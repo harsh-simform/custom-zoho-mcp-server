@@ -89,7 +89,15 @@ def test_project_flag_beats_config_default(tmp_path):
 
 def test_project_flag_can_carry_its_own_portal(tmp_path):
     s = load(tmp_path, env={"ZOHO_AXI_PORTAL_ID": "p1"})
-    assert resolve_project(s, "p2:pr9") == ("p2", "pr9")
+    assert resolve_project(s, "222:pr9") == ("222", "pr9")
+
+
+def test_only_a_numeric_left_part_is_a_portal_id(tmp_path):
+    s = load(tmp_path, env={"ZOHO_AXI_PORTAL_ID": "p1"})
+    assert resolve_project(s, "2200:77") == ("2200", "77")
+    assert resolve_project(s, "Demo: Site") == ("p1", "Demo: Site")
+    assert resolve_project(s, "Acme: Web: v2") == ("p1", "Acme: Web: v2")
+    assert resolve_project(s, ":x") == ("p1", ":x")
 
 
 def test_config_default_is_used_without_a_flag(tmp_path):

@@ -5,7 +5,7 @@ from support.factories import API, TOKEN_URL, Clock, make_settings
 from support.replay import ReplayTransport
 
 from zoho_axi.core.auth import ZohoAuth
-from zoho_axi.core.errors import NotFoundError, RateLimitedError, ReadOnlyError, UpstreamError
+from zoho_axi.core.errors import AuthError, NotFoundError, RateLimitedError, ReadOnlyError, UpstreamError
 from zoho_axi.core.gateway import ZohoGateway
 from zoho_axi.core.transport import ReadOnlyTransport
 
@@ -250,3 +250,66 @@ def test_a_non_json_token_reply_becomes_an_error_body_for_auth_to_report(tmp_pat
     assert gateway.token_post(TOKEN_URL, {"grant_type": "refresh_token"}, 5) == {
         "error": "non-JSON response (HTTP 502)"
     }
+
+
+# --- a 401 drops the cached token and retries that request once ---
+
+def _two_token_replay():
+    replay = ReplayTransport()
+    replay.add("POST", TOKEN_URL, json={"access_token": "tok-stale", "expires_in": 3600})
+    replay.add("POST", TOKEN_URL, json={"access_token": "tok-fresh", "expires_in": 3600})
+    return replay
+
+
+def test_a_401_refreshes_the_token_and_retries_that_request_once(tmp_path):
+    replay = _two_token_replay()
+    replay.get(f"{API}/portals", status=401).get(f"{API}/portals", json={"portals": []})
+    gateway = ZohoGateway(make_settings(tmp_path), transport=replay, clock=Clock(), sleep=lambda s: None)
+    gateway.get("portals")
+    gets = [c for c in replay.calls if c.method == "GET"]
+    assert [c.headers["Authorization"] for c in gets] == ["Zoho-oauthtoken tok-stale", "Zoho-oauthtoken tok-fresh"]
+    assert gateway.request_count == 4  # refresh, 401, refresh, 200: every send is counted
+
+
+def test_a_second_401_raises_and_does_not_loop(tmp_path):
+    replay = _two_token_replay()
+    replay.get(f"{API}/portals", status=401, repeat=True)
+    gateway = ZohoGateway(make_settings(tmp_path), transport=replay, clock=Clock(), sleep=lambda s: None)
+    with pytest.raises(AuthError) as exc:
+        gateway.get("portals")
+    assert exc.value.code == "auth.unauthorized"
+    assert gateway.request_count == 4
+
+
+def test_after_a_rejected_token_the_next_call_uses_the_fresh_one_without_another_refresh(tmp_path):
+    replay = _two_token_replay()
+    replay.get(f"{API}/portals", status=401).get(f"{API}/portals", json={}, repeat=True)
+    gateway = ZohoGateway(make_settings(tmp_path), transport=replay, clock=Clock(), sleep=lambda s: None)
+    gateway.get("portals")
+    gateway.get("portals")
+    assert [c.method for c in replay.calls].count("POST") == 2
+    assert replay.calls[-1].headers["Authorization"] == "Zoho-oauthtoken tok-fresh"
+
+
+def test_the_401_retry_respects_the_rate_limiter(tmp_path):
+    replay = _two_token_replay()
+    replay.get(f"{API}/portals", status=401).get(f"{API}/portals", json={})
+    gateway = ZohoGateway(make_settings(tmp_path), transport=replay, rate_limit=3, clock=Clock(), sleep=lambda s: None)
+    with pytest.raises(RateLimitedError):  # refresh + 401 + refresh = 3 allowed; the retried GET would be the 4th
+        gateway.get("portals")
+
+
+def test_an_injected_token_provider_with_an_invalidator_is_refreshed_on_401(tmp_path):
+    tokens = iter(["t1", "t2"])
+    current: list[str] = []
+    replay = ReplayTransport().get(f"{API}/portals", status=401).get(f"{API}/portals", json={})
+
+    def provider():
+        if not current:
+            current.append(next(tokens))
+        return current[0]
+
+    gateway = ZohoGateway(make_settings(tmp_path), transport=replay, token_provider=provider,
+                          token_invalidator=current.clear, clock=Clock(), sleep=lambda s: None)
+    gateway.get("portals")
+    assert [c.headers["Authorization"] for c in replay.calls] == ["Zoho-oauthtoken t1", "Zoho-oauthtoken t2"]

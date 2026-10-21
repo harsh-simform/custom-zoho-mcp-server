@@ -52,12 +52,7 @@ def fetch_page(ctx: Context, portal: str, project: str, *, page: int = 1, criter
     flt = filter_param(criteria or [])
     if flt:
         params["filter"] = flt
-    rows = ctx.data.get("tasks", params=params or None, portal=portal, project=project)
-    index = ctx.data.index(portal=portal, project=project)
-    for record in rows:
-        if record.get("id") and _shape.task_key(record) != str(record["id"]):
-            index.remember_key(_shape.task_key(record), record["id"])
-    return rows
+    return ctx.data.get("tasks", params=params or None, portal=portal, project=project)  # the cache learns the keys
 
 
 def _matches_status(record: dict, wanted: str) -> bool:

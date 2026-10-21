@@ -64,11 +64,20 @@ class RedactSecrets(logging.Filter):
         return True
 
 
+def _private_log_file(path: str | os.PathLike[str]) -> str | os.PathLike[str]:
+    """Create the log file 0600 if it does not exist yet (umask-proof); an existing file is left as it is."""
+    try:
+        os.close(os.open(path, os.O_CREAT | os.O_WRONLY | os.O_APPEND, 0o600))
+    except OSError:
+        pass  # FileHandler raises the real error, with the path
+    return path
+
+
 def setup_logging(settings: Settings | None) -> None:
     """Root logging to stderr (and `log_file` when set). Called once from `main()`, never at import."""
     handlers: list[logging.Handler] = [logging.StreamHandler(stream=sys.stderr)]
     if settings and settings.log_file:
-        handlers.append(logging.FileHandler(settings.log_file))
+        handlers.append(logging.FileHandler(_private_log_file(settings.log_file)))
     formatter = logging.Formatter("%(asctime)s %(levelname)-8s %(name)s: %(message)s", "%Y-%m-%dT%H:%M:%S%z")
     secrets = [settings.client_id, settings.client_secret, settings.refresh_token] if settings else []
     for handler in handlers:
@@ -79,6 +88,17 @@ def setup_logging(settings: Settings | None) -> None:
     level = (settings.log_level if settings else "INFO").upper()
     root.setLevel(level if isinstance(logging.getLevelName(level), int) else "INFO")
     logging.getLogger("urllib3").setLevel(logging.WARNING)
+
+
+def _describe_args(args: Mapping[str, Any]) -> str:
+    """The arguments a call carried, for the log: names, and the length of text values. Never the values
+    themselves (a `resolve` text can be 100k characters of someone's prose)."""
+    parts = []
+    for name, value in args.items():
+        if value in (None, False, ""):
+            continue
+        parts.append(f"{name}={len(value)}c" if isinstance(value, str) else name)
+    return ", ".join(parts)
 
 
 # --- what the tools accept, derived from the registry ----------------------------------------------------------
@@ -132,13 +152,25 @@ class _Runtime:
         self.gateway, self.env, self.today, self.registry = gateway, env, today, registry
         self._lock = threading.Lock()
 
+    def _retry_settings(self) -> None:
+        """Startup could not load the settings: try again on this call (a cheap file read), so fixing the config
+        file takes effect without restarting the server. A still-broken file updates the error shown."""
+        try:
+            self.settings = load_settings(os.environ if self.env is None else self.env)
+        except ZohoAxiError as exc:
+            self.startup_error = exc
+            return
+        self.startup_error = None
+        logger.info("settings loaded after an earlier failure")
+
     def call(self, spec: Spec, args: dict[str, Any]) -> Any:
         fmt = args.pop("format", "toon")
-        safe = {k: v for k, v in args.items() if v not in (None, False, "")}
-        tool_logger.info("-> %s(%s)", spec.name, safe)
+        tool_logger.info("-> %s(%s)", spec.name, _describe_args(args))
         with self._lock:
             ctx = None
             try:
+                if self.settings is None:
+                    self._retry_settings()
                 if self.settings is None:
                     raise self.startup_error or RuntimeError("settings were not loaded")
                 if self.gateway is None:
@@ -163,7 +195,29 @@ class _Runtime:
         tool_logger.info("<- %s ok", spec.name)
         if not sink:
             return rendered.text
-        return [rendered.text, *(Image(data=i.data, format=i.content_type.split("/", 1)[-1]) for i in sink if i.data)]
+        return _with_images(rendered.text, sink)
+
+
+_INLINE_FORMATS = {"png": "png", "jpeg": "jpeg", "jpg": "jpeg", "gif": "gif", "webp": "webp"}
+
+
+def _with_images(text: str, images: Sequence[Any]) -> list[Any]:
+    """The text, then each image inline. Only png/jpeg/gif/webp are sent (the formats MCP clients render); any other
+    type (`svg+xml`, tiff, ...) is skipped with a line in the text instead of an invalid `Image` format."""
+    content: list[Any] = []
+    notes: list[str] = []
+    for image in images:
+        if not image.data:
+            continue
+        mime = image.content_type.split(";")[0].strip().lower()
+        fmt = _INLINE_FORMATS.get(mime.split("/", 1)[-1]) if mime.startswith("image/") else None
+        if fmt is None:
+            notes.append(f"{image.name} not shown inline ({mime or 'unknown type'} is not png, jpeg, gif or webp)")
+        else:
+            content.append(Image(data=image.data, format=fmt))
+    if notes:
+        text = text + "\n" + "\n".join(f"warning: {n}" for n in notes)
+    return [text, *content]
 
 
 def _tool(spec: Spec, runtime: _Runtime) -> Tool:

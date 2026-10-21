@@ -95,6 +95,12 @@ class ZohoAuth:
                 self._refresh()
             return self._access_token  # type: ignore[return-value]
 
+    def invalidate(self) -> None:
+        """Forget the cached access token (Zoho answered 401 to it): the next `get_access_token` refreshes."""
+        with self._lock:
+            self._access_token = None
+            self._expires_at = 0.0
+
     def validate(self) -> None:
         with self._lock:
             self._refresh()

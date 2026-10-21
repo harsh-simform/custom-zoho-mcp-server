@@ -232,12 +232,23 @@ class CacheStore:
             return []
 
     def key_put(self, portal: str, project: str, kind: str, key: str, ident: str) -> None:
-        conn = self._connect()
+        self.key_put_many(portal, project, kind, [(key, ident)])
+
+    def key_put_many(self, portal: str, project: str, kind: str, pairs: list[tuple[str, str]]) -> None:
+        """Remember (key, id) pairs in ONE transaction: a 100-row page is a single commit, not 100 autocommits."""
+        conn = self._connect() if pairs else None
         if conn is None:
             return
+        now = self.now()
         try:
-            conn.execute("INSERT OR REPLACE INTO task_keys VALUES (?,?,?,?,?,?)",
-                         (portal, project, kind, key.upper(), ident, self.now()))
+            conn.execute("BEGIN IMMEDIATE")
+            try:
+                conn.executemany("INSERT OR REPLACE INTO task_keys VALUES (?,?,?,?,?,?)",
+                                 [(portal, project, kind, key.upper(), ident, now) for key, ident in pairs])
+                conn.execute("COMMIT")
+            except BaseException:
+                conn.execute("ROLLBACK")
+                raise
         except sqlite3.Error as exc:
             self._failed(exc)
 
@@ -350,9 +361,16 @@ class CachedGateway:
             self._store.index_put(kind, portal, "" if kind in _PORTAL_WIDE else project, rows, replace=complete)
         key_kind = _KEY_KIND.get(resource)
         if key_kind is not None:
+            pairs = []
             for record in value if isinstance(value, list) else [value]:
-                if isinstance(record, dict) and record.get("id") and isinstance(record.get("key"), str) and record["key"]:
-                    self._store.key_put(portal, project, key_kind, record["key"], str(record["id"]))
+                if not isinstance(record, dict) or not record.get("id"):
+                    continue
+                # v3 spells the human key `prefix`, legacy `key`
+                human = next((record[f].strip() for f in ("prefix", "key")
+                              if isinstance(record.get(f), str) and record[f].strip()), "")
+                if human:
+                    pairs.append((human, str(record["id"])))
+            self._store.key_put_many(portal, project, key_kind, pairs)
 
 
 def _norm_name(text: str) -> str:
@@ -449,7 +467,7 @@ def cache_status(path: Path | None = None, *, clock: Callable[[], float] = time.
     warnings: list[str] = []
     if path.exists():
         try:
-            conn = sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=2)
+            conn = sqlite3.connect(f"{path.resolve().as_uri()}?mode=ro", uri=True, timeout=2)  # as_uri percent-encodes ? # %
             try:
                 count, oldest = conn.execute("SELECT COUNT(*), MIN(fetched_at) FROM entries").fetchone()
                 counts["entries"] = count

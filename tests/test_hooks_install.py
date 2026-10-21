@@ -65,6 +65,56 @@ def test_install_without_yes_prints_the_diff_and_changes_nothing(home):
     assert "zoho-axi hooks install --yes" in out  # the next step, as a hint
 
 
+def test_the_cli_prints_the_diff_as_an_actual_unified_diff_not_toon_rows(home):
+    write_settings(home, {"model": "opus"})
+    path = settings_path(home)
+    code, out, _ = run(home, "hooks", "install")
+    assert code == 0
+    expected_diff = f'''--- {path}
++++ {path}
+@@ -1,3 +1,17 @@
+ {{
+-  "model": "opus"
++  "model": "opus",
++  "hooks": {{
++    "SessionStart": [
++      {{
++        "matcher": "startup|resume|clear|compact",
++        "hooks": [
++          {{
++            "type": "command",
++            "command": "zoho-axi session-start",
++            "timeout": 10
++          }}
++        ]
++      }}
++    ]
++  }}
+ }}'''
+    lines = out.splitlines()
+    assert lines[:2] == [f"file: {path}", "status: dry run"]
+    assert "\n".join(lines[2:2 + len(expected_diff.splitlines())]) == expected_diff  # verbatim lines, indentation intact
+    assert "diff[" not in out and '"' not in lines[2]  # not quoted TOON rows
+    assert lines[-2:] == ["help[1]{run}:", "  zoho-axi hooks install --yes"]  # the next step stays after the diff
+
+
+def test_json_keeps_the_diff_structured(home):
+    write_settings(home, {"model": "opus"})
+    code, out, _ = run(home, "hooks", "install", "--json")
+    doc = json.loads(out)
+    assert code == 0 and doc["status"] == "dry run"
+    assert doc["diff"][0] == {"text": f"--- {settings_path(home)}"}
+    assert {"text": '+            "command": "zoho-axi session-start",'} in doc["diff"]
+
+
+def test_diff_lines_with_entities_and_tag_like_text_keep_their_indentation(home):
+    write_settings(home, {"statusLine": "echo  <module> &amp; <KEY>  x"})
+    code, out, _ = run(home, "hooks", "install")
+    assert code == 0
+    assert '-  "statusLine": "echo  <module> &amp; <KEY>  x"' in out.splitlines()
+    assert '+  "statusLine": "echo  <module> &amp; <KEY>  x",' in out.splitlines()
+
+
 def test_install_without_yes_on_a_machine_without_claude_settings_creates_nothing(home):
     code, out, _ = run(home, "hooks", "install")
     assert code == 0 and "status: dry run" in out
@@ -113,6 +163,27 @@ def test_uninstall_restores_the_original_settings(home):
     code, out, _ = run(home, "hooks", "uninstall", "--yes")
     assert code == 0 and "status: removed" in out
     assert read(home) == ORIGINAL
+
+
+def test_install_then_uninstall_keeps_the_users_original_bytes_recoverable(home):
+    original = write_settings(home, ORIGINAL)
+    run(home, "hooks", "install", "--yes")
+    installed = settings_path(home).read_text()
+    code, out, _ = run(home, "hooks", "uninstall", "--yes")
+    assert code == 0 and "status: removed" in out
+    folder = settings_path(home).parent
+    assert (folder / "settings.json.bak").read_text() == original  # the first backup is never overwritten
+    assert (folder / "settings.json.bak.1").read_text() == installed  # later ones get a numbered name
+    assert f"backup: {folder / 'settings.json.bak.1'}" in out  # and the result says where it went
+
+
+def test_a_backup_identical_to_an_existing_one_is_not_duplicated(home):
+    write_settings(home, ORIGINAL)
+    run(home, "hooks", "install", "--yes")
+    run(home, "hooks", "uninstall", "--yes")  # settings.json now equals the original again
+    run(home, "hooks", "install", "--yes")  # backs up the original-equal file: .bak already holds those bytes
+    folder = settings_path(home).parent
+    assert sorted(p.name for p in folder.iterdir()) == ["settings.json", "settings.json.bak", "settings.json.bak.1"]
 
 
 def test_uninstall_after_a_fresh_install_leaves_an_empty_settings_object(home):
@@ -226,8 +297,8 @@ def test_a_relative_home_is_refused(tmp_path, monkeypatch):
 def test_the_diff_keeps_the_indentation_of_the_json_lines(home):
     write_settings(home, {"model": "opus"})
     out = run(home, "hooks", "install")[1]
-    assert '"+  \\"hooks\\": {"' in out  # TOON-quoted, but both leading spaces of the added line survive
-    assert '"+    \\"SessionStart\\": ["' in out
+    assert '+  "hooks": {' in out.splitlines()  # raw diff lines: both leading spaces of the added line survive
+    assert '+    "SessionStart": [' in out.splitlines()
 
 
 def test_the_injected_home_is_used_not_the_process_home(home, real_home_is_off_limits):
