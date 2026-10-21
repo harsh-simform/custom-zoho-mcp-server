@@ -8,6 +8,7 @@ requires-python = ">=3.10"
 dependencies = [
     "mcp>=2.0.0",
     "requests>=2.31.0",
+    "truststore>=0.9.1",  # verify TLS with the OS certificate store (corporate proxies that re-sign HTTPS)
     "python-dotenv>=1.0.0",
     "tomli>=2.0.0; python_version < '3.11'",
 ]

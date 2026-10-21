@@ -9,6 +9,7 @@ from typing import Callable
 
 from .config import Settings
 from .errors import AuthError, RateLimitedError, UpstreamError
+from .transport import describe_transport_error, unreachable_hint
 
 logger = logging.getLogger(__name__)
 
@@ -59,8 +60,8 @@ class ZohoAuth:
         except OSError as exc:  # requests' exceptions, timeouts and connection errors all derive from OSError
             raise UpstreamError(
                 "upstream.unreachable",
-                f"Could not reach {self._settings.accounts_base}: {type(exc).__name__}",
-                hint="Check your network connection and the `dc` (data center) setting, then retry.",
+                f"Could not reach {self._settings.accounts_base}: {describe_transport_error(exc)}",
+                hint=unreachable_hint(exc),
             ) from None
 
         token = body.get("access_token") if isinstance(body, dict) else None

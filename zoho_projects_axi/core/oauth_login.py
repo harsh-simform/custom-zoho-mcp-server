@@ -20,6 +20,7 @@ from urllib.parse import parse_qs, urlencode, urlsplit
 from .auth import PostFn, TOKEN_TIMEOUT_SECONDS
 from .config import VALID_DATA_CENTERS, Settings
 from .errors import AuthError, ConfigError, UpstreamError, UsageError
+from .transport import describe_transport_error, unreachable_hint
 
 DEFAULT_PORT = 8765
 LOGIN_TIMEOUT_SECONDS = 300
@@ -216,8 +217,8 @@ def authorize(
     except OSError as exc:
         raise UpstreamError(
             "upstream.unreachable",
-            f"Could not reach {account.accounts_base}: {type(exc).__name__}",
-            hint="Check your network connection and the `dc` (data center) setting, then retry.",
+            f"Could not reach {account.accounts_base}: {describe_transport_error(exc)}",
+            hint=unreachable_hint(exc),
         ) from None
 
     refresh = body.get("refresh_token") if isinstance(body, dict) else None

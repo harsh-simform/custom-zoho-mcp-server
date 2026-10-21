@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- **TLS behind a re-signing proxy (Zscaler and the like).** Every Zoho request failed with `CERTIFICATE_VERIFY_FAILED`
+  on such networks, because `requests` checked certificates against its own bundle instead of the operating system's
+  store. Requests now use the OS trust store (`truststore`); if it is missing or unsupported the bundled certificates
+  stay in use.
+- **`upstream.unreachable` now names the cause** (`SSLError`, `ConnectTimeout`, ...) instead of always `TransportError`,
+  and a TLS failure hints at `SSL_CERT_FILE` / `REQUESTS_CA_BUNDLE`.
+
 ### Changed: renamed to zoho-projects-axi
 
 - The distribution, the command (`zoho-projects-axi`), the Python package (`zoho_projects_axi`), the MCP server name,

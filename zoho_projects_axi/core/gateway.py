@@ -18,7 +18,8 @@ from .config import Settings
 from .errors import AuthError, NotFoundError, RateLimitedError, UpstreamError
 from .limiter import DEFAULT_LIMIT, DEFAULT_MAX_WAIT_SECONDS, DEFAULT_WINDOW_SECONDS, RateLimiter
 from .resources import RESOURCES, Resource, normalize
-from .transport import PayloadTooLarge, ReadOnlyTransport, Transport, TransportResponse
+from .transport import (PayloadTooLarge, ReadOnlyTransport, Transport, TransportResponse, describe_transport_error,
+                        unreachable_hint)
 
 logger = logging.getLogger(__name__)
 
@@ -157,8 +158,8 @@ class ZohoGateway:
         except OSError as exc:
             raise UpstreamError(
                 "upstream.unreachable",
-                f"Could not reach Zoho: {type(exc).__name__}",
-                hint="Check your network connection and the `dc` (data center) setting, then retry.",
+                f"Could not reach Zoho: {describe_transport_error(exc)}",
+                hint=unreachable_hint(exc),
             ) from None
 
     def _check(self, response: TransportResponse, label: str) -> TransportResponse:

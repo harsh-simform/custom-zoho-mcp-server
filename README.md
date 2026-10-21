@@ -346,6 +346,11 @@ and needs `--yes`. Images saved by `--images` go to `~/.cache/zoho-projects-axi/
   matches exactly and that the client is enabled for your data center. `auth.missing`: no client is configured, see
   `auth login-help`. No browser (ssh)? Run `auth login --no-browser` and open the URL on your machine; the redirect
   must reach the same host, so use a Self Client there instead.
+- **`upstream.unreachable ... SSLError` (CERTIFICATE_VERIFY_FAILED).** Your network re-signs HTTPS traffic (Zscaler or
+  another corporate proxy), so `curl` works but a bundled-certificate Python does not. zoho-projects-axi verifies
+  against the operating system's certificate store (via `truststore`), which fixes this on current releases. On an
+  older build, or if it still fails, point `SSL_CERT_FILE` or `REQUESTS_CA_BUNDLE` at your organization's root
+  certificate (PEM) and retry. The error names the cause (`SSLError`, `ConnectTimeout`, ...), never the URL.
 - **Plugin cannot start (the launcher says it needs uv).** Install [uv](https://docs.astral.sh/uv/) (`brew install uv`)
   and restart Claude Code. The first run builds the package, so it takes a few seconds; later runs use uv's cache.
 - **MCP tools say "Not signed in" right after login.** The server started before the token existed: reconnect it
