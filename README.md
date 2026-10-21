@@ -48,13 +48,13 @@ Requires Python 3.10 or newer. Install from git as an isolated tool, which puts 
 `zoho`) on your `PATH`:
 
 ```bash
-uv tool install git+https://github.com/harsh-simform/custom-zoho-mcp-server
+uv tool install git+https://github.com/harsh-simform/zoho-axi
 ```
 
 or
 
 ```bash
-pipx install git+https://github.com/harsh-simform/custom-zoho-mcp-server
+pipx install git+https://github.com/harsh-simform/zoho-axi
 ```
 
 Upgrade with `uv tool upgrade zoho-axi` or `pipx upgrade zoho-axi`. Check the install:
@@ -78,7 +78,7 @@ All settings live in one TOML file, `~/.config/zoho-axi/config.toml` (or `$XDG_C
 
    ```bash
    mkdir -p ~/.config/zoho-axi
-   curl -sO https://raw.githubusercontent.com/harsh-simform/custom-zoho-mcp-server/main/config.example.toml
+   curl -sO https://raw.githubusercontent.com/harsh-simform/zoho-axi/main/config.example.toml
    cp config.example.toml ~/.config/zoho-axi/config.toml
    chmod 600 ~/.config/zoho-axi/config.toml
    ```
