@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from ..core.commands import auth, cache, home, people, project, task, tasks
+from ..core.commands import auth, bug, cache, home, people, project, task, tasks
 from ..core.commands.base import Command
 
 
@@ -89,6 +89,12 @@ REGISTRY: tuple[Spec, ...] = (
                 Flag("--subtasks", "list subtasks (unverified: Zoho cannot filter by parent)"),
                 Flag("--attachments", "list attachment names, types and sizes")),
          examples=("zoho-axi task PROJ1-T1000", "zoho-axi task 4000000012345 --comments --full")),
+    Spec("bug", "one bug: status, severity, owner, counts; add slices for comments, attachments, linked task", bug.bug,
+         args=(Arg("ref", "bug key (PROJ1-I12) or numeric id"),),
+         flags=(Flag("--comments", "show the last 3 comments (--full: all)"),
+                Flag("--attachments", "list attachment names, types and sizes"),
+                Flag("--task", "summarize the linked task (unverified: depends on `associated_task`)")),
+         examples=("zoho-axi bug PROJ1-I12", "zoho-axi bug 4000000012345 --comments --task")),
     Spec("cache status", "cache size, entry counts and the oldest entry", cache.status,
          examples=("zoho-axi cache status", "zoho-axi cache status --json")),
     Spec("cache clear", "delete the cache and derived index (needs --yes; never prompts)", cache.clear,

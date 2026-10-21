@@ -10,6 +10,7 @@ commands:
   people           list the portal's users and tags (both by default)
   tasks            list tasks: key, title, status, owner, with totals by status
   task             one task: status, owner, counts; add slices for comments, history, subtasks, attachments
+  bug              one bug: status, severity, owner, counts; add slices for comments, attachments, linked task
   cache status     cache size, entry counts and the oldest entry
   cache clear      delete the cache and derived index (needs --yes; never prompts)
 global flags:

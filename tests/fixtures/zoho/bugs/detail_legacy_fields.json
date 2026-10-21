@@ -1,0 +1,34 @@
+{
+  "_provenance": {
+    "groups": {
+      "legacy field spellings (key, title, severity.type, module.name, assignee_name, reported_person, due_date MM-dd-yyyy)": "documented: legacy Bugs API (https://www.zoho.com/projects/help/rest-api/bugs-api.html); served here at the gateway's /bugs path, which is unverified for these spellings",
+      "description": "invented: the v3 issue object lists none; the legacy bug detail has `description`",
+      "associated_task as a one-element list": "invented: tolerance check, not a known Zoho shape",
+      "values": "invented"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/projects/20000000001/bugs/40000000001",
+      "status": 200,
+      "json": {
+        "id": 40000000001,
+        "key": "DM1-I1",
+        "title": "Postcode validation missing on checkout form",
+        "description": "<div>Entering <b>12-34</b> as the postcode is accepted and the payment step then fails.</div>",
+        "severity": {"id": 2004238243565, "type": "Show Stopper"},
+        "status": {"id": 253239530222, "type": "Open"},
+        "classification": {"id": 4188227652234, "type": "Functional"},
+        "module": {"id": 3244603982371, "name": "Checkout"},
+        "reported_person": "Hugo Okoye",
+        "assignee_name": "Hugo Voss",
+        "created_time": "02-20-2026",
+        "created_time_long": 1771586758000,
+        "due_date": "03-31-2026",
+        "associated_task": [{"id": 30000000001, "name": "Fix checkout validation", "prefix": "DM1-T2"}]
+      }
+    }
+  ]
+}

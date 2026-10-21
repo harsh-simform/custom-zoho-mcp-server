@@ -1,0 +1,15 @@
+bug: DM1-I1
+title: Postcode validation missing on checkout form
+status: Open
+severity: Critical
+owner: Hugo Voss
+reporter: Hugo Okoye
+module: Checkout
+created: 2026-02-20
+task: DM1-T2
+counts: comments=1 attachments=2 images=1
+comments[1]{by,at,text}:
+  Hugo Voss,2026-03-05,Attaching a screenshot of the failing request.
+help[2]{run}:
+  zoho-axi bug DM1-I1 --attachments
+  zoho-axi bug DM1-I1 --task

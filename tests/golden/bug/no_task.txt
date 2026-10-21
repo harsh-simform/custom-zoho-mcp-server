@@ -1,0 +1,9 @@
+bug: DM1-I2
+title: Footer links 404 on mobile
+status: In Progress
+severity: Minor
+owner: Hugo Shah
+reporter: Hugo Okoye
+module: Checkout
+created: 2026-02-20
+counts: comments=0 attachments=0

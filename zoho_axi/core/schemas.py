@@ -4,8 +4,8 @@ List rows carry 3-4 fields; a detail view about 8-9. `--full` ignores these and 
 gateway returned. Field names are the already-normalized ones from the Zoho gateway (T02). Commands
 extend or adjust this table; nothing else in the code base lists display fields.
 
-Entries for task/comment are taken from the T05/T08 specs; bug, history and attachment are
-invented-but-plausible and should be confirmed against real fixtures by T08/T09. The T10 entries
+Entries for task/comment are taken from the T05/T08 specs; bug (T09) and history/attachment follow the
+synthetic fixtures and should be confirmed against real recordings. The T10 entries
 (project, default, tasklist, milestone, user, tag, people, home, due_task) are what the `project`,
 `tasks`, `people` and `home` commands emit, built against the research-note shapes rather than
 recorded responses: confirm them when T04's fixtures exist.
@@ -29,6 +29,7 @@ class Schema:
     text_fields: tuple[str, ...] = ()     # long-text fields of a detail view, rendered after `counts`
     id_field: str | None = None     # detail header value; excluded from the field lines
     sections: Mapping[str, str] = field(default_factory=dict)  # payload key -> entity of its rows
+    text_limit: int | None = None   # detail text cut-off in characters; None = the renderer's default
 
 
 SCHEMAS: dict[str, Schema] = {s.name: s for s in (
@@ -44,10 +45,11 @@ SCHEMAS: dict[str, Schema] = {s.name: s for s in (
     Schema(
         "bug", "bugs",
         list_fields=("key", "title", "status", "severity"),
-        detail_fields=("title", "status", "severity", "owner", "reporter", "due", "milestone"),
+        detail_fields=("title", "status", "severity", "owner", "reporter", "module", "created", "due", "task"),
         text_fields=("description",),
         id_field="key",
-        sections={"comments": "comment", "attachments": "attachment"},
+        sections={"comments": "comment", "attachments": "attachment", "linked_task": "task"},
+        text_limit=1000,  # the bug default view has a 500-token budget (T09)
     ),
     Schema("comment", "comments", list_fields=("by", "at", "text")),
     Schema("history", "history", list_fields=("at", "by", "from", "to")),

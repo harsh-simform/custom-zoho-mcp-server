@@ -217,7 +217,9 @@ def test_bug_search_has_two_shapes_the_code_and_the_docs_disagree_on(tmp_path):
     assert [(h["key"], h["id"]) for h in code_shape] == [("DM1-I1", BUG)]
     docs_shape = make_gateway(tmp_path, replay_for("search/bug_hit_docs_shape")).get(
         "search", params={"search_term": "DM1-I1", "module": "bugs"}, **IDS)
-    assert docs_shape == []  # the documented `issue` wrapper is not recognised by the search resource (README: gaps)
+    # the documented `issue` wrapper is recognised since T09 (the hit keeps Zoho's own field names)
+    assert [(h["prefix"], h["issue_id"]) for h in docs_shape] == [("DM1-I1", 40000000001)]
+    assert [h["issue_id_str"] for h in docs_shape] == [BUG]
 
 
 # --- quirk 5: field casing varies (FILENAME vs file_name) ----------------------------------------
