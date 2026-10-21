@@ -1,0 +1,3 @@
+error: not_found.task
+message: Task PROJ1-T9999 was not found in project PROJ1
+hint: "Check the key, or run zoho-axi tasks to list tasks"

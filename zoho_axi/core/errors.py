@@ -22,6 +22,12 @@ class ConfigError(ZohoAxiError):
     exit_code = EXIT_AUTH
 
 
+class UsageError(ZohoAxiError):
+    """Unknown flag/subcommand or invalid argument; never prompts, exit 2."""
+
+    exit_code = EXIT_USAGE
+
+
 class AuthError(ZohoAxiError):
     exit_code = EXIT_AUTH
 

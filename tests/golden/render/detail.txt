@@ -1,0 +1,16 @@
+task: PROJ1-T1000
+title: Fix login redirect loop
+status: In Progress
+owner: Asha K
+priority: High
+due: 2026-10-30
+tasklist: Auth
+counts: comments=7 subtasks=2 attachments=3 history=4
+description: Users bounce between /login and /home after the OAuth callback.
+comments[2]{by,at,text}:
+  Asha K,2026-10-18,Repro on staging only
+  Ravi P,2026-10-19,Cleared the cookie jar and it still loops
+help[3]{run}:
+  zoho-axi task PROJ1-T1000 --comments --full
+  zoho-axi task PROJ1-T1000 --history
+  zoho-axi task PROJ1-T1000 --images
