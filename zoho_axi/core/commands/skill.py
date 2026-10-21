@@ -3,7 +3,8 @@
 The skill ships as package data (`zoho_axi/skills/zoho-axi/SKILL.md`) and is read through
 `importlib.resources`, so it works from a wheel as well as from a source checkout. Like `hooks install`
 it shows what it would do and writes only with `--yes`; an identical copy is left untouched, and a
-different copy is replaced after being saved next to it as `SKILL.md.bak`. It never prompts.
+different copy is replaced after being saved next to it as `SKILL.md.bak` (or `.bak.1`, ... when a
+backup already exists: backups are never overwritten). It never prompts.
 """
 from __future__ import annotations
 
@@ -36,7 +37,8 @@ def install(ctx: Context) -> Result:
         payload["status"] = "dry run"
         return Result("skill", payload, help=[Hint("skill install", {"yes": True})])
 
-    if cs.write_with_backup(path, wanted):
-        payload["backup"] = f"{path}.bak"
+    backup = cs.write_with_backup(path, wanted)
+    if backup:
+        payload["backup"] = str(backup)
     payload["status"] = "installed"
     return Result("skill", payload)

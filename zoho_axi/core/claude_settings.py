@@ -196,19 +196,38 @@ def diff_rows(lines: list[str]) -> list[dict]:
     return [{"text": html.escape(line, quote=False)} for line in lines]
 
 
-def write_with_backup(path: Path, text: str) -> bool:
+def _backup_names(path: Path):
+    """`<name>.bak`, then `<name>.bak.1`, `<name>.bak.2`, ... in the order they are made."""
+    yield path.with_name(path.name + ".bak")
+    n = 1
+    while True:
+        yield path.with_name(f"{path.name}.bak.{n}")
+        n += 1
+
+
+def write_with_backup(path: Path, text: str) -> Path | None:
     """Atomically replace `path` with `text` (through a symlink, never replacing it). When the file existed,
-    its previous bytes first go to `<name>.bak` next to it. Returns True if a backup was made."""
+    its previous bytes first go to a backup next to it, and a backup is never overwritten: the first is
+    `<name>.bak` (so the user's original survives an install followed by an uninstall), later different
+    ones are `<name>.bak.1`, `.bak.2`, ... Bytes some backup already holds are not saved twice. Returns the
+    backup file that holds the previous bytes, or None when there was nothing to back up."""
     path = Path(os.path.realpath(path))
     path.parent.mkdir(parents=True, exist_ok=True)
-    backed_up = False
+    backup: Path | None = None
     mode = 0o600
     if path.is_file():
         mode = path.stat().st_mode & 0o777
-        _atomic(path.with_name(path.name + ".bak"), path.read_bytes(), mode)
-        backed_up = True
+        previous = path.read_bytes()
+        for candidate in _backup_names(path):
+            if not candidate.exists():
+                _atomic(candidate, previous, mode)
+                backup = candidate
+                break
+            if candidate.is_file() and candidate.read_bytes() == previous:
+                backup = candidate
+                break
     _atomic(path, text.encode("utf-8"), mode)
-    return backed_up
+    return backup
 
 
 def _atomic(path: Path, data: bytes, mode: int) -> None:

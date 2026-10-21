@@ -108,6 +108,18 @@ def test_a_changed_installed_copy_is_shown_as_a_diff_and_only_replaced_with_yes(
     assert installed(home).with_name("SKILL.md.bak").read_text() == edited
 
 
+def test_a_second_replacement_never_overwrites_the_first_backup(home):
+    run(home, "skill", "install", "--yes")
+    installed(home).write_text("first local edit\n")
+    run(home, "skill", "install", "--yes")
+    installed(home).write_text("second local edit\n")
+    code, out, _ = run(home, "skill", "install", "--yes")
+    assert code == 0 and "status: installed" in out
+    assert installed(home).with_name("SKILL.md.bak").read_text() == "first local edit\n"
+    assert installed(home).with_name("SKILL.md.bak.1").read_text() == "second local edit\n"
+    assert f"backup: {installed(home).with_name('SKILL.md.bak.1')}" in out
+
+
 def test_install_refuses_a_target_outside_the_injected_home(tmp_path, home):
     elsewhere = tmp_path / "elsewhere"
     elsewhere.mkdir()

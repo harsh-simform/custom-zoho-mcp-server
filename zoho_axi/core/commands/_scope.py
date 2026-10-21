@@ -96,8 +96,25 @@ def resolve_ref(ctx: Context, kind: str, text: str, portal: str, project: str) -
                         hint=f"Known {_RESOURCE[kind]}: {names(listing) or 'none'}.")
 
 
+def _reason(exc: ZohoAxiError) -> str:
+    """A short human reason for a failed sub-fetch. The gateway's own messages carry its request label
+    (`task_comments portal=... project=... task=...`); that is for debugging, not for a warning line."""
+    if exc.code == "not_found":
+        return "not found"
+    if exc.code == "auth.forbidden":
+        return "forbidden (HTTP 403)"
+    if exc.code.startswith("upstream.http_"):
+        return f"Zoho returned HTTP {exc.code.removeprefix('upstream.http_')}"
+    if exc.code == "upstream.unreachable":
+        return "could not reach Zoho"
+    if exc.code == "upstream.bad_response":
+        return "unreadable reply from Zoho"
+    return exc.message
+
+
 def optional(warnings: list[str], label: str, fetch: Callable[[], Any]) -> Any:
-    """Run a sub-fetch that the command can do without: a Zoho-side failure becomes a warning and None.
+    """Run a sub-fetch that the command can do without: a Zoho-side failure becomes a warning
+    (`<label> unavailable: <short reason>`, no ids or request details) and None.
     Rate limiting and a rejected token still stop the command, since every later call would fail too."""
     try:
         return fetch()
@@ -106,7 +123,7 @@ def optional(warnings: list[str], label: str, fetch: Callable[[], Any]) -> Any:
     except AuthError as exc:
         if exc.code != "auth.forbidden":
             raise
-        warnings.append(f"{label} unavailable: {exc.message}")
+        warnings.append(f"{label} unavailable: {_reason(exc)}")
     except ZohoAxiError as exc:
-        warnings.append(f"{label} unavailable: {exc.message}")
+        warnings.append(f"{label} unavailable: {_reason(exc)}")
     return None

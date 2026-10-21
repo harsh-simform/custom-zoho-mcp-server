@@ -115,6 +115,27 @@ def test_uninstall_restores_the_original_settings(home):
     assert read(home) == ORIGINAL
 
 
+def test_install_then_uninstall_keeps_the_users_original_bytes_recoverable(home):
+    original = write_settings(home, ORIGINAL)
+    run(home, "hooks", "install", "--yes")
+    installed = settings_path(home).read_text()
+    code, out, _ = run(home, "hooks", "uninstall", "--yes")
+    assert code == 0 and "status: removed" in out
+    folder = settings_path(home).parent
+    assert (folder / "settings.json.bak").read_text() == original  # the first backup is never overwritten
+    assert (folder / "settings.json.bak.1").read_text() == installed  # later ones get a numbered name
+    assert f"backup: {folder / 'settings.json.bak.1'}" in out  # and the result says where it went
+
+
+def test_a_backup_identical_to_an_existing_one_is_not_duplicated(home):
+    write_settings(home, ORIGINAL)
+    run(home, "hooks", "install", "--yes")
+    run(home, "hooks", "uninstall", "--yes")  # settings.json now equals the original again
+    run(home, "hooks", "install", "--yes")  # backs up the original-equal file: .bak already holds those bytes
+    folder = settings_path(home).parent
+    assert sorted(p.name for p in folder.iterdir()) == ["settings.json", "settings.json.bak", "settings.json.bak.1"]
+
+
 def test_uninstall_after_a_fresh_install_leaves_an_empty_settings_object(home):
     run(home, "hooks", "install", "--yes")
     run(home, "hooks", "uninstall", "--yes")

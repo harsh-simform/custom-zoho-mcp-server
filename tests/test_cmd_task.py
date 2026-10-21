@@ -345,6 +345,24 @@ def test_a_failing_comments_call_is_a_warning_and_the_command_still_succeeds(tmp
     assert "HTTP 500" in out
 
 
+@pytest.mark.parametrize("flag, suffix, status, reason", [
+    ("--comments", "comments", 500, "Zoho returned HTTP 500"),
+    ("--comments", "comments", 404, "not found"),
+    ("--attachments", "attachments", 403, "forbidden (HTTP 403)"),
+])
+def test_a_sub_fetch_warning_is_short_and_human_without_ids_or_gateway_labels(tmp_path, flag, suffix, status, reason):
+    replay = ReplayTransport().get(f"{BASE}/tasks/{TASK}", json=first_json("tasks/detail"))
+    replay.get(f"{BASE}/tasks/{TASK}/comments", status=status if suffix == "comments" else 204)
+    replay.get(f"{BASE}/tasks/{TASK}/attachments", status=status if suffix == "attachments" else 204)
+    if status == 404:  # the gateway retries a v3 404 on the legacy path before giving up
+        replay.get(f"{LEGACY}/tasks/{TASK}/{suffix}/", status=404)
+    code, out, _, _ = run(["task", TASK, flag], tmp_path, replay)
+    assert code == 0
+    assert f'  "{suffix} unavailable: {reason}"' in out.splitlines()
+    for leaked in ("portal=", "project=", "task_comments", "task_attachments", f"task={TASK}"):
+        assert leaked not in out
+
+
 def test_a_forbidden_attachments_call_is_a_warning_too(tmp_path):
     replay = ReplayTransport().get(f"{BASE}/tasks/{TASK}", json=first_json("tasks/detail"))
     replay.get(f"{BASE}/tasks/{TASK}/comments", status=204)
