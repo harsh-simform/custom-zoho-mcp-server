@@ -11,3 +11,6 @@ __pycache__/
 secrets.json
 build/
 dist/
+
+# Claude Code local config
+.claude/

@@ -33,7 +33,7 @@ from ..core.gateway import ZohoGateway
 from ..core.render import render_error
 from ..core.runner import execute, make_context
 
-SERVER_NAME = "custom-zoho-project-mcp-server"
+SERVER_NAME = "zoho-axi"
 TOOLS = ("project", "tasks", "task", "bug", "people", "resolve")  # `project list|use` and the rest stay CLI-only
 _GLOBAL_TOOL_FLAGS = {"--project", "--fresh", "--full"}  # --json becomes `format`; --debug is CLI-only
 _INTEGER_METAVAR = "N"  # a value flag whose metavar is N takes a whole number (--limit, --page)
