@@ -8,31 +8,34 @@ import time
 from typing import Callable
 
 from .config import Settings
-from .errors import AuthError, UpstreamError
+from .errors import AuthError, RateLimitedError, UpstreamError
 
 logger = logging.getLogger(__name__)
 
 TOKEN_TIMEOUT_SECONDS = 20
 EXPIRY_MARGIN_SECONDS = 60
 
-# (url, form data, timeout) -> parsed JSON body. Injectable so tests never touch the network;
-# T02 replaces the default with the gateway transport.
+# (url, form data, timeout) -> parsed JSON body; raises OSError when Zoho cannot be reached and
+# RateLimitedError on HTTP 429. By default this is the gateway's `token_post`, so the refresh goes
+# through the same guard, limiter, retry and transport as every other request; tests inject a fake.
 PostFn = Callable[[str, dict, float], dict]
 
 
-def _requests_post(url: str, data: dict, timeout: float) -> dict:
-    import requests
-
-    resp = requests.post(url, data=data, timeout=timeout)
-    try:
-        return resp.json()
-    except ValueError:
-        return {"error": f"non-JSON response (HTTP {resp.status_code})"}
+def _is_throttle(body: object) -> bool:
+    """Zoho answers token throttling with an error body ("too many requests ...") rather than a 429."""
+    if not isinstance(body, dict):
+        return False
+    text = " ".join(str(body.get(k, "")) for k in ("error", "error_description", "message")).lower()
+    return "too many requests" in text
 
 
 class ZohoAuth:
-    def __init__(self, settings: Settings, post: PostFn = _requests_post, clock: Callable[[], float] = time.time):
+    def __init__(self, settings: Settings, post: PostFn | None = None, clock: Callable[[], float] = time.time):
         self._settings = settings
+        if post is None:
+            from .gateway import ZohoGateway  # deferred: the gateway imports this module
+
+            post = ZohoGateway(settings).token_post
         self._post = post
         self._clock = clock
         self._access_token: str | None = None
@@ -61,6 +64,13 @@ class ZohoAuth:
             ) from None
 
         token = body.get("access_token") if isinstance(body, dict) else None
+        if not token and _is_throttle(body):
+            logger.error("OAuth refresh throttled by Zoho")
+            raise RateLimitedError(
+                "rate_limited.token",
+                "Zoho is throttling token refreshes (too many requests).",
+                hint="Wait a few minutes before retrying; repeated refreshes extend the lockout.",
+            )
         if not token:
             reason = str(body.get("error", "unknown error")) if isinstance(body, dict) else "unexpected response"
             logger.error("OAuth refresh failed: %s", reason)

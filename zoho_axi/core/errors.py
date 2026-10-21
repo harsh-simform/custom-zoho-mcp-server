@@ -34,3 +34,16 @@ class AuthError(ZohoAxiError):
 
 class UpstreamError(ZohoAxiError):
     exit_code = EXIT_UPSTREAM
+
+
+class NotFoundError(ZohoAxiError):
+    exit_code = EXIT_NOT_FOUND
+
+
+class RateLimitedError(ZohoAxiError):
+    exit_code = EXIT_RATE_LIMITED
+
+
+class ReadOnlyError(ZohoAxiError):
+    """A non-GET request was attempted. This is a programming error, never a user error, so it keeps
+    the generic exit code; it is raised before any network I/O happens."""
