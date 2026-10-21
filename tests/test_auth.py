@@ -4,7 +4,7 @@ import pytest
 
 from zoho_axi.core.auth import ZohoAuth
 from zoho_axi.core.config import load_settings
-from zoho_axi.core.errors import AuthError, UpstreamError
+from zoho_axi.core.errors import AuthError, RateLimitedError, UpstreamError
 
 SECRETS = {"id": "cid-123", "secret": "super-secret-value", "refresh": "refresh-token-value"}
 
@@ -181,3 +181,13 @@ def test_non_string_error_value_is_rendered_safely_and_hint_mentions_throttling(
         auth.get_access_token()
     assert exc.value.code == "auth.refresh_failed"
     assert "too many requests" in exc.value.hint.lower()
+
+
+def test_zoho_throttle_reply_is_a_rate_limit_error_not_a_credential_problem(tmp_path):
+    body = {"error": "Access Denied", "error_description": "You have made too many requests continuously. Try later."}
+    auth = ZohoAuth(make_settings(tmp_path), post=FakePost(body))
+    with pytest.raises(RateLimitedError) as exc:
+        auth.get_access_token()
+    assert exc.value.exit_code == 6
+    assert exc.value.code == "rate_limited.token"
+    assert "wait" in exc.value.hint.lower()
