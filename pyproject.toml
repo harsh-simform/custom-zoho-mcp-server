@@ -17,6 +17,8 @@ tokens = ["tiktoken>=0.7"]
 
 [project.scripts]
 zoho-projects-mcp = "zoho_mcp.server:main"
+zoho-axi = "zoho_axi.cli.main:console_main"
+zoho = "zoho_axi.cli.main:console_main"  # alias; `command -v zoho` found nothing on this machine
 
 [build-system]
 requires = ["setuptools>=68"]

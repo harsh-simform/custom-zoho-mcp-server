@@ -1,0 +1,14 @@
+zoho-axi: read-only Zoho Projects for agents. Output is TOON; --json gives JSON.
+usage: zoho-axi [COMMAND] [flags]   (no command = home)
+commands:
+  home             live overview (placeholder until T10); also what bare `zoho-axi` runs
+  auth status      check config and credentials, and verify the token with Zoho
+  auth login-help  how to create the Zoho Self Client and where its values go
+global flags:
+  --project P  project to use: PROJECT or PORTAL:PROJECT (default: config)
+  --fresh      bypass the cache
+  --json       print JSON instead of TOON
+  --full       show every field and never truncate text
+  --debug      print the Zoho request count to stderr
+  --help       show help
+Run `zoho-axi COMMAND --help` for a command's flags and examples.
