@@ -1,0 +1,47 @@
+{
+  "_provenance": {
+    "groups": {
+      "envelope": "documented: v3.1 Get All Portals wraps the array under `portals` (served at the v3 URL the gateway requests)",
+      "values": "invented"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portals",
+      "status": 200,
+      "json": {
+        "portals": [
+          {
+            "id": "10000000001",
+            "name": "demoportal",
+            "environment": "production",
+            "url": "https://host-be1d4b1e.example.test/portal/portal-fef921",
+            "logo_url": "https://host-91fe1555.example.test/logo.svg",
+            "timezone": "Europe/Dublin",
+            "is_default_portal": true,
+            "company_name": "demoportalexampledotcom",
+            "profile": {
+              "name": "Portal Owner",
+              "id": "4145112915507"
+            },
+            "owner": {
+              "zuid": 53657865,
+              "zpuid": "10000000001",
+              "name": "Hugo Okoye",
+              "first_name": "Hugo",
+              "last_name": "Okoye",
+              "full_name": "Hugo Okoye",
+              "email": "user-05342de3@example.test"
+            },
+            "plan_details": {
+              "project_plan": "Enterprise",
+              "bug_plan": "Enterprise"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

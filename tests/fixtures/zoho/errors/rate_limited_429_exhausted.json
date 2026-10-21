@@ -1,0 +1,68 @@
+{
+  "_provenance": {
+    "groups": {
+      "429 body": "invented",
+      "three 429s in a row": "proven-by-legacy-code: MAX_RETRIES=3 then give up"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/projects/20000000001/tasks",
+      "status": 429,
+      "json": {
+        "error": {
+          "status_code": "429",
+          "instance": "/api/v3/portal/10000000001/projects/20000000001/tasks",
+          "method": "GET",
+          "error_type": "OPERATIONAL_VALIDATION_ERROR",
+          "details": [
+            {
+              "message": "Too many requests. Please try again after some time."
+            }
+          ],
+          "title": "TOO_MANY_REQUESTS"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/projects/20000000001/tasks",
+      "status": 429,
+      "json": {
+        "error": {
+          "status_code": "429",
+          "instance": "/api/v3/portal/10000000001/projects/20000000001/tasks",
+          "method": "GET",
+          "error_type": "OPERATIONAL_VALIDATION_ERROR",
+          "details": [
+            {
+              "message": "Too many requests. Please try again after some time."
+            }
+          ],
+          "title": "TOO_MANY_REQUESTS"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/projects/20000000001/tasks",
+      "status": 429,
+      "json": {
+        "error": {
+          "status_code": "429",
+          "instance": "/api/v3/portal/10000000001/projects/20000000001/tasks",
+          "method": "GET",
+          "error_type": "OPERATIONAL_VALIDATION_ERROR",
+          "details": [
+            {
+              "message": "Too many requests. Please try again after some time."
+            }
+          ],
+          "title": "TOO_MANY_REQUESTS"
+        }
+      }
+    }
+  ]
+}

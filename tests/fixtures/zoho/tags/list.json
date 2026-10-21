@@ -1,0 +1,58 @@
+{
+  "_provenance": {
+    "groups": {
+      "envelope+fields": "documented: https://projects.zoho.com/api-docs/tags",
+      "values": "invented"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/tags",
+      "status": 200,
+      "json": {
+        "page_info": {
+          "per_page": 100,
+          "has_next_page": false,
+          "count": 2,
+          "page": 1
+        },
+        "tags": [
+          {
+            "usage_count": 3,
+            "name": "checkout",
+            "id": "1551200003123",
+            "created_by": {
+              "zpuid": "10000000001",
+              "full_name": "Hugo Okoye",
+              "name": "Hugo Okoye",
+              "last_name": "Okoye",
+              "id": "53657865",
+              "is_client_user": false,
+              "first_name": "Hugo",
+              "email": "user-05342de3@example.test"
+            },
+            "color_hexcode": "#0995ba"
+          },
+          {
+            "usage_count": 0,
+            "name": "needs-design",
+            "id": "5447804209219",
+            "created_by": {
+              "zpuid": "9100136940932",
+              "full_name": "Hugo Voss",
+              "name": "Hugo Voss",
+              "last_name": "Voss",
+              "id": "50484411",
+              "is_client_user": false,
+              "first_name": "Hugo",
+              "email": "user-c521c67d@example.test"
+            },
+            "color_hexcode": "#d359aa"
+          }
+        ]
+      }
+    }
+  ]
+}

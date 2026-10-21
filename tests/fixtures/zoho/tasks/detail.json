@@ -1,0 +1,103 @@
+{
+  "_provenance": {
+    "groups": {
+      "task fields": "documented: Get Task Details",
+      "association_info (has_subtasks=false)": "proven-by-legacy-code: context_builders.py reads association_info.has_subtasks",
+      "long HTML description": "invented (real descriptions are probably HTML: inferred)",
+      "values": "invented"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/projects/20000000001/tasks/30000000001",
+      "status": 200,
+      "json": {
+        "tasklist": {
+          "id": "50000000001"
+        },
+        "id": "30000000001",
+        "prefix": "DM1-T2",
+        "name": "Fix checkout validation",
+        "description": "<div><b>Context</b><br/>Customers report that the checkout form accepts malformed postcodes and then fails at the payment step with a generic error.</div><br/><div><b>Steps to reproduce</b></div><ol><li>Add any item to the cart.</li><li>Open <a href=\"https://host-d008987c.example.test/checkout\">checkout</a>.</li><li>Enter <code>12-34</code> as the postcode and a valid card.</li><li>Press <i>Pay now</i>.</li></ol><div><b>Expected</b>: inline validation message before the payment call.<br/><b>Actual</b>: HTTP 500 from <code>/api/orders</code> and the cart is cleared.</div><br/><table border=\"1\"><tbody><tr><td>Browser</td><td>Build</td><td>Reproduced</td></tr><tr><td>Firefox 128</td><td>2026.03.1</td><td>yes</td></tr><tr><td>Safari 17</td><td>2026.03.1</td><td>yes</td></tr></tbody></table><br/><div>Notes:&nbsp;&nbsp;see the linked design review &amp; the&nbsp;QA checklist.<br/><br/><span style=\"color:#555\">Additional background paragraph repeated to simulate a long rich-text body. The validation layer was rewritten in January; the regression likely came with that change. </span><br/><span style=\"color:#555\">Additional background paragraph repeated to simulate a long rich-text body. The validation layer was rewritten in January; the regression likely came with that change. </span><br/><span style=\"color:#555\">Additional background paragraph repeated to simulate a long rich-text body. The validation layer was rewritten in January; the regression likely came with that change. </span><br/><span style=\"color:#555\">Additional background paragraph repeated to simulate a long rich-text body. The validation layer was rewritten in January; the regression likely came with that change. </span><br/><span style=\"color:#555\">Additional background paragraph repeated to simulate a long rich-text body. The validation layer was rewritten in January; the regression likely came with that change. </span><br/><span style=\"color:#555\">Additional background paragraph repeated to simulate a long rich-text body. The validation layer was rewritten in January; the regression likely came with that change. </span><br/><span style=\"color:#555\">Additional background paragraph repeated to simulate a long rich-text body. The validation layer was rewritten in January; the regression likely came with that change. </span><br/><span style=\"color:#555\">Additional background paragraph repeated to simulate a long rich-text body. The validation layer was rewritten in January; the regression likely came with that change. </span><br/></div>",
+        "status": {
+          "id": "9100136940932",
+          "name": "In Progress",
+          "color": "#f5a623",
+          "color_hexcode": "#f5a623",
+          "is_closed_type": false
+        },
+        "color": "#f5a623",
+        "priority": "high",
+        "owners_and_work": {
+          "work_type": "standard",
+          "total_work": "06:00",
+          "unit": "hours_per_day",
+          "copy_task_duration": false,
+          "owners": [
+            {
+              "zuid": 50484411,
+              "zpuid": "9100136940932",
+              "name": "Hugo Voss",
+              "email": "user-c521c67d@example.test",
+              "first_name": "Hugo",
+              "last_name": "Voss",
+              "work_values": "06:00"
+            }
+          ]
+        },
+        "duration": {
+          "value": "3",
+          "type": "days"
+        },
+        "completion_percentage": 60,
+        "sequence": {
+          "sequence": 2
+        },
+        "depth": 0,
+        "created_time": "2026-03-02T09:15:00.000Z",
+        "last_modified_time": "2026-03-10T14:02:11.250Z",
+        "is_completed": false,
+        "created_via": "web",
+        "created_by": {
+          "zuid": 53657865,
+          "zpuid": "10000000001",
+          "name": "Hugo Okoye",
+          "email": "user-05342de3@example.test",
+          "first_name": "Hugo",
+          "last_name": "Okoye"
+        },
+        "billing_type": "none",
+        "budget_info": {
+          "exchange_rate": 1.0
+        },
+        "association_info": {
+          "has_reminder": false,
+          "has_recurrence": false,
+          "has_comments": true,
+          "has_attachments": false,
+          "has_forums": false,
+          "has_subtasks": false
+        },
+        "updated_by": {
+          "zuid": 50484411,
+          "zpuid": "9100136940932",
+          "name": "Hugo Voss",
+          "email": "user-c521c67d@example.test",
+          "first_name": "Hugo",
+          "last_name": "Voss"
+        },
+        "log_hours": {
+          "billable_hours": "00:00",
+          "non_billable_hours": "03:30",
+          "total_hours": "03:30"
+        },
+        "start_after": {
+          "value": -1,
+          "unit": "days"
+        }
+      }
+    }
+  ]
+}

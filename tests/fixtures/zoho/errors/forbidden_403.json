@@ -1,0 +1,30 @@
+{
+  "_provenance": {
+    "groups": {
+      "envelope": "documented: v3 FORBIDDEN",
+      "values": "invented"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/projects/20000000001/tasks/30000000001",
+      "status": 403,
+      "json": {
+        "error": {
+          "status_code": "403",
+          "instance": "/api/v3/portal/10000000001/projects/20000000001/tasks/30000000001",
+          "method": "GET",
+          "error_type": "OPERATIONAL_VALIDATION_ERROR",
+          "details": [
+            {
+              "message": "You do not have permission to view this task."
+            }
+          ],
+          "title": "FORBIDDEN"
+        }
+      }
+    }
+  ]
+}

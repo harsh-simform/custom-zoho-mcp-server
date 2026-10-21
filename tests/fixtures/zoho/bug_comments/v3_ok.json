@@ -1,0 +1,104 @@
+{
+  "_provenance": {
+    "groups": {
+      "envelope+fields": "documented: Issue Comments (added_by, last_modified_by)",
+      "values": "invented"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/projects/20000000001/bugs/40000000001/comments",
+      "status": 200,
+      "json": {
+        "comments": [
+          {
+            "created_time": "2026-03-05T05:22:05.210Z",
+            "can_edit_comment": true,
+            "last_modified_time": "2026-03-05T05:22:05.210Z",
+            "can_delete_comment": true,
+            "added_by": {
+              "zpuid": "9100136940932",
+              "full_name": "Hugo Voss",
+              "name": "Hugo Voss",
+              "last_name": "Voss",
+              "id": 50484411,
+              "is_client_user": false,
+              "first_name": "Hugo",
+              "email": "user-c521c67d@example.test"
+            },
+            "added_via": "Projects",
+            "comment": "Attaching a screenshot of the failing request.",
+            "id": "55028633596539",
+            "last_modified_by": {
+              "zpuid": "9100136940932",
+              "full_name": "Hugo Voss",
+              "name": "Hugo Voss",
+              "last_name": "Voss",
+              "id": 50484411,
+              "is_client_user": false,
+              "first_name": "Hugo",
+              "email": "user-c521c67d@example.test"
+            },
+            "attachments": [
+              {
+                "app_name": "",
+                "created_time": "2026-03-05T05:21:00.771Z",
+                "permanent_url": "https://workdrive.zoho.com/file/fakecmt0001",
+                "associated_by": {
+                  "zpuid": "9100136940932",
+                  "full_name": "Hugo Voss",
+                  "name": "Hugo Voss",
+                  "last_name": "Voss",
+                  "id": 50484411,
+                  "is_client_user": false,
+                  "first_name": "Hugo",
+                  "email": "user-c521c67d@example.test"
+                },
+                "preview_url": "https://host-77e8b9b4.example.test/thumbnail/WD/fakecmt0001",
+                "file_info": {
+                  "size": "41970",
+                  "name": "request-failure.png",
+                  "id": "fakecmt0001",
+                  "type": "image/png"
+                },
+                "download_url": "https://download.zoho.com/v1/workdrive/download/fakecmt0001",
+                "id": "51616104061035",
+                "created_by": {
+                  "zpuid": "9100136940932",
+                  "full_name": "Hugo Voss",
+                  "name": "Hugo Voss",
+                  "last_name": "Voss",
+                  "id": 50484411,
+                  "is_client_user": false,
+                  "first_name": "Hugo",
+                  "email": "user-c521c67d@example.test"
+                },
+                "entity": {
+                  "id": "55028633596539",
+                  "type": "bug_comment"
+                },
+                "associated_time": "2026-03-05T05:21:00.771Z"
+              }
+            ]
+          }
+        ],
+        "page_info": {
+          "per_page": 100,
+          "has_next_page": false,
+          "count": 1,
+          "page": 1,
+          "sort_by": [
+            {
+              "field_names": [
+                "created_time"
+              ],
+              "order_by": "ASCENDING"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

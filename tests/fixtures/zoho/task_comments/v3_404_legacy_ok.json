@@ -1,0 +1,68 @@
+{
+  "_provenance": {
+    "groups": {
+      "fallback sequence": "proven-by-legacy-code: client.py get_task_comments; maintainer's harness plan records v3 404 + legacy ok",
+      "legacy body (text in `content`)": "documented: legacy tasks API",
+      "values": "invented"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/projects/20000000001/tasks/30000000001/comments",
+      "status": 404,
+      "json": {
+        "error": {
+          "status_code": "404",
+          "instance": "/api/v3/portal/10000000001/projects/20000000001/tasks/30000000001/comments",
+          "method": "GET",
+          "error_type": "FIELDS_VALIDATION_ERROR",
+          "details": [
+            {
+              "message": "Resource Not Found"
+            }
+          ],
+          "title": "RESOURCE_NOT_FOUND"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/restapi/portal/10000000001/projects/20000000001/tasks/30000000001/comments/",
+      "status": 200,
+      "json": {
+        "comments": [
+          {
+            "id": 75614765435832,
+            "id_string": "75614765435832",
+            "content": "Reproduced on staging.",
+            "added_by": "50484411",
+            "added_person": "Bea Fixture",
+            "created_time": "03-03-2026 09:50 AM",
+            "created_time_long": 1772531440313,
+            "created_time_format": "03-03-2026 09:50 AM",
+            "project": {
+              "id": 20000000001,
+              "name": "Demo Website Redesign"
+            }
+          },
+          {
+            "id": 15801245634241,
+            "id_string": "15801245634241",
+            "content": "Linking the design review.",
+            "added_by": "53657865",
+            "added_person": "Alex Sample",
+            "created_time": "03-04-2026 11:02 AM",
+            "created_time_long": 1772622130100,
+            "created_time_format": "03-04-2026 11:02 AM",
+            "project": {
+              "id": 20000000001,
+              "name": "Demo Website Redesign"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
