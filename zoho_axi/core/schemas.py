@@ -57,6 +57,12 @@ SCHEMAS: dict[str, Schema] = {s.name: s for s in (
     Schema("milestone", "milestones", list_fields=("id", "name", "due", "status")),
     Schema("user", "users", list_fields=("id", "name", "role")),
     Schema("tag", "tags", list_fields=("id", "name")),
+    # T06 commands (home is a placeholder until T10)
+    Schema("auth", "auths", list_fields=("credentials", "token"), detail_fields=(
+        "config_file", "config_file_exists", "credentials", "token", "token_error", "settings")),
+    Schema("step", "steps", list_fields=("text",)),
+    Schema("home", "homes", list_fields=("project",),
+           detail_fields=("portal", "project", "credentials", "note")),
 )}
 
 

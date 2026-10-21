@@ -1,0 +1,8 @@
+usage: zoho-axi auth status [--offline]
+check config and credentials, and verify the token with Zoho
+options:
+  --offline  skip the token check (no network)
+global flags: --project --fresh --json --full --debug --help (see `zoho-axi --help`)
+examples:
+  zoho-axi auth status
+  zoho-axi auth status --offline
