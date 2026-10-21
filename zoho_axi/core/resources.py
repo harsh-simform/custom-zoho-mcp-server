@@ -52,7 +52,9 @@ RESOURCES: dict[str, Resource] = {
     "projects": Resource(f"{_P}/projects", f"{_P}/projects/", many=True, keys=("projects",)),
     "project": Resource(_PR, keys=("projects",)),
     # No confirmed v3 equivalent; needs the ZohoProjects.search.READ scope. params: search_term, module.
-    "search": Resource(None, f"{_PR}/search", many=True, keys=("tasks", "bugs")),
+    # Hits sit under the module name: `tasks`, `bugs` (what the legacy code reads) or `issue` (what the legacy
+    # search docs show for bugs, with issue_id / issue_id_str / prefix / issue_title); which one is real is unverified.
+    "search": Resource(None, f"{_PR}/search", many=True, keys=("tasks", "bugs", "issue")),
     "users": Resource(f"{_P}/users", many=True, keys=("users",)),
     "tags": Resource(f"{_P}/tags", many=True, keys=("tags",)),
     "tasklists": Resource(f"{_PR}/tasklists", many=True, keys=("tasklists",)),

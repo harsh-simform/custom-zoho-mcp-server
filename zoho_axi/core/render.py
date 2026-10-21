@@ -66,7 +66,7 @@ def _check(mode: str, fmt: str) -> None:
 def _document(result: Result, mode: str, full: bool) -> dict:
     schema = schema_for(result.entity)
     payload = result.payload
-    shaper = _Shaper(mode, full)
+    shaper = _Shaper(mode, full, schema.text_limit or DETAIL_TEXT_LIMIT)
     doc: dict[str, Any] = {}
 
     if isinstance(payload, dict):
@@ -111,9 +111,10 @@ def _put(doc: dict, name: str, value: Any) -> None:
 class _Shaper:
     """Applies the minimal schema, HTML stripping and truncation for one render call."""
 
-    def __init__(self, mode: str, full: bool):
+    def __init__(self, mode: str, full: bool, detail_limit: int = DETAIL_TEXT_LIMIT):
         self.mode = mode
         self.full = full
+        self.detail_limit = detail_limit
 
     def rows(self, rows: list, schema: Schema) -> list[dict]:
         if self.full:  # every field any row has, in first-seen order, so the rows stay tabular
@@ -123,7 +124,7 @@ class _Shaper:
         return [{n: self._text(row.get(n), ROW_TEXT_LIMIT, collapse=not schema.verbatim) for n in names} for row in rows]
 
     def detail_value(self, value: Any) -> Any:
-        return self._text(value, DETAIL_TEXT_LIMIT, collapse=False)
+        return self._text(value, self.detail_limit, collapse=False)
 
     def _text(self, value: Any, limit: int, collapse: bool) -> Any:
         if not isinstance(value, str):

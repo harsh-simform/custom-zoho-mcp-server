@@ -3,7 +3,7 @@
 An *item* is a task or a bug addressed by a human key (`PROJ1-T1000`) or a numeric id. This module owns
 the parts that are the same for both:
 
-* `ItemKind`        which gateway resources, id parameter and Search module a kind uses (`TASK`; T09 adds `BUG`)
+* `ItemKind`        which gateway resources, id parameter and Search module a kind uses (`TASK`, `BUG`)
 * `resolve_item`    key -> id: numeric ids pass through, keys come from the derived index (no request) or the
                     legacy Search endpoint, and a hit is remembered so the next lookup is free
 * `fetch_record`    the item's detail record
@@ -38,6 +38,10 @@ class ItemKind:
 
 
 TASK = ItemKind("task", "task", "task_comments", "task_attachments", "tasks")
+# Bugs: the legacy Search endpoint is documented to answer `{"issue": [{issue_id, issue_id_str, prefix, ...}]}`
+# while the legacy code reads `{"bugs": [{id, key}]}`; which is real is unverified, so both spellings are read.
+BUG = ItemKind("bug", "bug", "bug_comments", "bug_attachments", "bugs",
+               id_fields=("id", "entity_id", "issue_id_str", "issue_id"))
 
 
 @dataclass(frozen=True)
@@ -106,9 +110,10 @@ def count_of(page: Sequence[Any] | None) -> int | str | None:
 
 def comment_rows(records: Sequence[Mapping[str, Any]]) -> list[dict[str, str]]:
     """{by, at, text} rows, oldest first as Zoho sends them. Author: v3 `created_by` object or legacy
-    `added_person`; text: `comment` (the gateway folds legacy `content` into it); at: a date."""
+    `added_person`; v3 issue comments use an `added_by` object (a name, never the raw object is shown); text:
+    `comment` (the gateway folds legacy `content` into it); at: a date."""
     return [{
-        "by": person_name(r.get("created_by")) or person_name(r.get("added_person")) or str(r.get("added_by") or ""),
+        "by": person_name(r.get("created_by")) or person_name(r.get("added_person")) or person_name(r.get("added_by")),
         "at": norm_date(r.get("created_time") or r.get("created_time_long")),
         "text": str(r.get("comment") or ""),
     } for r in records]
