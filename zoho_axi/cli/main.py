@@ -9,9 +9,12 @@ a replay transport, and a pinned date. Production passes none of them.
 """
 from __future__ import annotations
 
+import logging
 import os
 import sys
+import threading
 import traceback
+import warnings
 from datetime import date
 from typing import TYPE_CHECKING, Mapping, Sequence, TextIO
 
@@ -24,6 +27,46 @@ from .registry import REGISTRY, Spec
 
 if TYPE_CHECKING:
     from ..core.gateway import ZohoGateway
+
+HOOK_DEADLINE_SECONDS = 5.0  # a SessionStart hook must not hold a session up; past this it gives up silently
+_HELP = ("--help", "-h")
+
+
+def _run_hook(spec: Spec, env: Mapping[str, str], stdout: TextIO, gateway: "ZohoGateway | None", today: date | None) -> int:
+    """Run a hook entrypoint (`Spec.hook`): its text goes to stdout, and in every other case (nothing to say,
+    any exception, a hung network call) nothing does. stderr is never written, logging is muted for the run,
+    and the exit code is always 0: Claude Code shows a hook that fails or prints to stderr as an error."""
+    box: list[str] = []
+
+    def work() -> None:
+        ctx: Context | None = None
+        try:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                ctx = Context(load_settings(env), {}, _gateway=gateway, env=env, today=today)
+                box.append(render(spec.run(ctx), "cli").text)
+        except Exception:
+            pass
+        finally:
+            try:
+                if ctx:
+                    ctx.close()
+            except Exception:
+                pass
+
+    logging.disable(logging.CRITICAL)
+    worker = threading.Thread(target=work, daemon=True)
+    worker.start()
+    worker.join(HOOK_DEADLINE_SECONDS)
+    finished = not worker.is_alive()
+    if finished:
+        logging.disable(logging.NOTSET)  # a hung worker keeps logging muted: the process is about to exit
+    if finished and box and box[0]:
+        try:
+            stdout.write(box[0] + "\n")
+        except Exception:
+            pass
+    return 0
 
 
 def main(
@@ -38,12 +81,17 @@ def main(
     fmt = "json" if "--json" in argv else "toon"  # so even a usage error honours --json
     ctx: Context | None = None
     debug = False
+    hook = next((s for s in registry if s.hook and argv and argv[0] == s.name), None)
+    if hook and not any(t in _HELP for t in argv):
+        return _run_hook(hook, env, stdout, gateway, today)  # before parsing: a hook never fails on its arguments
     try:
         inv = parse(argv, registry)
         debug = inv.debug
         if inv.help:
             stdout.write((command_help(inv.spec) if inv.spec else top_help(registry)) + "\n")
             return 0
+        if inv.spec is not None and inv.spec.hook:  # reached with a global flag in front (`--json session-start`)
+            return _run_hook(inv.spec, env, stdout, gateway, today)
         fmt = "json" if inv.json else "toon"
         ctx = Context(load_settings(env), inv.params or {}, project=inv.project, fresh=inv.fresh,
                       _gateway=gateway, env=env, today=today)

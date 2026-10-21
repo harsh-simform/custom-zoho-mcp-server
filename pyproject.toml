@@ -27,5 +27,9 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 include = ["zoho_mcp*", "zoho_axi*"]
 
+[tool.setuptools.package-data]
+# The Claude Code skill `zoho-axi skill install` copies (read via importlib.resources).
+zoho_axi = ["skills/*/SKILL.md"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
