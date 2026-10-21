@@ -9,6 +9,24 @@ import requests
 from .transport import PayloadTooLarge, TransportError, TransportResponse
 
 _CHUNK_BYTES = 65536
+_trust_store_ready = False
+
+
+def _use_system_trust_store() -> None:
+    """Verify TLS against the operating system's certificate store instead of `requests`' bundled list, once.
+    Networks that re-sign HTTPS traffic (Zscaler, corporate proxies) install their root CA in the OS store, so
+    `curl` works while a bundle-only Python fails with CERTIFICATE_VERIFY_FAILED. Without `truststore`, or on a
+    platform it does not support, the bundled certificates stay in use."""
+    global _trust_store_ready
+    if _trust_store_ready:
+        return
+    _trust_store_ready = True
+    try:
+        import truststore
+
+        truststore.inject_into_ssl()
+    except Exception:
+        pass
 
 
 class RequestsTransport:
@@ -23,6 +41,7 @@ class RequestsTransport:
         data: Mapping[str, str] | None = None,
         max_bytes: int | None = None,
     ) -> TransportResponse:
+        _use_system_trust_store()
         try:
             resp = requests.request(
                 method, url, headers=dict(headers), params=params, data=data, timeout=timeout, stream=True

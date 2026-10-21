@@ -22,6 +22,20 @@ class TransportError(OSError):
     URL, headers or underlying message: those can hold credentials."""
 
 
+def describe_transport_error(exc: BaseException) -> str:
+    """What to show for a failed request: the cause's class name (`SSLError`, `ConnectTimeout`, ...). A
+    `TransportError` carries exactly that and nothing else; for any other error only its class name is used."""
+    return str(exc) if isinstance(exc, TransportError) and str(exc) else type(exc).__name__
+
+
+def unreachable_hint(exc: BaseException) -> str:
+    cause = describe_transport_error(exc)
+    if cause == "SSLError":
+        return ("TLS verification failed. A corporate proxy (Zscaler, ...) may re-sign HTTPS traffic: point "
+                "SSL_CERT_FILE or REQUESTS_CA_BUNDLE at your organization's root certificate (PEM), then retry.")
+    return "Check your network connection and the `dc` (data center) setting, then retry."
+
+
 class PayloadTooLarge(Exception):
     """The response body exceeded `max_bytes` while it was being read."""
 
