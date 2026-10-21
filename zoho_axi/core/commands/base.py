@@ -10,9 +10,10 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass, field
 from datetime import date, datetime, timezone
-from typing import TYPE_CHECKING, Any, Callable, Mapping
+from typing import TYPE_CHECKING, Any, Callable, Mapping, TextIO
 
 from ..config import Settings, resolve_project
+from ..errors import UsageError
 from ..result import Result
 
 if TYPE_CHECKING:
@@ -31,6 +32,12 @@ class Context:
     env: Mapping[str, str] | None = field(default=None, repr=False)  # locates the cache file; None = os.environ
     today: date | None = None  # "today" for due-date logic; None = the current UTC date (tests pin it)
     _data: "CachedGateway | None" = field(default=None, repr=False)
+    # Standard input, handed over by the front-end ONLY to a command that declares it (`Spec.stdin`); None for
+    # every other command, so nothing else can read it. Use `read_stdin`, never the stream directly.
+    stdin: TextIO | None = field(default=None, repr=False)
+    # command name -> the flags it accepts (`{"task": {"--comments", ...}}`), so a command that suggests other
+    # commands (`resolve`) never names a flag the command table does not know. None = not supplied.
+    command_flags: Mapping[str, frozenset[str]] | None = field(default=None, repr=False)
 
     @property
     def gateway(self) -> "ZohoGateway":
@@ -62,6 +69,20 @@ class Context:
     def close(self) -> None:
         if self._data is not None:
             self._data.close()
+
+    def read_stdin(self, limit: int) -> str:
+        """Up to `limit` characters of stdin. Never reads a terminal and never blocks on one: no stdin, a TTY,
+        a closed stream or an empty pipe is a usage error (exit 2) and nothing is read."""
+        stream, text = self.stdin, ""
+        try:
+            if stream is not None and not stream.closed and not stream.isatty():
+                text = stream.read(limit)
+        except (OSError, ValueError):
+            pass
+        if not text.strip():
+            raise UsageError("usage.stdin_unavailable", "no text on stdin: it is a terminal, closed or empty.",
+                             hint="Pipe the text in (`echo \"...\" | zoho-axi resolve -`) or pass it as an argument.")
+        return text
 
     def current_date(self) -> date:
         return self.today or datetime.now(timezone.utc).date()

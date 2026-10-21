@@ -2,7 +2,8 @@
 
 It holds no business logic: parse, build a Context, run the registered command, hand the Result to the
 render layer, write the text. stdout carries the result only (errors included, as TOON); stderr carries
-diagnostics (`--debug`). The function takes no stdin, so nothing in the CLI can read a terminal.
+diagnostics (`--debug`). Stdin is an optional parameter handed ONLY to a command whose Spec says `stdin=True`
+(`resolve -`); every other command gets None, and a terminal is never read (see `Context.read_stdin`).
 
 `registry`, `gateway` and `today` are injection points for tests: a fake command table, a gateway over
 a replay transport, and a pinned date. Production passes none of them.
@@ -77,6 +78,7 @@ def main(
     registry: Sequence[Spec] = REGISTRY,
     gateway: "ZohoGateway | None" = None,
     today: date | None = None,
+    stdin: TextIO | None = None,
 ) -> int:
     fmt = "json" if "--json" in argv else "toon"  # so even a usage error honours --json
     ctx: Context | None = None
@@ -94,7 +96,9 @@ def main(
             return _run_hook(inv.spec, env, stdout, gateway, today)
         fmt = "json" if inv.json else "toon"
         ctx = Context(load_settings(env), inv.params or {}, project=inv.project, fresh=inv.fresh, full=inv.full,
-                      _gateway=gateway, env=env, today=today)
+                      _gateway=gateway, env=env, today=today,
+                      stdin=stdin if inv.spec is not None and inv.spec.stdin else None,
+                      command_flags={s.name: frozenset(f.name for f in s.flags) for s in registry})
         assert inv.spec is not None  # only top-level help has no spec, and it returned above
         result = inv.spec.run(ctx)
         result.warnings = list(dict.fromkeys([*ctx.settings.warnings, *result.warnings, *ctx.cache_warnings()]))
@@ -113,4 +117,4 @@ def main(
 
 def console_main() -> None:
     """The `zoho-axi` / `zoho` console-script entry point."""
-    sys.exit(main(sys.argv[1:], os.environ, sys.stdout, sys.stderr))
+    sys.exit(main(sys.argv[1:], os.environ, sys.stdout, sys.stderr, stdin=sys.stdin))

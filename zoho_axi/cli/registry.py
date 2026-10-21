@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from ..core.commands import auth, bug, cache, home, hooks, people, project, session, skill, task, tasks
+from ..core.commands import auth, bug, cache, home, hooks, people, project, resolve, session, skill, task, tasks
 from ..core.commands.base import Command
 
 
@@ -40,6 +40,7 @@ class Spec:
     args: tuple[Arg, ...] = ()
     flags: tuple[Flag, ...] = ()
     hook: bool = False  # a Claude Code hook entrypoint: plain output, never an error, always exit 0 (see cli/main.py)
+    stdin: bool = False  # may read standard input (when its text argument is `-`); only such a command is given stdin
 
 
 GLOBAL_FLAGS: tuple[Flag, ...] = (
@@ -98,6 +99,11 @@ REGISTRY: tuple[Spec, ...] = (
                 Flag("--images", "download the images (up to max_images) to the cache dir and list their paths"),
                 Flag("--task", "summarize the linked task (unverified: depends on `associated_task`)")),
          examples=("zoho-axi bug PROJ1-I12", "zoho-axi bug 4000000012345 --comments --images")),
+    Spec("resolve", "find task/bug keys, ids and Zoho links in free text and suggest the exact commands (offline)",
+         resolve.resolve, args=(Arg("text", "the text to read, or - for stdin"),),
+         flags=(Flag("--check", "confirm the keys exist (one Zoho Search call each; the only network use)"),),
+         examples=("zoho-axi resolve 'why does PROJ1-T123 loop? see the comments'", "echo 'bug 45' | zoho-axi resolve -"),
+         stdin=True),
     Spec("cache status", "cache size, entry counts and the oldest entry", cache.status,
          examples=("zoho-axi cache status", "zoho-axi cache status --json")),
     Spec("cache clear", "delete the cache and derived index (needs --yes; never prompts)", cache.clear,

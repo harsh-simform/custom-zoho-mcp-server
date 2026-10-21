@@ -11,6 +11,7 @@ commands:
   tasks            list tasks: key, title, status, owner, with totals by status
   task             one task: status, owner, counts; add slices for comments, history, subtasks, attachments
   bug              one bug: status, severity, owner, counts; add slices for comments, attachments, linked task
+  resolve          find task/bug keys, ids and Zoho links in free text and suggest the exact commands (offline)
   cache status     cache size, entry counts and the oldest entry
   cache clear      delete the cache and derived index (needs --yes; never prompts)
   session-start    Claude Code SessionStart hook: project snapshot from the cache; silent on any failure

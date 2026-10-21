@@ -35,7 +35,7 @@ def test_bare_command_shows_home_with_stdin_closed(command, tmp_path):
 # With no config and no credentials, the commands that need Zoho end in a structured config/auth error
 # (exit 3) and `project use` / `cache clear` in a usage error (exit 2: no argument / no --yes); every
 # other command works offline. What matters for this test is that none of them reads stdin or crashes.
-EXPECTED_WITHOUT_CONFIG = {"project use": 2, "cache clear": 2, "project": 3, "project list": 3, "people": 3, "tasks": 3, "task": 2, "bug": 2}
+EXPECTED_WITHOUT_CONFIG = {"project use": 2, "cache clear": 2, "project": 3, "project list": 3, "people": 3, "tasks": 3, "task": 2, "bug": 2, "resolve": 2}
 
 
 def test_every_wired_command_runs_with_stdin_closed(tmp_path):
@@ -86,3 +86,25 @@ def test_legacy_shim_prints_a_one_line_deprecation_note_to_stderr_and_still_star
     notes = [line for line in done.stderr.splitlines() if "deprecated" in line]
     assert len(notes) == 1 and "zoho-axi" in notes[0]
     assert "MCP server starting" in done.stderr  # the legacy server still ran
+
+
+# --- resolve (T11): the one command that may read stdin -------------------------------------------------
+
+def test_resolve_reads_a_real_pipe_when_the_text_is_dash(tmp_path):
+    env = {"HOME": str(tmp_path), "ZOHO_MCP_ENV_FILE": str(tmp_path / "none.env"), "PATH": "/usr/bin:/bin"}
+    done = subprocess.run([str(BIN / "zoho-axi"), "resolve", "-"], input="see the comments on AD1-T123", env=env,
+                          capture_output=True, text=True, timeout=30, cwd=tmp_path)
+    assert done.returncode == 0 and done.stderr == ""
+    assert done.stdout.splitlines()[-2:] == ["help[1]{run}:", "  zoho-axi task AD1-T123 --comments"]
+
+
+def test_resolve_dash_with_stdin_closed_is_a_usage_error_not_a_hang_or_crash(tmp_path):
+    done = run_installed("zoho-axi", ["resolve", "-"], tmp_path)
+    assert done.returncode == 2 and done.stderr == ""
+    assert done.stdout.startswith("error: usage.stdin_unavailable\n")
+
+
+def test_resolve_with_text_in_argv_works_offline_with_stdin_closed(tmp_path):
+    done = run_installed("zoho-axi", ["resolve", "AD1-B45"], tmp_path)
+    assert done.returncode == 0 and done.stderr == ""
+    assert done.stdout.splitlines()[:2] == ["found[1]{key,type,resolved}:", "  AD1-B45,bug,no"]
