@@ -13,6 +13,10 @@ commands:
   bug              one bug: status, severity, owner, counts; add slices for comments, attachments, linked task
   cache status     cache size, entry counts and the oldest entry
   cache clear      delete the cache and derived index (needs --yes; never prompts)
+  session-start    Claude Code SessionStart hook: project snapshot from the cache; silent on any failure
+  hooks install    add the SessionStart hook to ~/.claude/settings.json (shows the diff; --yes applies)
+  hooks uninstall  remove the SessionStart hook again (shows the diff; --yes applies)
+  skill install    copy the zoho-axi skill to ~/.claude/skills/zoho-axi/ (shows the change; --yes applies)
 global flags:
   --project P  project to use: PROJECT or PORTAL:PROJECT (default: config)
   --fresh      bypass the cache
