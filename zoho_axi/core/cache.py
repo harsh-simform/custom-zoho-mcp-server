@@ -321,6 +321,9 @@ class CachedGateway:
             self._learn(resource, params, ids, value)
         return value
 
+    def close(self) -> None:
+        self._store.close()
+
     def index(self, *, portal: str, project: str | None = None) -> "Index":
         return Index(self._store, self._settings, portal=portal, project=project)
 

@@ -76,9 +76,13 @@ def resolve(tokens: Sequence[str], registry: Sequence[Spec]) -> tuple[Spec, list
         hint = (f"Did you mean `zoho-axi {near[0]}`? " if near else "") + "Run `zoho-axi --help` for the commands."
         raise UsageError("usage.unknown_command", f"unknown command {head!r}", hint=hint)
     group = [s for s in registry if s.name.split()[0] == head]
-    if group[0].name == head:  # a plain command; any further word is its positional argument
-        return group[0], [words[0][0]]
-    subs = [s.name.split()[1] for s in group]
+    subs = [s.name.split()[1] for s in group if " " in s.name]
+    if any(s.name == head for s in group):
+        # A plain command; any further word is its positional argument, unless the command also has
+        # subcommands (`project` / `project use X`), in which case a second word naming one selects it.
+        if len(words) > 1 and words[1][1] in subs:
+            return _by_name(registry, f"{head} {words[1][1]}"), [words[0][0], words[1][0]]
+        return _by_name(registry, head), [words[0][0]]
     if len(words) < 2:
         raise UsageError("usage.missing_subcommand", f"{head} needs a subcommand: {', '.join(subs)}",
                          hint=f"Run `zoho-axi {head} {subs[0]}`.")

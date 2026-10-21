@@ -1,9 +1,16 @@
 zoho-axi: read-only Zoho Projects for agents. Output is TOON; --json gives JSON.
 usage: zoho-axi [COMMAND] [flags]   (no command = home)
 commands:
-  home             live overview (placeholder until T10); also what bare `zoho-axi` runs
+  home             live overview of the default project; also what bare `zoho-axi` runs
   auth status      check config and credentials, and verify the token with Zoho
   auth login-help  how to create the Zoho Self Client and where its values go
+  project          overview of the project: status, owner, next milestone, counts
+  project list     list the projects of the portal (id, name, status)
+  project use      make a project the default (writes portal_id/project_id to the config file)
+  people           list the portal's users and tags (both by default)
+  tasks            list tasks: key, title, status, owner, with totals by status
+  cache status     cache size, entry counts and the oldest entry
+  cache clear      delete the cache and derived index (needs --yes; never prompts)
 global flags:
   --project P  project to use: PROJECT or PORTAL:PROJECT (default: config)
   --fresh      bypass the cache
