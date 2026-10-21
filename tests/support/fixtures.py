@@ -27,9 +27,10 @@ FIXTURE_ROOT = Path(__file__).resolve().parent.parent / "fixtures" / "zoho"
 # name them (`gateway.get("task", portal=PORTAL, project=PROJECT, task=TASK)`).
 PORTAL = "10000000001"
 PROJECT = "20000000001"
-TASK = "30000000001"
-TASK_NO_SUBTASKS = "30000000002"
-BUG = "40000000001"
+TASK = "30000000001"  # has comments, attachments and history; association_info.has_subtasks is false
+TASK_PARENT = "30000000005"  # association_info.has_subtasks is true
+BUG = "40000000001"  # has an associated task
+BUG_NO_TASK = "40000000002"
 TASKLIST = "50000000001"
 MILESTONE = "60000000001"
 CANONICAL_IDS = {

@@ -213,6 +213,27 @@ def test_usage_errors_exit_2_and_touch_nothing(tmp_path, argv):
     assert net.calls == []
 
 
+def test_missing_credentials_are_fatal_not_an_empty_recording(tmp_path):
+    from zoho_axi.core.config import load_settings
+
+    script = load_script()
+    out, err = io.StringIO(), io.StringIO()
+    net = ReplayTransport()
+    settings = load_settings(env={"HOME": str(tmp_path)}, legacy_env_file=tmp_path / "none.env")
+    code = script.main(["portals/list", "--call", "portals", "--fixtures-dir", str(tmp_path / "fx")],
+                       transport=net, settings=settings, stdout=out, stderr=err)
+    assert code == 3  # auth/config exit code
+    assert "auth.missing" in err.getvalue()
+    assert not (tmp_path / "fx").exists() and net.calls == []
+
+
+def test_a_refused_download_host_is_fatal_and_nothing_is_sent(tmp_path):
+    argv = ["attachments/x", "--download", "https://evil.example.test/a.png"]
+    code, out, err, net = record(tmp_path, argv)
+    assert code == 5 and "download.host_refused" in err
+    assert net.calls == []
+
+
 def test_the_script_only_imports_what_it_needs_to_issue_get_requests():
     source = SCRIPT.read_text(encoding="utf-8")
     assert "import requests" not in source and "from requests" not in source  # HTTP only via the gateway

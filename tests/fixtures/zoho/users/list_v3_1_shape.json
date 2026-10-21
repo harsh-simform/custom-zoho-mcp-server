@@ -1,0 +1,77 @@
+{
+  "_provenance": {
+    "groups": {
+      "envelope+fields": "documented: v3.1 users (user_type/status as words), served at the v3 URL the gateway requests",
+      "values": "invented"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/users",
+      "status": 200,
+      "json": {
+        "page_info": {
+          "per_page": 100,
+          "has_next_page": false,
+          "count": 1,
+          "page": 1
+        },
+        "users": [
+          {
+            "business_hours": {
+              "name": "Standard Business Hours",
+              "id": "7632037211396"
+            },
+            "updated_time": "2026-01-07T12:14:38.609Z",
+            "role": {
+              "name": "Administrator",
+              "id": "2055553347863",
+              "type": 1
+            },
+            "added_time": "2025-11-27T12:14:38.609Z",
+            "is_confirmed": true,
+            "last_name": "Okoye",
+            "reporting_to": {
+              "full_name": "Hugo Voss",
+              "last_name": "Voss",
+              "id": "9151249746301",
+              "first_name": "Hugo",
+              "zuid": "50484411"
+            },
+            "zuid": "53657865",
+            "last_accessed_on": "2026-03-10T11:43:18.605Z",
+            "is_resend_invite": false,
+            "full_name": "Hugo Okoye",
+            "user_type": "portal_user",
+            "portal_profile": {
+              "name": "Portal Owner",
+              "id": "4145112915507",
+              "type": "1",
+              "is_default": true
+            },
+            "id": "10000000001",
+            "first_name": "Hugo",
+            "email": "user-05342de3@example.test",
+            "status": "active",
+            "budget": {
+              "rate_per_hour": {
+                "amount": 0,
+                "formatted_amount": "$ 0.00",
+                "currency_code": "USD",
+                "currency_id": "9520034337690"
+              },
+              "cost_rate_per_hour": {
+                "amount": 0,
+                "formatted_amount": "$ 0.00",
+                "currency_code": "USD",
+                "currency_id": "9520034337690"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

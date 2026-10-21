@@ -1,0 +1,29 @@
+{
+  "_provenance": {
+    "groups": {
+      "bug hit under `bugs` with id/key": "proven-by-legacy-code: the shape context_builders.py reads for module=bugs",
+      "values": "invented"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/restapi/portal/10000000001/projects/20000000001/search",
+      "params": {
+        "search_term": "DM1-I1",
+        "module": "bugs"
+      },
+      "status": 200,
+      "json": {
+        "bugs": [
+          {
+            "id": "40000000001",
+            "key": "DM1-I1",
+            "title": "Postcode validation missing on checkout form"
+          }
+        ]
+      }
+    }
+  ]
+}

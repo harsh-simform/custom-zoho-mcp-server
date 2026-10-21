@@ -149,16 +149,19 @@ def main(
     try:
         settings = settings or load_settings()
         gateway = ZohoGateway(settings, transport=recorder, **dict(gateway_options or {}))
-        for resource, ids, params in calls:
+        for label, action in [
+            *((resource, lambda r=resource, i=ids, p=params: gateway.get(r, params=p or None, **i))
+              for resource, ids, params in calls),
+            *(("download", lambda u=url: gateway.download(u)) for url in args.download),
+        ]:
+            seen = len(recorder.entries())
             try:
-                gateway.get(resource, params=params or None, **ids)
-            except ZohoAxiError as exc:  # a recorded 404/403 is a legitimate fixture
-                print(f"note: {resource} ended with {exc.code}; the exchange was still recorded", file=err)
-        for url in args.download:
-            try:
-                gateway.download(url)
+                action()
             except ZohoAxiError as exc:
-                print(f"note: download ended with {exc.code}; the exchange was still recorded", file=err)
+                if len(recorder.entries()) == seen:  # nothing reached Zoho (bad config, refused URL): fatal
+                    raise
+                # a recorded 404/403/429 is a legitimate fixture
+                print(f"note: {label} ended with {exc.code}; the exchange was still recorded", file=err)
     except ZohoAxiError as exc:
         print(render_error(exc).text, file=err)
         return exc.exit_code

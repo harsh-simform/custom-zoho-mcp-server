@@ -12,6 +12,8 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
+# Optional: tiktoken adds its count to token-budget failure messages (reporting only, never gates a test).
+tokens = ["tiktoken>=0.7"]
 
 [project.scripts]
 zoho-projects-mcp = "zoho_mcp.server:main"

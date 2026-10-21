@@ -1,0 +1,102 @@
+{
+  "_provenance": {
+    "groups": {
+      "envelope+fields": "documented: Issue Attachments (name/type nested in file_info; plus top-level download_url)",
+      "values": "invented"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/projects/20000000001/bugs/40000000001/attachments",
+      "status": 200,
+      "json": {
+        "comment_attachments": [],
+        "attachments": [
+          {
+            "app_name": "",
+            "created_time": "2026-03-05T05:02:56.685Z",
+            "permanent_url": "https://workdrive.zoho.com/file/fakebug7",
+            "associated_by": {
+              "zpuid": "9100136940932",
+              "full_name": "Hugo Voss",
+              "name": "Hugo Voss",
+              "last_name": "Voss",
+              "id": 50484411,
+              "is_client_user": false,
+              "first_name": "Hugo",
+              "email": "user-c521c67d@example.test"
+            },
+            "preview_url": "https://host-77e8b9b4.example.test/thumbnail/WD/fakebug7",
+            "file_info": {
+              "size": "183422",
+              "name": "checkout-500.png",
+              "id": "fakebug7",
+              "type": "image/png"
+            },
+            "download_url": "https://download.zoho.com/v1/workdrive/download/fakebug7",
+            "id": "3676431209535",
+            "created_by": {
+              "zpuid": "9100136940932",
+              "full_name": "Hugo Voss",
+              "name": "Hugo Voss",
+              "last_name": "Voss",
+              "id": 50484411,
+              "is_client_user": false,
+              "first_name": "Hugo",
+              "email": "user-c521c67d@example.test"
+            },
+            "entity": {
+              "id": "40000000001",
+              "type": "bug"
+            },
+            "associated_time": "2026-03-05T05:02:56.780Z"
+          },
+          {
+            "app_name": "",
+            "created_time": "2026-03-05T05:02:56.685Z",
+            "permanent_url": "https://workdrive.zoho.com/file/fakebug8",
+            "associated_by": {
+              "zpuid": "9100136940932",
+              "full_name": "Hugo Voss",
+              "name": "Hugo Voss",
+              "last_name": "Voss",
+              "id": 50484411,
+              "is_client_user": false,
+              "first_name": "Hugo",
+              "email": "user-c521c67d@example.test"
+            },
+            "preview_url": "https://host-77e8b9b4.example.test/thumbnail/WD/fakebug8",
+            "file_info": {
+              "size": "3618",
+              "name": "SessionValidation.java",
+              "id": "fakebug8",
+              "type": "application/x-unknown-mime-type"
+            },
+            "download_url": "https://download.zoho.com/v1/workdrive/download/fakebug8",
+            "id": "7230869243793",
+            "created_by": {
+              "zpuid": "9100136940932",
+              "full_name": "Hugo Voss",
+              "name": "Hugo Voss",
+              "last_name": "Voss",
+              "id": 50484411,
+              "is_client_user": false,
+              "first_name": "Hugo",
+              "email": "user-c521c67d@example.test"
+            },
+            "entity": {
+              "id": "40000000001",
+              "type": "bug"
+            },
+            "associated_time": "2026-03-05T05:02:56.780Z"
+          }
+        ],
+        "total_attachments_count": 2,
+        "is_sprints_integrated": false,
+        "resolution_attachments": []
+      }
+    }
+  ]
+}

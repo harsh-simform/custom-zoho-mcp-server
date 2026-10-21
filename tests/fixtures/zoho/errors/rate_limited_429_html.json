@@ -1,0 +1,31 @@
+{
+  "_provenance": {
+    "groups": {
+      "429 with a non-JSON body": "invented: a throttled reply may be HTML or empty"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/projects/20000000001/tasks",
+      "status": 429,
+      "content_type": "text/html",
+      "body_text": "<html><body><h1>429 Too Many Requests</h1></body></html>"
+    },
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/projects/20000000001/tasks",
+      "status": 429,
+      "content_type": "text/html",
+      "body_text": "<html><body><h1>429 Too Many Requests</h1></body></html>"
+    },
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/projects/20000000001/tasks",
+      "status": 429,
+      "content_type": "text/html",
+      "body_text": "<html><body><h1>429 Too Many Requests</h1></body></html>"
+    }
+  ]
+}

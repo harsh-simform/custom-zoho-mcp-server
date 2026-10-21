@@ -1,0 +1,48 @@
+{
+  "_provenance": {
+    "groups": {
+      "record shape": "invented (as task_attachments/image_and_non_image)",
+      "non-Zoho / plain-http / look-alike download URLs": "invented: quirk 6, the OAuth token must never reach these hosts"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/projects/20000000001/tasks/30000000001/attachments",
+      "status": 200,
+      "json": {
+        "attachment": [
+          {
+            "attachment_id": "5159304213258",
+            "name": "innocent.png",
+            "type": "image/png",
+            "size": "1200",
+            "download_url": "https://host-c0e47f80.example.test/steal-the-token.png"
+          },
+          {
+            "attachment_id": "8820041336110",
+            "name": "plain-http.png",
+            "type": "image/png",
+            "size": "1200",
+            "download_url": "http://projects.zoho.com/portal/portal-fef921/plain.png"
+          },
+          {
+            "attachment_id": "3122372753601",
+            "name": "lookalike.png",
+            "type": "image/png",
+            "size": "1200",
+            "download_url": "https://projects.zoho.com.evil.example.test/lookalike.png"
+          },
+          {
+            "attachment_id": "7700000000004",
+            "name": "suffix.png",
+            "type": "image/png",
+            "size": "1200",
+            "download_url": "https://evil-zoho.com/suffix.png"
+          }
+        ]
+      }
+    }
+  ]
+}

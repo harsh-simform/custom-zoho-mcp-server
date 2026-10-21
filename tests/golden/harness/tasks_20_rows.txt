@@ -1,0 +1,23 @@
+counts: shown=20 on_page=24
+tasks[20]{key,title,status,owner}:
+  DM1-T1,Prepare release notes,Open,Hugo Okoye
+  DM1-T2,Fix checkout validation,In Progress,Hugo Voss
+  DM1-T3,Update onboarding copy,Closed,Sana Hale
+  DM1-T4,Archive old campaign assets,Open,Hugo Okoye
+  DM1-T5,Redesign settings page,In Progress,Hugo Voss
+  DM1-T6,"Settings: dark mode toggle",Closed,Sana Hale
+  DM1-T7,"Settings: notification matrix",Open,Hugo Okoye
+  DM1-T8,Audit third-party scripts,In Progress,Hugo Voss
+  DM1-T9,Migrate image CDN,Closed,Sana Hale
+  DM1-T10,Write analytics event spec,Open,Hugo Okoye
+  DM1-T11,Cache product listing,In Progress,Hugo Voss
+  DM1-T12,Add address autocomplete,Closed,Sana Hale
+  DM1-T13,Review accessibility findings,Open,Hugo Okoye
+  DM1-T14,Localize error messages,In Progress,Hugo Voss
+  DM1-T15,Rotate API keys,Closed,Sana Hale
+  DM1-T16,Remove unused feature flags,Open,Hugo Okoye
+  DM1-T17,Document deployment runbook,In Progress,Hugo Voss
+  DM1-T18,Improve search ranking,Closed,Sana Hale
+  DM1-T19,Fix flaky checkout test,Open,Hugo Okoye
+  DM1-T20,Refresh email templates,In Progress,Hugo Voss
+truncated[1]: "tasks (+4 rows, --limit 24)"
