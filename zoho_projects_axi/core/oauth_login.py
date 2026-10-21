@@ -50,6 +50,17 @@ class LoginResult:
     dc: str = "com"  # the data center the account lives in; differs from settings.dc when sign-in discovered it
 
 
+# Zoho's callback `location` is a region code, not the domain suffix: .com reports "us", .com.au reports "au".
+_LOCATION_TO_DC = {"us": "com", "eu": "eu", "in": "in", "au": "com.au", "jp": "jp"}
+
+
+def data_center_for(location: str) -> str | None:
+    """The `dc` for a callback `location` (region code or domain suffix), or None when it is not one we support."""
+    if location in VALID_DATA_CENTERS:
+        return location
+    return _LOCATION_TO_DC.get(location)
+
+
 def redirect_uri(port: int) -> str:
     return f"http://localhost:{port}{CALLBACK_PATH}"
 
@@ -179,10 +190,13 @@ def authorize(
     if "error" in callback:
         raise AuthError("auth.denied", f"Zoho refused the sign-in: {callback['error']}",
                         hint="Check the redirect URI registered for the client, then run `zoho-projects-axi auth login` again.")
-    location = callback.get("location") or settings.dc
-    if location not in VALID_DATA_CENTERS:  # the data center is placed in a hostname that gets the secret
-        raise AuthError("auth.exchange_failed", "Zoho reported an unknown data center; nothing was saved.",
-                        hint=f"Set dc to one of {', '.join(VALID_DATA_CENTERS)} and run `zoho-projects-axi auth login` again.")
+    reported = callback.get("location")
+    location = data_center_for(reported) if reported else settings.dc
+    if location is None:  # the data center is placed in a hostname that gets the secret, so only known ones pass
+        raise AuthError("auth.unsupported_data_center",
+                        f"Zoho reported data center {reported[:20]!r}, which is not supported; nothing was saved.",
+                        hint=f"Supported: {', '.join(VALID_DATA_CENTERS)}. Use a Self Client at your data center's "
+                             "API console instead (`zoho-projects-axi auth login-help`).")
     account = settings if location == settings.dc else replace(settings, dc=location)
     post = make_post(account)
 

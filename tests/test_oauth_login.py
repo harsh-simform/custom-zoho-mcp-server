@@ -126,11 +126,29 @@ def test_account_in_another_data_center_is_exchanged_there_and_reported(tmp_path
     assert post.calls[0][0] == "https://accounts.zoho.eu/oauth/v2/token"
 
 
+@pytest.mark.parametrize("reported, dc", [("us", "com"), ("au", "com.au"), ("eu", "eu"), ("in", "in"), ("jp", "jp"),
+                                          ("com", "com"), ("com.au", "com.au")])
+def test_zoho_region_codes_map_to_the_data_center(tmp_path, reported, dc):
+    post = FakePost({"refresh_token": "1000.region-token"})
+    result, _ = run(tmp_path, post, lambda seen: {**good(seen), "location": reported})
+    assert result == LoginResult("1000.region-token", dc)
+    assert post.calls[0][0] == f"https://accounts.zoho.{dc}/oauth/v2/token"
+
+
+def test_us_on_the_default_data_center_is_not_a_move(tmp_path):
+    seen_accounts = []
+    seen: dict = {}
+    authorize(make_settings(tmp_path, **CLIENT), lambda account: seen_accounts.append(account.dc) or FakePost({"refresh_token": "1000.ok-token"}),
+              port=free_port(), announce=lambda _l: None,
+              open_browser=browser(lambda s: {**good(s), "location": "us"}, seen), timeout=10)
+    assert seen_accounts == ["com"]
+
+
 def test_unknown_data_center_never_gets_the_secret(tmp_path):
     post = FakePost({"refresh_token": "never"})
     with pytest.raises(AuthError) as err:
         run(tmp_path, post, lambda seen: {**good(seen), "location": "evil.example"})
-    assert err.value.code == "auth.exchange_failed"
+    assert err.value.code == "auth.unsupported_data_center"
     assert post.calls == []
 
 
