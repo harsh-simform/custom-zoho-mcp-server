@@ -18,7 +18,7 @@ def run_installed(command, args, tmp_path, stdin_closed=True):
     assert exe.exists(), f"{exe} missing: install the package with `pip install -e .`"
     env = {"HOME": str(tmp_path), "ZOHO_MCP_ENV_FILE": str(tmp_path / "none.env"), "PATH": "/usr/bin:/bin"}
     if stdin_closed:  # `<&-` closes fd 0 before exec, so any read from stdin would raise
-        cmd = ["/bin/sh", "-c", f'exec "$0" "$@" <&-', str(exe), *args]
+        cmd = ["/bin/sh", "-c", 'exec "$0" "$@" <&-', str(exe), *args]
     else:
         cmd = [str(exe), *args]
     return subprocess.run(cmd, env=env, capture_output=True, text=True, timeout=30, cwd=tmp_path)
@@ -77,17 +77,6 @@ def test_importing_the_cli_has_no_side_effects(tmp_path):
                           capture_output=True, text=True, cwd=tmp_path)
     assert done.stdout.strip() == "ok", done.stderr
     assert list(tmp_path.iterdir()) == []
-
-
-def test_legacy_shim_prints_a_one_line_deprecation_note_to_stderr_and_still_starts_the_server(tmp_path):
-    env = {"HOME": str(tmp_path), "PATH": "", "ZOHO_MCP_ENV_FILE": str(tmp_path / "none.env")}
-    done = subprocess.run([sys.executable, "-m", "zoho_mcp"], env=env, stdin=subprocess.DEVNULL,
-                          capture_output=True, text=True, timeout=30, cwd=tmp_path)
-    assert done.returncode == 0, done.stderr
-    assert done.stdout == ""  # stdout is the MCP protocol channel
-    notes = [line for line in done.stderr.splitlines() if "deprecated" in line]
-    assert len(notes) == 1 and "zoho-axi" in notes[0]
-    assert "MCP server starting" in done.stderr  # the legacy server still ran
 
 
 # --- resolve (T11): the one command that may read stdin -------------------------------------------------

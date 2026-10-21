@@ -114,8 +114,8 @@ def test_every_attempt_counts_against_the_budget(tmp_path):
 def test_request_count_reports_requests_actually_sent_including_fallbacks_and_retries(tmp_path):
     replay = ReplayTransport()
     replay.get(f"{API}/portal/11/projects/22/milestones", status=404)
-    replay.get(f"https://projectsapi.zoho.com/restapi/portal/11/projects/22/milestones/", status=429)
-    replay.get(f"https://projectsapi.zoho.com/restapi/portal/11/projects/22/milestones/", json={"milestones": []})
+    replay.get("https://projectsapi.zoho.com/restapi/portal/11/projects/22/milestones/", status=429)
+    replay.get("https://projectsapi.zoho.com/restapi/portal/11/projects/22/milestones/", json={"milestones": []})
     gateway, _, _ = build(tmp_path, replay)
     assert gateway.request_count == 0
     gateway.get("milestones", portal="11", project="22")

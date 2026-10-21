@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 from support.factories import API, LEGACY, TOKEN_URL, make_settings
-from support.fixtures import BUG, IDS, PORTAL, PROJECT, TASK, load_fixture
+from support.fixtures import IDS, PORTAL, PROJECT, TASK
 from support.recording import RecordingTransport
 from support.replay import ReplayTransport
 

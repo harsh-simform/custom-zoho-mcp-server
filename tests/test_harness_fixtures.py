@@ -6,7 +6,6 @@ values are facts about the fixtures written out as literals (counts, ids, file n
 """
 import json
 import re
-from urllib.parse import urlsplit
 
 import pytest
 from support.factories import API, LEGACY, make_gateway
@@ -22,7 +21,6 @@ from support.fixtures import (
     check_provenance,
     entries_for,
     fixture_path,
-    load_fixture,
     replay_for,
 )
 from support.golden import assert_golden

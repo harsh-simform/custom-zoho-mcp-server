@@ -57,8 +57,7 @@ or
 pipx install git+https://github.com/harsh-simform/custom-zoho-mcp-server
 ```
 
-Upgrade with `uv tool upgrade zoho-projects-mcp` or `pipx upgrade zoho-projects-mcp` (the distribution is still
-named `zoho-projects-mcp`). Check the install:
+Upgrade with `uv tool upgrade zoho-axi` or `pipx upgrade zoho-axi`. Check the install:
 
 ```bash
 zoho-axi --help
@@ -220,7 +219,7 @@ Do not put secrets in this JSON; the config file already holds them.
 
 - The MCP server has no tool to list or switch projects. Choose the default with the CLI: `zoho-axi project list`,
   then `zoho-axi project use "<name>"`. Any tool call can also pass `project=` for one call.
-- `python -m zoho_mcp` and the `zoho-projects-mcp` script still start the same server but are **deprecated**;
+- Older registrations that run `python -m zoho_mcp` or `zoho-projects-mcp` no longer exist (removed in 0.2.0);
   re-register with `zoho-axi mcp`.
 - Stdout is the protocol wire. The server logs to stderr (and `log_file`, if set), redacting credentials.
 
@@ -352,7 +351,6 @@ text is scrubbed by pattern only. Then run the live smoke (above) and update the
 - `zoho_axi/cli`: parser and registry (the single source of the command table, `--help` and the MCP tools).
 - `zoho_axi/mcp_server`: the MCP front-end.
 - `zoho_axi/skills`: the packaged Claude Code skill.
-- `zoho_mcp`: the deprecated `python -m zoho_mcp` shim.
 - `scripts/record_fixture.py`: the dev-only fixture recorder.
 
 MIT licensed; see [LICENSE](LICENSE).

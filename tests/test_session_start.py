@@ -212,8 +212,6 @@ def test_a_hung_network_call_is_abandoned_at_the_deadline_and_stays_silent(world
 def test_extra_arguments_from_the_harness_do_not_break_it(world):
     warm(world)
     out, err = io.StringIO(), io.StringIO()
-    from zoho_axi.core.config import load_settings
-    from zoho_axi.core.gateway import ZohoGateway
     gateway = gateway_for(world, ReplayTransport(), world.env)
     code = main(["session-start", "--bogus", "--project"], world.env, out, err, gateway=gateway)
     assert code == 0 and err.getvalue() == ""

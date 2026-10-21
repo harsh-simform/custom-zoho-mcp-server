@@ -1,7 +1,6 @@
 """Live `home` (T10, AXI principle 8) at the product seam. Today is pinned to 2026-10-21 and "due soon"
 means within 7 days (through 2026-10-28). Bodies are invented-but-plausible (tests/support/world.py)."""
 import pytest
-from support.factories import API
 from support.world import P, PR, World, project_rec, replay_of, task, tasks_body, token_count
 
 HOME_BUDGET = 300

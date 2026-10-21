@@ -48,15 +48,17 @@ commands and return the same compact text. It is a breaking release for anything
 
 ### Changed
 
-- The package now contains `zoho_axi` (the implementation); `zoho_mcp` is reduced to the deprecated
-  `python -m zoho_mcp` shim.
+- The distribution is renamed from `zoho-projects-mcp` to `zoho-axi`, and the package is now `zoho_axi`.
 - The read-only guarantee is enforced at the transport: only GET requests (plus the OAuth token refresh) can be sent.
 - Python 3.10 is supported through the `tomli` fallback; 3.11 and later use `tomllib`.
 
+### Removed
+
+- `python -m zoho_mcp` and the `zoho-projects-mcp` script, along with the `zoho_mcp` package. Register the server
+  with `zoho-axi mcp` instead.
+
 ### Deprecated
 
-- `python -m zoho_mcp` and the `zoho-projects-mcp` script still start the (new, six-tool) server, but print a
-  deprecation note (the module) or just work (the script). Use `zoho-axi mcp`.
 - The `ZOHO_CLIENT_ID`, `ZOHO_CLIENT_SECRET`, `ZOHO_REFRESH_TOKEN`, `ZOHO_PORTAL_ID`, `ZOHO_PROJECT_ID`, `ZOHO_DC`
   and `ZOHO_MCP_*` environment variables and the repo-root `.env` file are read only as a fallback, with a warning.
   Move the values into the config file.

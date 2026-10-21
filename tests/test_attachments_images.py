@@ -15,7 +15,7 @@ import stat
 
 import pytest
 from support.factories import make_gateway
-from support.fixtures import BUG, PORTAL, PROJECT, TASK, first_json, replay_for
+from support.fixtures import BUG, PORTAL, PROJECT, TASK, replay_for
 from support.replay import ReplayTransport
 
 from zoho_axi.cli.main import main

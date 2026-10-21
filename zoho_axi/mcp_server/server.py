@@ -248,7 +248,7 @@ def build_server(
 
 
 def main() -> None:
-    """Console entry (`zoho-projects-mcp`, `python -m zoho_mcp`): credentials come from the config file or
+    """Console entry (`zoho-axi mcp`): credentials come from the config file or
     environment; nothing has to be configured first."""
     settings, error = None, None
     try:

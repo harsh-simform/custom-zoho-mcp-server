@@ -53,25 +53,22 @@ def test_python_floor_and_the_tomli_fallback_for_python_3_10():
     assert any(d.startswith("pytest") for d in project["optional-dependencies"]["dev"])
 
 
-@pytest.mark.parametrize("script", ["zoho-axi", "zoho", "zoho-projects-mcp"])
+@pytest.mark.parametrize("script", ["zoho-axi", "zoho"])
 def test_every_console_script_points_at_a_real_callable(script):
     module, _, attr = PYPROJECT["project"]["scripts"][script].partition(":")
     assert callable(getattr(importlib.import_module(module), attr))
 
 
-def test_the_canonical_entry_is_zoho_axi_and_the_legacy_scripts_are_marked_deprecated():
-    text = (ROOT / "pyproject.toml").read_text()
-    assert PYPROJECT["project"]["scripts"]["zoho-axi"] == "zoho_axi.cli.main:console_main"
-    assert "Deprecated" in text.split("\nzoho-projects-mcp")[0].splitlines()[-1]
+def test_the_canonical_entry_is_zoho_axi_and_no_legacy_script_remains():
+    scripts = PYPROJECT["project"]["scripts"]
+    assert scripts["zoho-axi"] == "zoho_axi.cli.main:console_main"
+    assert set(scripts) == {"zoho-axi", "zoho"}
+    assert not (ROOT / "zoho_mcp").exists()
 
 
 def test_the_skill_is_packaged():
     assert PYPROJECT["tool"]["setuptools"]["package-data"]["zoho_axi"] == ["skills/*/SKILL.md"]
     assert (ROOT / "zoho_axi" / "skills" / "zoho-axi" / "SKILL.md").is_file()
-
-
-def test_the_python_dash_m_shim_is_still_marked_deprecated():
-    assert "deprecated" in (ROOT / "zoho_mcp" / "__main__.py").read_text()
 
 
 # --- README: nothing stale ---------------------------------------------------------------------------------

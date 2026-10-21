@@ -1,5 +1,5 @@
 [project]
-name = "zoho-projects-mcp"
+name = "zoho-axi"
 version = "0.2.0"
 description = "Read-only Zoho Projects for agents: the token-lean zoho-axi CLI and a six-tool MCP server"
 readme = "README.md"
@@ -20,15 +20,13 @@ tokens = ["tiktoken>=0.7"]
 [project.scripts]
 zoho-axi = "zoho_axi.cli.main:console_main"
 zoho = "zoho_axi.cli.main:console_main"  # short alias for zoho-axi
-# Deprecated: the pre-0.2 MCP entry point, kept so existing registrations keep working. Use `zoho-axi mcp`.
-zoho-projects-mcp = "zoho_axi.mcp_server.server:main"
 
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["zoho_mcp*", "zoho_axi*"]
+include = ["zoho_axi*"]
 
 [tool.setuptools.package-data]
 # The Claude Code skill `zoho-axi skill install` copies (read via importlib.resources).

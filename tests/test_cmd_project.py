@@ -7,7 +7,7 @@ import stat
 import pytest
 from support.factories import API
 from support.world import (
-    LEGACY_MILESTONES_URL, P, PORTAL, PR, World, legacy_milestones, project_rec, replay_of, tags_body,
+    LEGACY_MILESTONES_URL, P, PR, World, legacy_milestones, project_rec, replay_of, tags_body,
     tasklists_body, tasks_body, task, token_count, users_body,
 )
 

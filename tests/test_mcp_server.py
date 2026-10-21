@@ -15,7 +15,6 @@ import sys
 
 import pytest
 from mcp import Client
-from mcp.client.stdio import StdioServerParameters, stdio_client
 from support.fixtures import BUG, PORTAL, PROJECT, TASK, replay_for
 from support.replay import ReplayTransport
 from support.tokens import assert_token_budget
@@ -440,22 +439,3 @@ def test_importing_the_server_has_no_side_effects(tmp_path):
                           capture_output=True, text=True, cwd=tmp_path)
     assert done.stdout.strip() == "ok", done.stderr
     assert list(tmp_path.iterdir()) == []
-
-
-def test_python_dash_m_zoho_mcp_runs_this_server_over_stdio(tmp_path):
-    """The real process: the legacy entry point serves the six tools on stdout, and answers an offline call."""
-    env = {"HOME": str(tmp_path), "PATH": "/usr/bin:/bin", "ZOHO_MCP_ENV_FILE": str(tmp_path / "none.env")}
-    params = StdioServerParameters(command=sys.executable, args=["-m", "zoho_mcp"], env=env, cwd=str(tmp_path))
-    errlog = (tmp_path / "stderr.txt").open("w")
-
-    async def go():
-        async with Client(stdio_client(params, errlog=errlog)) as client:
-            tools = await client.list_tools()
-            found = await client.call_tool("resolve", {"text": "AD1-B45"})
-            return sorted(t.name for t in tools.tools), found
-
-    names, found = asyncio.run(go())
-    errlog.close()
-    assert names == SIX
-    assert text_of(found).splitlines()[:2] == ["found[1]{key,type,resolved}:", "  AD1-B45,bug,no"]
-    assert "deprecated" in (tmp_path / "stderr.txt").read_text()
