@@ -1,7 +1,7 @@
-zoho-axi: read-only Zoho Projects for agents. Output is TOON; --json gives JSON.
-usage: zoho-axi [COMMAND] [flags]   (no command = home)
+zoho-projects-axi: read-only Zoho Projects for agents. Output is TOON; --json gives JSON.
+usage: zoho-projects-axi [COMMAND] [flags]   (no command = home)
 commands:
-  home             live overview of the default project; also what bare `zoho-axi` runs
+  home             live overview of the default project; also what bare `zoho-projects-axi` runs
   auth status      check config and credentials, and verify the token with Zoho
   auth login       sign in with your browser (OAuth) and save the refresh token to the config file
   auth login-help  one-time Zoho client registration that `auth login` needs, step by step
@@ -18,7 +18,7 @@ commands:
   session-start    Claude Code SessionStart hook: project snapshot from the cache; silent on any failure
   hooks install    add the SessionStart hook to ~/.claude/settings.json (shows the diff; --yes applies)
   hooks uninstall  remove the SessionStart hook again (shows the diff; --yes applies)
-  skill install    copy the zoho-axi skill to ~/.claude/skills/zoho-axi/ (shows the change; --yes applies)
+  skill install    copy the zoho-projects-axi skill to ~/.claude/skills/zoho-projects-axi/ (shows the change; --yes applies)
   mcp              run the MCP server over stdio (launched by an MCP client, not for a terminal)
 global flags:
   --project P  project to use: PROJECT or PORTAL:PROJECT (default: config)
@@ -27,4 +27,4 @@ global flags:
   --full       show every field and never truncate text
   --debug      print the Zoho request count to stderr
   --help       show help
-Run `zoho-axi COMMAND --help` for a command's flags and examples.
+Run `zoho-projects-axi COMMAND --help` for a command's flags and examples.

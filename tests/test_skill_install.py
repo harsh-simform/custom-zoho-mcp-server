@@ -6,7 +6,7 @@ from importlib import resources
 import pytest
 from support.safe_home import real_home_is_off_limits  # noqa: F401  (autouse fixture)
 
-from zoho_axi.cli.main import main
+from zoho_projects_axi.cli.main import main
 
 # The command names the spec's CLI surface (00-overview.md, "CLI surface" and D10) allows the skill to mention.
 SPEC_COMMANDS = {"home", "auth", "project", "tasks", "task", "bug", "people", "resolve", "cache", "hooks",
@@ -14,7 +14,7 @@ SPEC_COMMANDS = {"home", "auth", "project", "tasks", "task", "bug", "people", "r
 
 
 def packaged() -> str:
-    return resources.files("zoho_axi").joinpath("skills/zoho-axi/SKILL.md").read_text(encoding="utf-8")
+    return resources.files("zoho_projects_axi").joinpath("skills/zoho-projects-axi/SKILL.md").read_text(encoding="utf-8")
 
 
 @pytest.fixture
@@ -31,7 +31,7 @@ def run(home, *argv):
 
 
 def installed(home):
-    return home / ".claude" / "skills" / "zoho-axi" / "SKILL.md"
+    return home / ".claude" / "skills" / "zoho-projects-axi" / "SKILL.md"
 
 
 # --- the file itself ---------------------------------------------------------------------------
@@ -44,7 +44,7 @@ def front_matter(text):
 
 def test_front_matter_has_name_and_description():
     meta = front_matter(packaged())
-    assert meta["name"].strip() == "zoho-axi"
+    assert meta["name"].strip() == "zoho-projects-axi"
     assert len(meta["description"].strip()) > 40
 
 
@@ -54,7 +54,7 @@ def test_the_skill_is_short():
 
 def test_it_tells_the_agent_to_start_with_resolve_and_to_use_help_for_flags():
     text = packaged()
-    assert re.search(r"start with `?(zoho-axi )?resolve", text, re.IGNORECASE)
+    assert re.search(r"start with `?(zoho-projects-axi )?resolve", text, re.IGNORECASE)
     assert "--help" in text
 
 
@@ -65,7 +65,7 @@ def test_it_does_not_duplicate_a_flag_reference():
 
 
 def test_it_only_mentions_commands_the_cli_has_or_will_have():
-    named = set(re.findall(r"`zoho-axi ([a-z][a-z-]*)", packaged()))
+    named = set(re.findall(r"`zoho-projects-axi ([a-z][a-z-]*)", packaged()))
     assert named, "the skill should show command forms"
     assert named <= SPEC_COMMANDS, sorted(named - SPEC_COMMANDS)
 
@@ -76,7 +76,7 @@ def test_install_without_yes_shows_what_it_would_do_and_writes_nothing(home):
     code, out, err = run(home, "skill", "install")
     assert code == 0 and err == ""
     assert "status: dry run" in out and "change: create" in out
-    assert "zoho-axi skill install --yes" in out
+    assert "zoho-projects-axi skill install --yes" in out
     assert list(home.iterdir()) == []
 
 
@@ -97,7 +97,7 @@ def test_a_second_install_is_a_no_op(home):
 
 def test_a_changed_installed_copy_is_shown_as_a_diff_and_only_replaced_with_yes(home):
     run(home, "skill", "install", "--yes")
-    installed(home).write_text("---\nname: zoho-axi\ndescription: my edited copy\n---\nlocal notes\n")
+    installed(home).write_text("---\nname: zoho-projects-axi\ndescription: my edited copy\n---\nlocal notes\n")
     edited = installed(home).read_text()
     code, out, _ = run(home, "skill", "install")
     assert code == 0 and "change: update" in out
@@ -144,7 +144,7 @@ def test_the_skill_ships_as_package_data():
 
     root = Path(__file__).resolve().parent.parent
     config = tomllib.loads((root / "pyproject.toml").read_text())
-    patterns = config["tool"]["setuptools"]["package-data"]["zoho_axi"]
-    relative = "skills/zoho-axi/SKILL.md"
-    assert (root / "zoho_axi" / relative).is_file()
+    patterns = config["tool"]["setuptools"]["package-data"]["zoho_projects_axi"]
+    relative = "skills/zoho-projects-axi/SKILL.md"
+    assert (root / "zoho_projects_axi" / relative).is_file()
     assert any(fnmatch.fnmatch(relative, pattern) for pattern in patterns), patterns

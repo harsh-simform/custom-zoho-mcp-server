@@ -5,4 +5,4 @@ description: "word word word word word word word word word word word word word w
 comments[1]{by,at,text}:
   Asha K,2026-10-18,"abababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababababab ... (+420 chars, --full)"
 help[1]{run}:
-  zoho-axi task PROJ1-T1000 --full
+  zoho-projects-axi task PROJ1-T1000 --full

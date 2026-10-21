@@ -1,5 +1,5 @@
 """Expected strings come from the TOON spec's own examples (toonformat.dev), not from the encoder."""
-from zoho_axi.core.toon import encode
+from zoho_projects_axi.core.toon import encode
 
 
 def test_flat_object_of_scalars():

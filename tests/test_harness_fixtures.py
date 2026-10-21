@@ -28,9 +28,9 @@ from support.replay import UnrecordedRequest
 from support.sanitizer import detect_secrets
 from support.tokens import assert_token_budget
 
-from zoho_axi.core.errors import RateLimitedError, UpstreamError, ZohoAxiError
-from zoho_axi.core.render import render
-from zoho_axi.core.result import Result, Truncation
+from zoho_projects_axi.core.errors import RateLimitedError, UpstreamError, ZohoAxiError
+from zoho_projects_axi.core.render import render
+from zoho_projects_axi.core.result import Result, Truncation
 
 PB = f"/portal/{PORTAL}/projects/{PROJECT}"
 

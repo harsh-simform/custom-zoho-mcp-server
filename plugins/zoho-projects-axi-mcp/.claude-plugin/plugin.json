@@ -1,0 +1,10 @@
+{
+  "name": "zoho-projects-axi-mcp",
+  "version": "0.3.0",
+  "description": "Read-only Zoho Projects for Claude as an MCP server (run through uv, no install), plus a login command.",
+  "author": { "name": "Harsh Makwana" },
+  "homepage": "https://github.com/harsh-simform/zoho-projects-axi",
+  "repository": "https://github.com/harsh-simform/zoho-projects-axi",
+  "license": "MIT",
+  "keywords": ["zoho", "zoho-projects", "mcp"]
+}

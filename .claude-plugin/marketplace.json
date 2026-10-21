@@ -1,0 +1,17 @@
+{
+  "name": "zoho-projects-axi",
+  "owner": { "name": "Harsh Makwana" },
+  "metadata": { "description": "Read-only Zoho Projects for Claude Code: pick the skill + CLI plugin or the MCP plugin." },
+  "plugins": [
+    {
+      "name": "zoho-projects-axi-skill",
+      "source": "./plugins/zoho-projects-axi-skill",
+      "description": "Skill + zoho-projects-axi CLI: Claude runs zoho-projects-axi from Bash, with a session-start project snapshot and /zoho-projects-axi-skill:login."
+    },
+    {
+      "name": "zoho-projects-axi-mcp",
+      "source": "./plugins/zoho-projects-axi-mcp",
+      "description": "MCP server: six native Zoho tools (project, tasks, task, bug, people, resolve) and /zoho-projects-axi-mcp:login."
+    }
+  ]
+}

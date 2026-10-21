@@ -9,13 +9,13 @@ from urllib.parse import parse_qs, urlsplit
 
 import pytest
 
-from zoho_axi.core.config import load_settings
-from zoho_axi.core.config_edit import set_refresh_token
-from zoho_axi.core.errors import AuthError, ConfigError, UpstreamError, UsageError
-from zoho_axi.core import oauth_login
-from zoho_axi.core.oauth_login import authorize, pkce_pair
+from zoho_projects_axi.core.config import load_settings
+from zoho_projects_axi.core.config_edit import set_refresh_token
+from zoho_projects_axi.core.errors import AuthError, ConfigError, UpstreamError, UsageError
+from zoho_projects_axi.core import oauth_login
+from zoho_projects_axi.core.oauth_login import LoginResult, authorize, pkce_pair
 
-CLIENT = {"ZOHO_AXI_CLIENT_ID": "cid-123", "ZOHO_AXI_CLIENT_SECRET": "csecret-456"}
+CLIENT = {"ZOHO_PROJECTS_AXI_CLIENT_ID": "cid-123", "ZOHO_PROJECTS_AXI_CLIENT_SECRET": "csecret-456"}
 
 
 def make_settings(tmp_path, **env):
@@ -61,9 +61,9 @@ def browser(callback_query, seen):
 def run(tmp_path, post, callback_query, **env):
     seen: dict = {}
     port = free_port()
-    token = authorize(make_settings(tmp_path, **CLIENT, **env), post, port=port, announce=lambda _l: None,
-                      open_browser=browser(callback_query, seen), timeout=10)
-    return token, seen
+    result = authorize(make_settings(tmp_path, **CLIENT, **env), lambda account: post, port=port,
+                       announce=lambda _l: None, open_browser=browser(callback_query, seen), timeout=10)
+    return result, seen
 
 
 def good(seen):
@@ -79,9 +79,9 @@ def test_pkce_challenge_is_the_s256_of_the_verifier():
 
 def test_login_requests_offline_read_only_access_and_exchanges_the_code(tmp_path):
     post = FakePost({"access_token": "a", "refresh_token": "1000.refresh-xyz"})
-    token, seen = run(tmp_path, post, good)
+    result, seen = run(tmp_path, post, good)
 
-    assert token == "1000.refresh-xyz"
+    assert result == LoginResult("1000.refresh-xyz", "com")
     assert seen["access_type"] == "offline" and seen["prompt"] == "consent"
     assert seen["code_challenge_method"] == "S256"
     assert seen["client_id"] == "cid-123"
@@ -109,11 +109,28 @@ def test_denied_consent_is_an_auth_error(tmp_path):
     assert err.value.code == "auth.denied"
 
 
-def test_other_data_center_is_reported_before_any_exchange(tmp_path):
+def test_account_in_another_data_center_is_exchanged_there_and_reported(tmp_path):
+    seen_accounts = []
+    post = FakePost({"refresh_token": "1000.eu-token-xyz"})
+
+    def make_post(account):
+        seen_accounts.append(account.accounts_base)
+        return post
+
+    seen: dict = {}
+    result = authorize(make_settings(tmp_path, **CLIENT), make_post, port=free_port(), announce=lambda _l: None,
+                       open_browser=browser(lambda s: {**good(s), "location": "eu"}, seen), timeout=10)
+
+    assert result == LoginResult("1000.eu-token-xyz", "eu")
+    assert seen_accounts == ["https://accounts.zoho.eu"]
+    assert post.calls[0][0] == "https://accounts.zoho.eu/oauth/v2/token"
+
+
+def test_unknown_data_center_never_gets_the_secret(tmp_path):
     post = FakePost({"refresh_token": "never"})
-    with pytest.raises(ConfigError) as err:
-        run(tmp_path, post, lambda seen: {**good(seen), "location": "eu"})
-    assert err.value.code == "config.dc_mismatch"
+    with pytest.raises(AuthError) as err:
+        run(tmp_path, post, lambda seen: {**good(seen), "location": "evil.example"})
+    assert err.value.code == "auth.exchange_failed"
     assert post.calls == []
 
 
@@ -131,7 +148,7 @@ def test_unreachable_accounts_server_is_an_upstream_error(tmp_path):
 
 def test_missing_client_credentials_fail_before_listening(tmp_path):
     with pytest.raises(AuthError) as err:
-        authorize(make_settings(tmp_path), FakePost({}), announce=lambda _l: None)
+        authorize(make_settings(tmp_path), lambda a: FakePost({}), announce=lambda _l: None)
     assert err.value.code == "auth.missing"
 
 
@@ -140,14 +157,14 @@ def test_busy_port_is_a_usage_error(tmp_path):
         s.bind(("127.0.0.1", 0))
         s.listen()
         with pytest.raises(UsageError) as err:
-            authorize(make_settings(tmp_path, **CLIENT), FakePost({}), port=s.getsockname()[1], announce=lambda _l: None)
+            authorize(make_settings(tmp_path, **CLIENT), lambda a: FakePost({}), port=s.getsockname()[1], announce=lambda _l: None)
     assert err.value.code == "usage.port_unavailable"
 
 
 def test_no_redirect_times_out(tmp_path):
     ticks = iter(range(0, 1000, 5))
     with pytest.raises(AuthError) as err:
-        authorize(make_settings(tmp_path, **CLIENT), FakePost({}), port=free_port(), announce=lambda _l: None,
+        authorize(make_settings(tmp_path, **CLIENT), lambda a: FakePost({}), port=free_port(), announce=lambda _l: None,
                   timeout=10, clock=lambda: next(ticks))
     assert err.value.code == "auth.login_timeout"
 
@@ -161,8 +178,8 @@ def test_unrelated_requests_to_the_listener_do_not_end_the_wait(tmp_path):
             pass
         return good(seen)
 
-    token, _ = run(tmp_path, FakePost({"refresh_token": "1000.ok-token"}), probe_then_callback)
-    assert token == "1000.ok-token"
+    result, _ = run(tmp_path, FakePost({"refresh_token": "1000.ok-token"}), probe_then_callback)
+    assert result.refresh_token == "1000.ok-token"
 
 
 # --- saving the token -------------------------------------------------------------------------------
@@ -186,3 +203,38 @@ def test_set_refresh_token_refuses_an_odd_token_without_echoing_it(tmp_path):
     with pytest.raises(ConfigError) as err:
         set_refresh_token(tmp_path / "config.toml", 'bad"\ntoken')
     assert "bad" not in err.value.message
+
+
+def test_set_refresh_token_also_records_a_discovered_data_center(tmp_path):
+    path = tmp_path / "config.toml"
+    path.write_text('client_id = "cid"\n# dc = "com"\n')
+    set_refresh_token(path, "1000.new-token-xyz", dc="eu")
+    assert 'refresh_token = "1000.new-token-xyz"' in path.read_text()
+    assert 'dc = "eu"' in path.read_text()
+
+
+# --- the bundled client -----------------------------------------------------------------------------
+
+def test_bundled_client_fills_in_only_what_the_user_did_not_set(tmp_path, monkeypatch):
+    from zoho_projects_axi.core import bundled_client
+
+    monkeypatch.setattr(bundled_client, "CLIENT_ID", "bundled-id")
+    monkeypatch.setattr(bundled_client, "CLIENT_SECRET", "bundled-secret")
+
+    plain = make_settings(tmp_path)
+    assert (plain.client_id, plain.client_secret) == ("bundled-id", "bundled-secret")
+    assert plain.sources["client_id"] == "bundled"
+
+    own = make_settings(tmp_path, ZOHO_PROJECTS_AXI_CLIENT_ID="mine", ZOHO_PROJECTS_AXI_CLIENT_SECRET="mine-secret")
+    assert (own.client_id, own.client_secret) == ("mine", "mine-secret")
+    assert own.sources["client_id"] == "env"
+
+
+def test_without_a_bundled_client_nothing_is_invented(tmp_path):
+    assert make_settings(tmp_path).client_id is None
+
+
+def test_only_the_refresh_token_missing_points_at_login(tmp_path):
+    with pytest.raises(AuthError) as err:
+        make_settings(tmp_path, **CLIENT).require_credentials()
+    assert "zoho-projects-axi auth login" in err.value.hint

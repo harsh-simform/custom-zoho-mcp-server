@@ -4,10 +4,10 @@ import pytest
 from support.factories import API, TOKEN_URL, Clock, make_settings
 from support.replay import ReplayTransport
 
-from zoho_axi.core.auth import ZohoAuth
-from zoho_axi.core.errors import AuthError, NotFoundError, RateLimitedError, ReadOnlyError, UpstreamError
-from zoho_axi.core.gateway import ZohoGateway
-from zoho_axi.core.transport import ReadOnlyTransport
+from zoho_projects_axi.core.auth import ZohoAuth
+from zoho_projects_axi.core.errors import AuthError, NotFoundError, RateLimitedError, ReadOnlyError, UpstreamError
+from zoho_projects_axi.core.gateway import ZohoGateway
+from zoho_projects_axi.core.transport import ReadOnlyTransport
 
 FILE = "https://projects.zoho.com/files/shot.png"
 
@@ -109,7 +109,7 @@ def test_zoho_hosts_of_the_configured_data_center_are_allowed(tmp_path, url):
 def test_the_allowlist_follows_the_configured_data_center(tmp_path):
     url = "https://projects.zoho.eu/a.png"
     replay = ReplayTransport().get(url, body=b"eu")
-    gateway, _ = build(tmp_path, replay, env={"ZOHO_AXI_DC": "eu"})
+    gateway, _ = build(tmp_path, replay, env={"ZOHO_PROJECTS_AXI_DC": "eu"})
     assert gateway.download(url, max_bytes=10)[0] == b"eu"
 
 
@@ -125,7 +125,7 @@ def test_a_body_over_the_cap_is_an_upstream_error_not_returned(tmp_path):
 def test_an_adapter_that_ignores_the_cap_is_still_caught_by_the_gateway(tmp_path):
     class Careless:
         def send(self, *args, **kwargs):
-            from zoho_axi.core.transport import TransportResponse
+            from zoho_projects_axi.core.transport import TransportResponse
 
             return TransportResponse(200, b"x" * 50, "image/png")
 
@@ -136,7 +136,7 @@ def test_an_adapter_that_ignores_the_cap_is_still_caught_by_the_gateway(tmp_path
 
 def test_the_cap_defaults_to_the_configured_attachment_limit(tmp_path):
     replay = ReplayTransport().get(FILE, body=b"ok")
-    gateway, _ = build(tmp_path, replay, env={"ZOHO_AXI_MAX_ATTACHMENT_BYTES": "1"})
+    gateway, _ = build(tmp_path, replay, env={"ZOHO_PROJECTS_AXI_MAX_ATTACHMENT_BYTES": "1"})
     with pytest.raises(UpstreamError):
         gateway.download(FILE)
 

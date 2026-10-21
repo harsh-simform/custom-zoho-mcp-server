@@ -3,8 +3,8 @@ import pytest
 from support.factories import API, Clock, make_settings
 from support.replay import ReplayTransport
 
-from zoho_axi.core.errors import RateLimitedError
-from zoho_axi.core.gateway import ZohoGateway
+from zoho_projects_axi.core.errors import RateLimitedError
+from zoho_projects_axi.core.gateway import ZohoGateway
 
 PORTALS = f"{API}/portals"
 

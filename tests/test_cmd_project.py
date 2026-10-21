@@ -1,4 +1,4 @@
-"""`zoho-axi project`, `project list`, `project use` (T10) at the product seam. Bodies are
+"""`zoho-projects-axi project`, `project list`, `project use` (T10) at the product seam. Bodies are
 invented-but-plausible (tests/support/world.py); expected texts are hand-written literals."""
 import json
 import os
@@ -50,9 +50,9 @@ def test_overview_is_a_lean_summary_with_counts_and_the_next_milestone_due(world
         'next_milestone: Beta Release (2026-04-30)',
         "counts: tasklists=2 milestones=3 users=2 tags=2 open_tasks=15 closed_tasks=10",
         "help[3]{run}:",
-        "  zoho-axi tasks",
-        "  zoho-axi people",
-        "  zoho-axi project --lists",
+        "  zoho-projects-axi tasks",
+        "  zoho-projects-axi people",
+        "  zoho-projects-axi project --lists",
     ])
     assert world.requests(err) == 6  # project, tasklists, milestones v3 404 + legacy, users, tags
 
@@ -104,7 +104,7 @@ def test_lists_flag_adds_tasklists_and_milestones_with_ids_for_filtering(world):
     assert '  "9001",Auth,' in out
     assert "milestones[3]{id,name,due,status}:" in out
     assert '  "5001",Beta Release,2026-04-30,notcompleted' in out
-    assert "zoho-axi project --lists" not in out
+    assert "zoho-projects-axi project --lists" not in out
 
 
 def test_description_only_with_full_and_html_stripped(world):
@@ -162,7 +162,7 @@ def test_project_list_shows_the_configured_portals_projects(world):
         '  "2200",Demo Website Redesign,In Progress,"1100"',
         '  "2201",Mobile App,Closed,"1100"',
         "help[1]{run}:",
-        "  zoho-axi project use 'Demo Website Redesign'",
+        "  zoho-projects-axi project use 'Demo Website Redesign'",
     ])
     assert world.requests(err) == 1
 
@@ -188,7 +188,7 @@ def test_project_list_empty_state(world):
 # --- project use --------------------------------------------------------------------------------
 
 CONFIG = """\
-# zoho-axi config -- keep this file private
+# zoho-projects-axi config -- keep this file private
 client_id = "cid"            # from the API console
 client_secret = 'literal-secret'
 dc = "com"
@@ -245,7 +245,7 @@ def test_config_file_is_mode_600_and_no_temp_files_are_left(tmp_path):
 
 
 def test_a_missing_config_file_is_created_private_with_just_the_two_keys(tmp_path):
-    w = World(tmp_path, configured=False, ZOHO_AXI_PORTAL_ID="1100")
+    w = World(tmp_path, configured=False, ZOHO_PROJECTS_AXI_PORTAL_ID="1100")
     code, _, _ = w.run(["project", "use", "demo"], replay_of((f"{P}/projects", [project_rec()])))
     assert code == 0
     assert w.config_path.read_text() == 'portal_id = "1100"\nproject_id = "2200"\n'
@@ -253,7 +253,7 @@ def test_a_missing_config_file_is_created_private_with_just_the_two_keys(tmp_pat
 
 
 def test_absent_keys_are_inserted_before_the_first_table(tmp_path):
-    w = World(tmp_path, configured=False, ZOHO_AXI_PORTAL_ID="1100")
+    w = World(tmp_path, configured=False, ZOHO_PROJECTS_AXI_PORTAL_ID="1100")
     write_config(w, '# my config\ndc = "com"\n\n[extra]\nk = 1\n')
     w.run(["project", "use", "demo"], replay_of((f"{P}/projects", [project_rec()])))
     assert w.config_path.read_text() == (
@@ -261,7 +261,7 @@ def test_absent_keys_are_inserted_before_the_first_table(tmp_path):
 
 
 def test_the_new_default_is_what_the_next_command_uses(tmp_path):
-    w = World(tmp_path, configured=False, ZOHO_AXI_PORTAL_ID="1100")
+    w = World(tmp_path, configured=False, ZOHO_PROJECTS_AXI_PORTAL_ID="1100")
     w.run(["project", "use", "demo"], replay_of((f"{P}/projects", [project_rec()])))
     page = {}
     code, out, _ = w.run(["tasks"], replay_of((f"{P}/projects/2200/tasks", tasks_body(task(1, "A")), page)))
@@ -326,10 +326,10 @@ def test_a_failed_write_leaves_the_original_file_untouched(tmp_path, monkeypatch
 
 
 def test_an_env_override_is_called_out_as_still_winning(tmp_path):
-    w = World(tmp_path, configured=False, ZOHO_AXI_PORTAL_ID="9999", ZOHO_AXI_PROJECT_ID="1")
+    w = World(tmp_path, configured=False, ZOHO_PROJECTS_AXI_PORTAL_ID="9999", ZOHO_PROJECTS_AXI_PROJECT_ID="1")
     code, out, _ = w.run(["project", "use", "demo"], replay_of((f"{API}/portal/9999/projects", [project_rec()])))
     assert code == 0
-    assert "ZOHO_AXI_PROJECT_ID is set in the environment and still overrides the config file" in out
+    assert "ZOHO_PROJECTS_AXI_PROJECT_ID is set in the environment and still overrides the config file" in out
 
 
 def test_without_a_portal_and_with_several_it_asks_for_portal_colon_name(tmp_path):

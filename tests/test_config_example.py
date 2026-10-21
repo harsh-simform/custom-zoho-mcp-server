@@ -9,7 +9,7 @@ try:
 except ModuleNotFoundError:  # Python 3.10
     import tomli as tomllib
 
-from zoho_axi.core.config import _SPEC, load_settings
+from zoho_projects_axi.core.config import _SPEC, load_settings
 
 ROOT = Path(__file__).resolve().parent.parent
 EXAMPLE = ROOT / "config.example.toml"
@@ -57,7 +57,7 @@ def test_the_example_loads_as_is_and_with_every_optional_line_enabled(tmp_path):
 def test_the_example_states_the_mode_600_rule_and_the_legacy_deprecation():
     text = EXAMPLE.read_text()
     assert "chmod 600" in text and "mode 600" in text
-    assert "DEPRECATED" in text and ".env" in text and "ZOHO_AXI_<KEY>" in text
+    assert "DEPRECATED" in text and ".env" in text and "ZOHO_PROJECTS_AXI_<KEY>" in text
 
 
 def test_the_old_env_example_is_gone():

@@ -10,4 +10,4 @@ comments[2]{by,at,text}:
   Hugo Voss,2026-03-03,"Reproduced on staging. The validator only checks length, not the pattern."
   Hugo Okoye,2026-03-04,Linking the design review. Please also cover the UK and IE formats.
 help[1]{run}:
-  zoho-axi task DM1-T2 --attachments
+  zoho-projects-axi task DM1-T2 --attachments

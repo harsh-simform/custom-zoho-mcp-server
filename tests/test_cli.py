@@ -1,6 +1,6 @@
 """CLI skeleton (T06). The seam is the product seam: argv/env in, (exit code, stdout, stderr) out.
 `main(argv, env, stdout, stderr)` is exercised in-process; tests/test_cli_process.py runs the installed
-`zoho-axi` entry point as a subprocess for what only a process can show.
+`zoho-projects-axi` entry point as a subprocess for what only a process can show.
 
 Expected outputs are literals or hand-written goldens under tests/golden/cli, not recomputed from code.
 """
@@ -10,17 +10,17 @@ from pathlib import Path
 
 import pytest
 
-from zoho_axi.cli.main import main
-from zoho_axi.cli.registry import REGISTRY, Arg, Flag, Spec
-from zoho_axi.core.result import Result
+from zoho_projects_axi.cli.main import main
+from zoho_projects_axi.cli.registry import REGISTRY, Arg, Flag, Spec
+from zoho_projects_axi.core.result import Result
 
 GOLDEN = Path(__file__).parent / "golden" / "cli"
 HELP_TOKEN_BUDGET = 250  # per-subcommand --help; tokens approximated as len(text) / 4 (no tokenizer dependency)
 
 CREDS = {
-    "ZOHO_AXI_CLIENT_ID": "id-SECRET-1",
-    "ZOHO_AXI_CLIENT_SECRET": "secret-SECRET-2",
-    "ZOHO_AXI_REFRESH_TOKEN": "refresh-SECRET-3",
+    "ZOHO_PROJECTS_AXI_CLIENT_ID": "id-SECRET-1",
+    "ZOHO_PROJECTS_AXI_CLIENT_SECRET": "secret-SECRET-2",
+    "ZOHO_PROJECTS_AXI_REFRESH_TOKEN": "refresh-SECRET-3",
 }
 
 
@@ -50,14 +50,14 @@ def test_auth_status_without_credentials_points_at_login_help(tmp_path):
     code, out, _ = run(["auth", "status", "--offline"], tmp_path)
     assert code == 0
     assert 'credentials: "missing: client_id, client_secret, refresh_token"' in out
-    assert "zoho-axi auth login-help" in out
+    assert "zoho-projects-axi auth login-help" in out
 
 
 def test_auth_login_help_keeps_placeholders_like_module_and_key(tmp_path):
     code, out, _ = run(["auth", "login-help"], tmp_path)
     assert code == 0
     assert "ZohoProjects.search.READ" in out
-    assert "ZOHO_AXI_<KEY>" in out
+    assert "ZOHO_PROJECTS_AXI_<KEY>" in out
 
 
 def test_no_arguments_runs_home_and_exits_0(tmp_path):
@@ -71,7 +71,7 @@ def test_home_by_name_equals_bare_invocation(tmp_path):
 
 
 def test_project_flag_overrides_the_configured_project(tmp_path):
-    _, out, _ = run(["home", "--project", "999"], tmp_path, {"ZOHO_AXI_PROJECT_ID": "111"})
+    _, out, _ = run(["home", "--project", "999"], tmp_path, {"ZOHO_PROJECTS_AXI_PROJECT_ID": "111"})
     assert 'project: "999"' in out  # TOON quotes digit-only strings
 
 
@@ -97,7 +97,7 @@ def test_settings_warnings_appear_in_the_result_not_on_stderr(tmp_path):
 
 
 def test_config_problem_is_a_structured_error_with_exit_3(tmp_path):
-    code, out, _ = run(["home"], tmp_path, {"ZOHO_AXI_DC": "mars"})
+    code, out, _ = run(["home"], tmp_path, {"ZOHO_PROJECTS_AXI_DC": "mars"})
     assert code == 3
     assert out.splitlines()[0] == "error: config.invalid"
 
@@ -120,8 +120,8 @@ def test_unknown_flag_is_exit_2_with_a_closest_match_hint(tmp_path):
     assert code == 2
     assert out.splitlines() == [
         "error: usage.unknown_flag",
-        "message: unknown flag --offlin for `zoho-axi auth status`",
-        "hint: Did you mean --offline? Run `zoho-axi auth status --help` for the flags.",
+        "message: unknown flag --offlin for `zoho-projects-axi auth status`",
+        "hint: Did you mean --offline? Run `zoho-projects-axi auth status --help` for the flags.",
     ]
 
 
@@ -148,13 +148,13 @@ def test_unknown_command_suggests_the_closest_one(tmp_path):
     code, out, _ = run(["hom"], tmp_path)
     assert code == 2
     assert out.splitlines()[0] == "error: usage.unknown_command"
-    assert "Did you mean `zoho-axi home`?" in out
+    assert "Did you mean `zoho-projects-axi home`?" in out
 
 
 def test_unknown_subcommand_suggests_the_closest_one(tmp_path):
     code, out, _ = run(["auth", "statu"], tmp_path)
     assert code == 2
-    assert "hint: Did you mean `zoho-axi auth status`?" in out
+    assert "hint: Did you mean `zoho-projects-axi auth status`?" in out
 
 
 def test_group_without_subcommand_lists_the_subcommands(tmp_path):
@@ -165,7 +165,7 @@ def test_group_without_subcommand_lists_the_subcommands(tmp_path):
 
 def test_usage_errors_never_touch_settings(tmp_path):
     # an invalid dc would be exit 3 if settings were loaded before the usage check
-    code, _, _ = run(["home", "--bogus"], tmp_path, {"ZOHO_AXI_DC": "mars"})
+    code, _, _ = run(["home", "--bogus"], tmp_path, {"ZOHO_PROJECTS_AXI_DC": "mars"})
     assert code == 2
 
 
@@ -180,9 +180,9 @@ def _crash(ctx):
 
 
 FAKE = (
-    Spec("thing", "echo", _echo, examples=("zoho-axi thing A", "zoho-axi thing A --limit 5"),
+    Spec("thing", "echo", _echo, examples=("zoho-projects-axi thing A", "zoho-projects-axi thing A --limit 5"),
          args=(Arg("ref", "key"),), flags=(Flag("--limit", "max rows", metavar="N"),)),
-    Spec("crash", "always fails", _crash, examples=("zoho-axi crash", "zoho-axi crash --debug")),
+    Spec("crash", "always fails", _crash, examples=("zoho-projects-axi crash", "zoho-projects-axi crash --debug")),
 )
 
 
@@ -239,7 +239,7 @@ def test_subcommand_help_golden(tmp_path):
 def test_every_subcommand_help_is_short_and_has_usage_and_two_examples(spec, tmp_path):
     code, out, _ = run([*spec.name.split(), "--help"], tmp_path, registry=REGISTRY + FAKE)
     assert code == 0
-    assert out.startswith(f"usage: zoho-axi {spec.name}")
+    assert out.startswith(f"usage: zoho-projects-axi {spec.name}")
     assert len(out.splitlines()) <= 15
     assert len(out) / 4 <= HELP_TOKEN_BUDGET  # rough proxy: ~4 characters per token
     examples = out.split("examples:\n", 1)[1].splitlines()
@@ -249,7 +249,7 @@ def test_every_subcommand_help_is_short_and_has_usage_and_two_examples(spec, tmp
 def test_help_works_even_when_a_required_argument_is_missing(tmp_path):
     code, out, _ = run(["thing", "--help"], tmp_path, registry=FAKE)
     assert code == 0
-    assert out.startswith("usage: zoho-axi thing <ref>")
+    assert out.startswith("usage: zoho-projects-axi thing <ref>")
 
 
 def test_auth_login_help_golden(tmp_path):

@@ -3,7 +3,7 @@ the absence of the old stateful selection commands."""
 import pytest
 from support.world import PR, World, replay_of, task, tasks_body
 
-from zoho_axi.cli.registry import REGISTRY
+from zoho_projects_axi.cli.registry import REGISTRY
 
 PAGE = {}  # Zoho serves page 1 of 100 by default, so the plain call carries no paging params
 
@@ -22,7 +22,7 @@ def test_cache_status_reports_entries_after_a_warm_up(world):
     code, out, err = world.run(["cache", "status"])
     assert code == 0 and world.requests(err) == 0
     assert "path: " in out and "entries=1" in out
-    assert "zoho-axi cache clear --yes" in out
+    assert "zoho-projects-axi cache clear --yes" in out
 
 
 def test_cache_status_on_a_fresh_machine_does_not_create_the_cache(world):
@@ -56,8 +56,8 @@ def test_fresh_bypasses_the_cache_and_refreshes_it(world):
 def test_a_task_key_seen_in_a_list_resolves_to_its_id_with_no_request(world):
     from support.world import PORTAL, PROJECT
 
-    from zoho_axi.core.cache import CacheStore, Index, default_cache_path
-    from zoho_axi.core.config import load_settings
+    from zoho_projects_axi.core.cache import CacheStore, Index, default_cache_path
+    from zoho_projects_axi.core.config import load_settings
 
     world.run(["tasks"], tasks_replay())
     store = CacheStore(default_cache_path(world.env))
@@ -75,4 +75,4 @@ def test_the_old_stateful_commands_do_not_exist(name, world):
 @pytest.mark.parametrize("spec", REGISTRY, ids=lambda s: s.name)
 def test_every_command_accepts_the_global_project_flag(spec, world):
     code, out, _ = world.run([*spec.name.split(), "--project", "1", "--help"])
-    assert code == 0 and out.startswith(f"usage: zoho-axi {spec.name}")
+    assert code == 0 and out.startswith(f"usage: zoho-projects-axi {spec.name}")

@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from zoho_axi.core.http_transport import RequestsTransport
-from zoho_axi.core.transport import PayloadTooLarge, TransportError
+from zoho_projects_axi.core.http_transport import RequestsTransport
+from zoho_projects_axi.core.transport import PayloadTooLarge, TransportError
 
 REPO = Path(__file__).resolve().parents[1]
 
@@ -97,8 +97,8 @@ def _imports_requests(path: Path) -> bool:
 def test_only_the_real_http_adapter_imports_the_http_library():
     offenders = [
         str(p.relative_to(REPO))
-        for p in sorted((REPO / "zoho_axi").rglob("*.py"))
+        for p in sorted((REPO / "zoho_projects_axi").rglob("*.py"))
         if _imports_requests(p) and p.name != "http_transport.py"
     ]
     assert offenders == []
-    assert _imports_requests(REPO / "zoho_axi" / "core" / "http_transport.py")  # the scan works
+    assert _imports_requests(REPO / "zoho_projects_axi" / "core" / "http_transport.py")  # the scan works

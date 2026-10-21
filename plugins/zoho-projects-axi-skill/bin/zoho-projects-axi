@@ -1,0 +1,11 @@
+#!/bin/sh
+# Runs zoho-projects-axi through uv, so the plugin needs no separate install. Claude Code puts this directory on
+# the Bash tool's PATH while the plugin is enabled, so `zoho-projects-axi ...` works as a bare command.
+# ZOHO_PROJECTS_AXI_SPEC overrides the source (a PyPI name, a tag such as git+https://...@v0.3.0, or a local path).
+# Pin a tag in production: an unpinned git source is re-resolved on every run.
+SPEC="${ZOHO_PROJECTS_AXI_SPEC:-git+https://github.com/harsh-simform/zoho-projects-axi}"
+if command -v uvx >/dev/null 2>&1; then
+  exec uvx --quiet --from "$SPEC" zoho-projects-axi "$@"
+fi
+echo "zoho-projects-axi needs uv (https://docs.astral.sh/uv/): brew install uv, or curl -LsSf https://astral.sh/uv/install.sh | sh" >&2
+exit 127

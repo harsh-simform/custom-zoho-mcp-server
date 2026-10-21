@@ -19,9 +19,9 @@ from pathlib import Path
 from support.factories import API, LEGACY
 from support.replay import ReplayTransport
 
-from zoho_axi.cli.main import main
-from zoho_axi.core.config import load_settings
-from zoho_axi.core.gateway import ZohoGateway
+from zoho_projects_axi.cli.main import main
+from zoho_projects_axi.core.config import load_settings
+from zoho_projects_axi.core.gateway import ZohoGateway
 
 PORTAL = "1100"
 PROJECT = "2200"
@@ -30,9 +30,9 @@ PR = f"{P}/projects/{PROJECT}"
 TODAY = date(2026, 10, 21)
 
 CREDS = {
-    "ZOHO_AXI_CLIENT_ID": "cid-SECRET-1",
-    "ZOHO_AXI_CLIENT_SECRET": "csecret-SECRET-2",
-    "ZOHO_AXI_REFRESH_TOKEN": "refresh-SECRET-3",
+    "ZOHO_PROJECTS_AXI_CLIENT_ID": "cid-SECRET-1",
+    "ZOHO_PROJECTS_AXI_CLIENT_SECRET": "csecret-SECRET-2",
+    "ZOHO_PROJECTS_AXI_REFRESH_TOKEN": "refresh-SECRET-3",
 }
 
 
@@ -45,13 +45,13 @@ class World:
         self.tmp = tmp_path
         self.env = {"HOME": str(tmp_path), "ZOHO_MCP_ENV_FILE": str(tmp_path / "none.env"), **CREDS}
         if configured:
-            self.env.update({"ZOHO_AXI_PORTAL_ID": PORTAL, "ZOHO_AXI_PROJECT_ID": PROJECT})
+            self.env.update({"ZOHO_PROJECTS_AXI_PORTAL_ID": PORTAL, "ZOHO_PROJECTS_AXI_PROJECT_ID": PROJECT})
         self.env.update(env_extra)
         self.last_replay: ReplayTransport | None = None
 
     @property
     def config_path(self) -> Path:
-        return self.tmp / ".config" / "zoho-axi" / "config.toml"
+        return self.tmp / ".config" / "zoho-projects-axi" / "config.toml"
 
     def run(self, argv, replay: ReplayTransport | None = None, *, today: date = TODAY, env: dict | None = None,
             stdin=None, registry=None):

@@ -3,5 +3,5 @@ project: unset
 credentials: "missing: client_id, client_secret, refresh_token"
 note: "offline: credentials are missing, so no live data"
 help[2]{run}:
-  zoho-axi auth login-help
-  zoho-axi auth status
+  zoho-projects-axi auth login-help
+  zoho-projects-axi auth status

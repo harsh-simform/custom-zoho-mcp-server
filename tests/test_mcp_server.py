@@ -21,18 +21,18 @@ from support.tokens import assert_token_budget
 from support.world import TODAY, World
 from test_attachments_images import PNG, rec, task_replay
 
-from zoho_axi.cli.registry import REGISTRY
-from zoho_axi.core.config import load_settings
-from zoho_axi.core.errors import ConfigError
-from zoho_axi.core.gateway import ZohoGateway
-from zoho_axi.mcp_server.server import RedactSecrets, build_server
+from zoho_projects_axi.cli.registry import REGISTRY
+from zoho_projects_axi.core.config import load_settings
+from zoho_projects_axi.core.errors import ConfigError
+from zoho_projects_axi.core.gateway import ZohoGateway
+from zoho_projects_axi.mcp_server.server import RedactSecrets, build_server
 
 SIX = ["bug", "people", "project", "resolve", "task", "tasks"]
 TOOL_SCHEMA_BUDGET = 800  # tokens (proxy: chars / 4), all six tools together, as the T13 ticket asks
 
 
 def fixture_world(tmp_path, name):
-    return World(tmp_path / name, configured=False, ZOHO_AXI_PORTAL_ID=PORTAL, ZOHO_AXI_PROJECT_ID=PROJECT)
+    return World(tmp_path / name, configured=False, ZOHO_PROJECTS_AXI_PORTAL_ID=PORTAL, ZOHO_PROJECTS_AXI_PROJECT_ID=PROJECT)
 
 
 def server_for(world, replay):
@@ -113,8 +113,8 @@ def test_task_call_returns_the_toon_text_and_mcp_call_form_hints(tmp_path):
     assert not result.is_error and len(result.content) == 1
     text = text_of(result)
     assert text.startswith("task: DM1-T2\n")
-    assert "help[" in text and "task ref=DM1-T2 comments=true" in text  # a tool call, not a `zoho-axi` command
-    assert "zoho-axi" not in text
+    assert "help[" in text and "task ref=DM1-T2 comments=true" in text  # a tool call, not a `zoho-projects-axi` command
+    assert "zoho-projects-axi" not in text
 
 
 def test_format_json_returns_json(tmp_path):
@@ -125,7 +125,7 @@ def test_format_json_returns_json(tmp_path):
 
 
 def test_the_server_starts_from_config_file_credentials_alone_with_no_prior_configure_call(tmp_path):
-    cfg = tmp_path / ".config" / "zoho-axi" / "config.toml"
+    cfg = tmp_path / ".config" / "zoho-projects-axi" / "config.toml"
     cfg.parent.mkdir(parents=True)
     cfg.write_text(f'client_id="file-id"\nclient_secret="file-secret"\nrefresh_token="file-refresh"\n'
                    f'portal_id="{PORTAL}"\nproject_id="{PROJECT}"\n')
@@ -173,10 +173,10 @@ def as_call_form(cli_text):
 
 
 def hint_call(line):
-    """(command, {param: value}) of one help line, in either form: `zoho-axi task KEY --comments --full` or
+    """(command, {param: value}) of one help line, in either form: `zoho-projects-axi task KEY --comments --full` or
     `task ref=KEY comments=true full=true`."""
     words = shlex.split(line)
-    if words[0] == "zoho-axi":
+    if words[0] == "zoho-projects-axi":
         command, rest, params, i = words[1], words[2:], {}, 0
         while i < len(rest):
             if rest[i].startswith("--"):
@@ -211,7 +211,7 @@ def test_a_tool_call_returns_what_the_cli_prints(tmp_path, case_id, scenarios, a
     assert json.loads(as_call_form(json.dumps(cli_doc))) == mcp_doc
     # help differs only in form: the same calls with the same parameters
     assert [hint_call(h) for h in cli_help] == [hint_call(h) for h in mcp_help]
-    assert all(h.startswith("zoho-axi ") for h in cli_help) and not any("zoho-axi" in h for h in mcp_help)
+    assert all(h.startswith("zoho-projects-axi ") for h in cli_help) and not any("zoho-projects-axi" in h for h in mcp_help)
 
     # the TOON text (what the tool really returns) is the same up to its help block
     cli_data, _, cli_tail = cli_toon.partition("\nhelp[")
@@ -248,7 +248,7 @@ def test_json_format_errors_are_json_too(tmp_path):
 
 def test_missing_credentials_are_an_auth_error_on_the_call_not_a_startup_failure(tmp_path):
     env = {"HOME": str(tmp_path), "ZOHO_MCP_ENV_FILE": str(tmp_path / "none.env"),
-           "ZOHO_AXI_PORTAL_ID": PORTAL, "ZOHO_AXI_PROJECT_ID": PROJECT}
+           "ZOHO_PROJECTS_AXI_PORTAL_ID": PORTAL, "ZOHO_PROJECTS_AXI_PROJECT_ID": PROJECT}
     settings = load_settings(env=env, legacy_env_file=tmp_path / "none.env")
     replay = ReplayTransport()
     server = build_server(settings, gateway=ZohoGateway(settings, transport=replay), env=env)
@@ -307,7 +307,7 @@ def test_images_are_returned_inline_only_when_asked_and_nothing_is_written_to_di
     assert not result.is_error and [c.type for c in result.content] == ["text", "image"]
     assert result.content[1].mime_type == "image/png" and base64.b64decode(result.content[1].data) == PNG
     assert "shot.png" in text_of(result) and "images[1]" in text_of(result)
-    assert not (world.tmp / ".cache" / "zoho-axi" / "attachments").exists()  # the CLI saves files there; MCP does not
+    assert not (world.tmp / ".cache" / "zoho-projects-axi" / "attachments").exists()  # the CLI saves files there; MCP does not
 
 
 def test_the_default_call_downloads_no_image(tmp_path):
@@ -320,7 +320,7 @@ def test_the_default_call_downloads_no_image(tmp_path):
 def test_images_over_the_count_cap_are_warned_about_not_failed(tmp_path):
     replay = task_replay(*[rec(f"{n}.png") for n in "abcd"])
     world = fixture_world(tmp_path, "img")
-    world.env["ZOHO_AXI_MAX_IMAGES"] = "2"
+    world.env["ZOHO_PROJECTS_AXI_MAX_IMAGES"] = "2"
     result = call(world, replay, "task", ref=TASK, images=True)
     assert [c.type for c in result.content] == ["text", "image", "image"]
     assert "2 more images not downloaded (max_images is 2): c.png, d.png" in text_of(result)
@@ -406,17 +406,17 @@ def test_tool_calls_log_argument_names_and_sizes_never_values(tmp_path, caplog):
 def test_the_log_file_is_created_private_whatever_the_umask(tmp_path):
     import os
 
-    from zoho_axi.mcp_server.server import setup_logging
+    from zoho_projects_axi.mcp_server.server import setup_logging
 
     log = tmp_path / "logs" / "zoho.log"
     log.parent.mkdir()
-    settings = load_settings(env={"HOME": str(tmp_path), "ZOHO_AXI_LOG_FILE": str(log)}, legacy_env_file=tmp_path / "none.env")
+    settings = load_settings(env={"HOME": str(tmp_path), "ZOHO_PROJECTS_AXI_LOG_FILE": str(log)}, legacy_env_file=tmp_path / "none.env")
     root = logging.getLogger()
     saved = (list(root.handlers), root.level)
     old_umask = os.umask(0o000)
     try:
         setup_logging(settings)
-        logging.getLogger("zoho_axi.test").error("hello")
+        logging.getLogger("zoho_projects_axi.test").error("hello")
     finally:
         os.umask(old_umask)
         for handler in root.handlers:
@@ -430,7 +430,7 @@ def test_importing_the_server_has_no_side_effects(tmp_path):
     script = (
         "import logging, sys\n"
         "root = (list(logging.getLogger().handlers), logging.getLogger().level)\n"
-        "import zoho_axi.mcp_server.server\n"
+        "import zoho_projects_axi.mcp_server.server\n"
         "assert (list(logging.getLogger().handlers), logging.getLogger().level) == root, 'logging configured at import'\n"
         "assert 'requests' not in sys.modules\n"
         "print('ok')\n"

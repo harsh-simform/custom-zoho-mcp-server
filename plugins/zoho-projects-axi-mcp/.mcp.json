@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "zoho": {
+      "command": "${CLAUDE_PLUGIN_ROOT}/bin/zoho-projects-axi",
+      "args": ["mcp"]
+    }
+  }
+}

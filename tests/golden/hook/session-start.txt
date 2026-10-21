@@ -1,9 +1,9 @@
 project: "2200"
 name: Demo Website Redesign
 status: In Progress
-note: cached snapshot; run `zoho-axi` for live data
+note: cached snapshot; run `zoho-projects-axi` for live data
 counts: open_tasks=5 overdue=1 due_soon=2 open=3 in_progress=2
 help[3]{run}:
-  zoho-axi resolve '<text>'
-  zoho-axi task DM1-T1
-  zoho-axi tasks --status open
+  zoho-projects-axi resolve '<text>'
+  zoho-projects-axi task DM1-T1
+  zoho-projects-axi tasks --status open

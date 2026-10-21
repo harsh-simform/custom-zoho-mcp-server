@@ -9,7 +9,7 @@ import socket
 import pytest
 from support import golden, tokens
 
-LIVE = "ZOHO_AXI_LIVE"
+LIVE = "ZOHO_PROJECTS_AXI_LIVE"
 _LOOPBACK_NAMES = {"localhost"}
 
 
@@ -24,7 +24,7 @@ def pytest_addoption(parser):
 
 def pytest_configure(config):
     golden.configure(update=config.getoption("--update-goldens"))
-    config.addinivalue_line("markers", "live: talks to the real Zoho API; runs only with ZOHO_AXI_LIVE=1")
+    config.addinivalue_line("markers", "live: talks to the real Zoho API; runs only with ZOHO_PROJECTS_AXI_LIVE=1")
 
 
 def _live_enabled() -> bool:
@@ -34,7 +34,7 @@ def _live_enabled() -> bool:
 def pytest_collection_modifyitems(config, items):
     if _live_enabled():
         return
-    skip = pytest.mark.skip(reason="live Zoho smoke test; set ZOHO_AXI_LIVE=1 to run")
+    skip = pytest.mark.skip(reason="live Zoho smoke test; set ZOHO_PROJECTS_AXI_LIVE=1 to run")
     for item in items:
         if "live" in item.keywords:
             item.add_marker(skip)
@@ -68,7 +68,7 @@ def _offline_and_credential_free(monkeypatch, request):
         if self.family in (socket.AF_INET, socket.AF_INET6) and not _is_loopback(address[0]):
             raise RuntimeError(
                 f"network access is blocked in the default test suite (tried {address[0]!r}); "
-                "use the replay transport, or mark the test `live` and run with ZOHO_AXI_LIVE=1"
+                "use the replay transport, or mark the test `live` and run with ZOHO_PROJECTS_AXI_LIVE=1"
             )
         return real_connect(self, address, *args, **kwargs)
 

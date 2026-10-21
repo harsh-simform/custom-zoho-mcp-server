@@ -1,4 +1,4 @@
-"""Images on request (T12): `zoho-axi task|bug <KEY> --images` and the shared `core/attachments` module.
+"""Images on request (T12): `zoho-projects-axi task|bug <KEY> --images` and the shared `core/attachments` module.
 
 Seams: the CLI product seam (argv/env in, exit code + stdout out, Zoho replayed below it through the real
 gateway and cache) and, for the function the MCP front-end (T13) will call, `inline_images`. Expected
@@ -18,8 +18,8 @@ from support.factories import make_gateway
 from support.fixtures import BUG, PORTAL, PROJECT, TASK, replay_for
 from support.replay import ReplayTransport
 
-from zoho_axi.cli.main import main
-from zoho_axi.core import attachments
+from zoho_projects_axi.cli.main import main
+from zoho_projects_axi.core import attachments
 
 PNG = base64.b64decode(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
@@ -55,8 +55,8 @@ def run(argv, tmp_path, replay, *, env_extra=None):
     env = {
         "HOME": str(tmp_path),
         "ZOHO_MCP_ENV_FILE": str(tmp_path / "none.env"),
-        "ZOHO_AXI_PORTAL_ID": PORTAL, "ZOHO_AXI_PROJECT_ID": PROJECT,
-        "ZOHO_AXI_CLIENT_ID": "cid", "ZOHO_AXI_CLIENT_SECRET": "csecret", "ZOHO_AXI_REFRESH_TOKEN": "rtoken",
+        "ZOHO_PROJECTS_AXI_PORTAL_ID": PORTAL, "ZOHO_PROJECTS_AXI_PROJECT_ID": PROJECT,
+        "ZOHO_PROJECTS_AXI_CLIENT_ID": "cid", "ZOHO_PROJECTS_AXI_CLIENT_SECRET": "csecret", "ZOHO_PROJECTS_AXI_REFRESH_TOKEN": "rtoken",
         **(env_extra or {}),
     }
     gateway = make_gateway(tmp_path, replay)
@@ -66,7 +66,7 @@ def run(argv, tmp_path, replay, *, env_extra=None):
 
 
 def attach_dir(tmp_path, kind="task", ident=TASK):
-    return tmp_path / ".cache" / "zoho-axi" / "attachments" / f"{kind}-{ident}"
+    return tmp_path / ".cache" / "zoho-projects-axi" / "attachments" / f"{kind}-{ident}"
 
 
 def download_calls(replay):
@@ -91,7 +91,7 @@ def test_a_default_run_downloads_nothing_and_fetches_no_image_bytes(tmp_path):
     code, out, _, _ = run(["task", TASK, "--attachments"], tmp_path, replay)
     assert code == 0 and "images[" not in out
     assert download_calls(replay) == []
-    assert not (tmp_path / ".cache" / "zoho-axi" / "attachments").exists()
+    assert not (tmp_path / ".cache" / "zoho-projects-axi" / "attachments").exists()
 
 
 def test_a_plain_task_run_downloads_nothing_either(tmp_path):
@@ -169,9 +169,9 @@ def test_xdg_cache_home_decides_where_files_go(tmp_path):
     replay = task_replay(rec("shot.png"))
     code, out, _, _ = run(["task", TASK, "--images"], tmp_path, replay, env_extra={"XDG_CACHE_HOME": str(xdg)})
     assert code == 0
-    assert (xdg / "zoho-axi" / "attachments" / f"task-{TASK}" / "shot.png").read_bytes() == PNG
-    assert str(xdg / "zoho-axi" / "attachments") in out
-    assert not (tmp_path / ".cache" / "zoho-axi" / "attachments").exists()
+    assert (xdg / "zoho-projects-axi" / "attachments" / f"task-{TASK}" / "shot.png").read_bytes() == PNG
+    assert str(xdg / "zoho-projects-axi" / "attachments") in out
+    assert not (tmp_path / ".cache" / "zoho-projects-axi" / "attachments").exists()
 
 
 # --- safety: hosts, caps, counts ------------------------------------------------------------------------
@@ -204,7 +204,7 @@ def test_a_record_without_a_download_url_is_a_warning_not_a_crash(tmp_path):
 def test_an_image_whose_listed_size_is_over_the_cap_is_skipped_without_a_download(tmp_path):
     replay = task_replay(rec("huge.png", size=500), rec("small.png"))
     code, out, _, _ = run(["task", TASK, "--images"], tmp_path, replay,
-                          env_extra={"ZOHO_AXI_MAX_ATTACHMENT_BYTES": "100"})
+                          env_extra={"ZOHO_PROJECTS_AXI_MAX_ATTACHMENT_BYTES": "100"})
     assert code == 0
     assert "huge.png: 500 B is over the 100 B limit" in out
     assert f"{DL}/huge.png" not in [c.url for c in replay.calls]
@@ -215,7 +215,7 @@ def test_an_image_that_turns_out_bigger_than_listed_is_stopped_by_the_cap_and_re
     liar = rec("liar.png", size=10)  # claims 10 bytes, serves 70
     replay = task_replay(liar)
     code, out, _, _ = run(["task", TASK, "--images"], tmp_path, replay,
-                          env_extra={"ZOHO_AXI_MAX_ATTACHMENT_BYTES": "50"})
+                          env_extra={"ZOHO_PROJECTS_AXI_MAX_ATTACHMENT_BYTES": "50"})
     assert code == 0
     assert "liar.png" in out and "50-byte cap" in out
     assert not attach_dir(tmp_path).exists() or list(attach_dir(tmp_path).iterdir()) == []
@@ -223,7 +223,7 @@ def test_an_image_that_turns_out_bigger_than_listed_is_stopped_by_the_cap_and_re
 
 def test_images_over_the_count_cap_are_reported_and_not_downloaded(tmp_path):
     replay = task_replay(rec("a.png"), rec("b.png"), rec("c.png"), rec("d.png"))
-    code, out, _, _ = run(["task", TASK, "--images"], tmp_path, replay, env_extra={"ZOHO_AXI_MAX_IMAGES": "2"})
+    code, out, _, _ = run(["task", TASK, "--images"], tmp_path, replay, env_extra={"ZOHO_PROJECTS_AXI_MAX_IMAGES": "2"})
     assert code == 0
     assert sorted(p.name for p in attach_dir(tmp_path).iterdir()) == ["a.png", "b.png"]
     assert "images[2]" in out

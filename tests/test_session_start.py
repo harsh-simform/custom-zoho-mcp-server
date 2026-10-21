@@ -1,6 +1,6 @@
-"""T14: `zoho-axi session-start`, the Claude Code SessionStart hook entrypoint, at the product seam.
+"""T14: `zoho-projects-axi session-start`, the Claude Code SessionStart hook entrypoint, at the product seam.
 
-Contract (ticket 14): <= 150 tokens; project, short status tally, "run `zoho-axi` for live data" and the top
+Contract (ticket 14): <= 150 tokens; project, short status tally, "run `zoho-projects-axi` for live data" and the top
 3 command forms; reads the cache, and makes a network call only when the cache is stale and credentials
 exist; and in every unconfigured / offline / failing case prints nothing, writes nothing to stderr and
 exits 0. Bodies are the invented-but-plausible builders of tests/support/world.py. The replay transport
@@ -19,12 +19,12 @@ from support.tokens import assert_token_budget
 from support.replay import ReplayTransport
 from support.world import CREDS, PR, TODAY, World, project_rec, replay_of, task, tasks_body
 
-from zoho_axi.cli import main as cli_main
-from zoho_axi.cli.main import main
-from zoho_axi.core.cache import default_cache_path
-from zoho_axi.core.config import load_settings
-from zoho_axi.core.gateway import ZohoGateway
-from zoho_axi.core.transport import TransportError
+from zoho_projects_axi.cli import main as cli_main
+from zoho_projects_axi.cli.main import main
+from zoho_projects_axi.core.cache import default_cache_path
+from zoho_projects_axi.core.config import load_settings
+from zoho_projects_axi.core.gateway import ZohoGateway
+from zoho_projects_axi.core.transport import TransportError
 
 HOOK_BUDGET_TOKENS = 150
 PAGE = {}
@@ -89,12 +89,12 @@ def test_warm_cache_gives_the_snapshot_with_no_request(world):
         'project: "2200"',
         "name: Demo Website Redesign",
         "status: In Progress",
-        "note: cached snapshot; run `zoho-axi` for live data",
+        "note: cached snapshot; run `zoho-projects-axi` for live data",
         "counts: open_tasks=5 overdue=1 due_soon=2 open=3 in_progress=2",
         "help[3]{run}:",
-        "  zoho-axi resolve '<text>'",
-        "  zoho-axi task DM1-T1",
-        "  zoho-axi tasks --status open",
+        "  zoho-projects-axi resolve '<text>'",
+        "  zoho-projects-axi task DM1-T1",
+        "  zoho-projects-axi tasks --status open",
     ]) + "\n"
 
 
@@ -219,19 +219,19 @@ def test_extra_arguments_from_the_harness_do_not_break_it(world):
 
 def test_help_still_works(world):
     code, out, _ = world.run(["session-start", "--help"])
-    assert code == 0 and out.startswith("usage: zoho-axi session-start")
+    assert code == 0 and out.startswith("usage: zoho-projects-axi session-start")
 
 
 def test_as_a_real_process_offline_with_a_corrupt_cache_prints_nothing_at_all(tmp_path):
     """stdout, stderr and the exit code of the installed command. The proxy points at a closed local port,
     so the (stale) refresh fails at once without any traffic leaving the machine."""
-    cache = tmp_path / ".cache" / "zoho-axi" / "cache.sqlite"
+    cache = tmp_path / ".cache" / "zoho-projects-axi" / "cache.sqlite"
     cache.parent.mkdir(parents=True)
     cache.write_bytes(b"corrupt" * 100)
     env = {"HOME": str(tmp_path), "PATH": "/usr/bin:/bin", "ZOHO_MCP_ENV_FILE": str(tmp_path / "none.env"),
            "HTTPS_PROXY": "http://127.0.0.1:9", "HTTP_PROXY": "http://127.0.0.1:9", "NO_PROXY": "",
-           "ZOHO_AXI_PORTAL_ID": "1100", "ZOHO_AXI_PROJECT_ID": "2200", **CREDS}
-    exe = Path(sys.executable).parent / "zoho-axi"
+           "ZOHO_PROJECTS_AXI_PORTAL_ID": "1100", "ZOHO_PROJECTS_AXI_PROJECT_ID": "2200", **CREDS}
+    exe = Path(sys.executable).parent / "zoho-projects-axi"
     done = subprocess.run(["/bin/sh", "-c", 'exec "$0" "$@" <&-', str(exe), "session-start"], env=env,
                           capture_output=True, text=True, timeout=60, cwd=tmp_path)
     assert (done.returncode, done.stdout, done.stderr) == (0, "", "")

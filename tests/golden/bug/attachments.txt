@@ -12,6 +12,6 @@ attachments[2]{name,type,size}:
   checkout-500.png,image/png,179 KB
   SessionValidation.java,application/x-unknown-mime-type,3 KB
 help[3]{run}:
-  zoho-axi bug DM1-I1 --comments
-  zoho-axi bug DM1-I1 --images
-  zoho-axi bug DM1-I1 --task
+  zoho-projects-axi bug DM1-I1 --comments
+  zoho-projects-axi bug DM1-I1 --images
+  zoho-projects-axi bug DM1-I1 --task

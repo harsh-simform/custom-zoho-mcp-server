@@ -1,4 +1,4 @@
-"""`zoho-axi people [--users] [--tags]` (T10) at the product seam. Zoho bodies are invented-but-plausible
+"""`zoho-projects-axi people [--users] [--tags]` (T10) at the product seam. Zoho bodies are invented-but-plausible
 (see tests/support/world.py); expected texts are hand-written literals."""
 import pytest
 from support.world import P, World, replay_of, tags_body, users_body
@@ -28,7 +28,7 @@ def test_people_shows_users_and_tags_by_default(world):
         '  "7001",checkout',
         '  "7002",needs-design',
         "help[1]{run}:",
-        "  zoho-axi tasks --owner 'Alex Sample'",
+        "  zoho-projects-axi tasks --owner 'Alex Sample'",
     ])
     assert world.requests(err) == 2
 

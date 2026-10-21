@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from zoho_axi.core.toon import encode
+from zoho_projects_axi.core.toon import encode
 
 
 @pytest.mark.parametrize(

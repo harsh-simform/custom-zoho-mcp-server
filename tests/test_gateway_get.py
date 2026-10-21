@@ -5,8 +5,8 @@ import pytest
 from support.factories import API, LEGACY, Clock, make_settings
 from support.replay import ReplayTransport
 
-from zoho_axi.core.errors import AuthError, NotFoundError, UpstreamError
-from zoho_axi.core.gateway import ZohoGateway
+from zoho_projects_axi.core.errors import AuthError, NotFoundError, UpstreamError
+from zoho_projects_axi.core.gateway import ZohoGateway
 
 IDS = {"portal": "11", "project": "22"}
 
@@ -68,7 +68,7 @@ def test_ids_are_percent_encoded_so_they_cannot_alter_the_path(tmp_path):
 
 def test_the_data_center_selects_the_host(tmp_path):
     replay = ReplayTransport().get("https://projectsapi.zoho.eu/api/v3/portals", json={"portals": []})
-    gateway = ZohoGateway(make_settings(tmp_path, ZOHO_AXI_DC="eu"), transport=replay, token_provider=lambda: "t")
+    gateway = ZohoGateway(make_settings(tmp_path, ZOHO_PROJECTS_AXI_DC="eu"), transport=replay, token_provider=lambda: "t")
     assert gateway.get("portals") == []
 
 

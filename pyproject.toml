@@ -1,7 +1,7 @@
 [project]
-name = "zoho-axi"
+name = "zoho-projects-axi"
 version = "0.2.0"
-description = "Read-only Zoho Projects for agents: the token-lean zoho-axi CLI and a six-tool MCP server"
+description = "Read-only Zoho Projects for agents: the token-lean zoho-projects-axi CLI and a six-tool MCP server"
 readme = "README.md"
 keywords = ["zoho", "zoho-projects", "mcp", "claude", "cli", "toon"]
 requires-python = ">=3.10"
@@ -18,19 +18,20 @@ dev = ["pytest>=8.0", "mypy>=1.8", "types-requests>=2.31"]
 tokens = ["tiktoken>=0.7"]
 
 [project.scripts]
-zoho-axi = "zoho_axi.cli.main:console_main"
-zoho = "zoho_axi.cli.main:console_main"  # short alias for zoho-axi
+zoho-projects-axi = "zoho_projects_axi.cli.main:console_main"
+zoho = "zoho_projects_axi.cli.main:console_main"  # short alias for zoho-projects-axi
+zoho-axi = "zoho_projects_axi.cli.main:console_main"  # deprecated: the name before the rename, so old hooks and MCP registrations keep working
 
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["zoho_axi*"]
+include = ["zoho_projects_axi*"]
 
 [tool.setuptools.package-data]
-# The Claude Code skill `zoho-axi skill install` copies (read via importlib.resources).
-zoho_axi = ["skills/*/SKILL.md"]
+# The Claude Code skill `zoho-projects-axi skill install` copies (read via importlib.resources).
+zoho_projects_axi = ["skills/*/SKILL.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -2,9 +2,9 @@ import logging
 
 import pytest
 
-from zoho_axi.core.auth import ZohoAuth
-from zoho_axi.core.config import load_settings
-from zoho_axi.core.errors import AuthError, RateLimitedError, UpstreamError
+from zoho_projects_axi.core.auth import ZohoAuth
+from zoho_projects_axi.core.config import load_settings
+from zoho_projects_axi.core.errors import AuthError, RateLimitedError, UpstreamError
 
 SECRETS = {"id": "cid-123", "secret": "super-secret-value", "refresh": "refresh-token-value"}
 
@@ -12,9 +12,9 @@ SECRETS = {"id": "cid-123", "secret": "super-secret-value", "refresh": "refresh-
 def make_settings(tmp_path, **env_extra):
     env = {
         "HOME": str(tmp_path),
-        "ZOHO_AXI_CLIENT_ID": SECRETS["id"],
-        "ZOHO_AXI_CLIENT_SECRET": SECRETS["secret"],
-        "ZOHO_AXI_REFRESH_TOKEN": SECRETS["refresh"],
+        "ZOHO_PROJECTS_AXI_CLIENT_ID": SECRETS["id"],
+        "ZOHO_PROJECTS_AXI_CLIENT_SECRET": SECRETS["secret"],
+        "ZOHO_PROJECTS_AXI_REFRESH_TOKEN": SECRETS["refresh"],
     }
     env.update(env_extra)
     return load_settings(env=env, legacy_env_file=tmp_path / "none.env")
@@ -45,7 +45,7 @@ class Clock:
 
 def test_refresh_uses_refresh_token_grant_against_the_data_center_endpoint(tmp_path):
     post = FakePost({"access_token": "tok-1", "expires_in": 3600})
-    auth = ZohoAuth(make_settings(tmp_path, ZOHO_AXI_DC="eu"), post=post)
+    auth = ZohoAuth(make_settings(tmp_path, ZOHO_PROJECTS_AXI_DC="eu"), post=post)
 
     assert auth.get_access_token() == "tok-1"
 

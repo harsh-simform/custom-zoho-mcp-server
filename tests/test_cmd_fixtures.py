@@ -16,7 +16,7 @@ BUDGET_TASKS_20 = 500
 
 @pytest.fixture
 def world(tmp_path):
-    return World(tmp_path, configured=False, ZOHO_AXI_PORTAL_ID=PORTAL, ZOHO_AXI_PROJECT_ID=PROJECT)
+    return World(tmp_path, configured=False, ZOHO_PROJECTS_AXI_PORTAL_ID=PORTAL, ZOHO_PROJECTS_AXI_PROJECT_ID=PROJECT)
 
 
 def test_tasks_from_the_fixture_list_cut_at_the_default_limit_with_a_next_page_hint(world):
@@ -27,7 +27,7 @@ def test_tasks_from_the_fixture_list_cut_at_the_default_limit_with_a_next_page_h
     assert lines[1] == "tasks[20]{key,title,status,owner}:"
     assert lines[2] == "  DM1-T1,Prepare release notes,Open,Hugo Okoye"
     assert 'truncated[1]: "tasks (+4 rows, --limit 24)"' in out
-    assert "zoho-axi tasks --page 2" in out  # the fixture's page_info says has_next_page
+    assert "zoho-projects-axi tasks --page 2" in out  # the fixture's page_info says has_next_page
     assert "Unassigned" not in out
     assert_token_budget(out, BUDGET_TASKS_20, label="tasks 20 rows (fixture)")
 
