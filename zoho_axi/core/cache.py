@@ -467,7 +467,7 @@ def cache_status(path: Path | None = None, *, clock: Callable[[], float] = time.
     warnings: list[str] = []
     if path.exists():
         try:
-            conn = sqlite3.connect(f"file:{path}?mode=ro", uri=True, timeout=2)
+            conn = sqlite3.connect(f"{path.resolve().as_uri()}?mode=ro", uri=True, timeout=2)  # as_uri percent-encodes ? # %
             try:
                 count, oldest = conn.execute("SELECT COUNT(*), MIN(fetched_at) FROM entries").fetchone()
                 counts["entries"] = count

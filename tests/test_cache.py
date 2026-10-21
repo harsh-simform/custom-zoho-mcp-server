@@ -390,6 +390,18 @@ def test_status_reports_entries_and_the_oldest_one(tmp_path):
     assert "entries=2" in text and "oldest: " in text and "zoho-axi cache clear --yes" in text
 
 
+@pytest.mark.parametrize("odd", ["what?now", "a#b", "100%25 sure", "sp ace&amp=1", "q?mode=rw#x%3f"])
+def test_status_reads_a_cache_whose_path_has_uri_special_characters(tmp_path, odd):
+    base = tmp_path / odd
+    replay = ReplayTransport().get(TASK_URL, json=TASK_BODY)
+    build(base, replay).get("task", task="33", **IDS)
+
+    result = cache_status(base / "cache" / "cache.sqlite")
+
+    assert result.counts["entries"] == 1  # not "cache unreadable", not a different/empty database
+    assert result.warnings == []
+
+
 def test_status_of_a_missing_cache_says_so_and_creates_nothing(tmp_path):
     path = tmp_path / "nowhere" / "cache.sqlite"
     result = cache_status(path)

@@ -258,11 +258,41 @@ def test_missing_credentials_are_an_auth_error_on_the_call_not_a_startup_failure
     assert replay.calls == []
 
 
+def broken_config_world(tmp_path):
+    world = fixture_world(tmp_path, "cfg")
+    world.config_path.parent.mkdir(parents=True)
+    world.config_path.write_text("this is = = not toml\n")
+    return world
+
+
 def test_unloadable_settings_answer_every_call_with_the_config_error(tmp_path):
+    world = broken_config_world(tmp_path)
     problem = ConfigError("config.invalid", "config.toml is not valid TOML", hint="Fix the syntax.")
-    server = build_server(None, startup_error=problem)
+    server = build_server(None, startup_error=problem, env=world.env)
     result = with_client(server, lambda c: c.call_tool("resolve", {"text": "DM1-T1"}))
-    assert result.is_error and text_of(result) == "error: config.invalid\nmessage: config.toml is not valid TOML\nhint: Fix the syntax."
+    assert result.is_error and text_of(result).startswith("error: config.")
+    assert "message: config.toml is not valid TOML" not in text_of(result)  # the live error replaces the stale one
+
+
+def test_a_startup_config_error_clears_once_the_file_is_fixed_without_a_restart(tmp_path):
+    world = fixture_world(tmp_path, "cfg")
+    replay = replay_for("tasks/detail", "task_comments/v3_ok", "task_attachments/image_and_non_image")
+    settings = load_settings(env=world.env, legacy_env_file=world.tmp / "none.env")
+    gateway = ZohoGateway(settings, transport=replay, token_provider=lambda: "tok-abc", sleep=lambda s: None)
+    world.config_path.parent.mkdir(parents=True)
+    world.config_path.write_text("this is = = not toml\n")
+    startup_error = ConfigError("config.invalid", "config.toml is not valid TOML", hint="Fix the syntax.")
+    server = build_server(None, gateway=gateway, env=world.env, today=TODAY, startup_error=startup_error)
+
+    async def scenario(client):
+        first = await client.call_tool("task", {"ref": TASK})
+        world.config_path.write_text("")  # the user fixes the file; env still supplies credentials and project
+        second = await client.call_tool("task", {"ref": TASK})
+        return first, second
+
+    first, second = with_client(server, scenario)
+    assert first.is_error and text_of(first).startswith("error: config.")
+    assert not second.is_error and text_of(second).startswith("task: DM1-T2\n")
 
 
 # --- images ----------------------------------------------------------------------------------------------------
@@ -295,6 +325,26 @@ def test_images_over_the_count_cap_are_warned_about_not_failed(tmp_path):
     result = call(world, replay, "task", ref=TASK, images=True)
     assert [c.type for c in result.content] == ["text", "image", "image"]
     assert "2 more images not downloaded (max_images is 2): c.png, d.png" in text_of(result)
+
+
+@pytest.mark.parametrize("served, mime", [
+    ("image/png", "image/png"), ("image/jpeg", "image/jpeg"), ("image/jpg", "image/jpeg"),
+    ("image/gif", "image/gif"), ("image/webp", "image/webp"), ("IMAGE/PNG; charset=binary", "image/png"),
+])
+def test_inline_images_are_sent_with_a_whitelisted_mime_type(tmp_path, served, mime):
+    replay = task_replay(rec("pic.bin", kind=served))
+    result = call(image_world(tmp_path), replay, "task", ref=TASK, images=True)
+    assert [c.type for c in result.content] == ["text", "image"]
+    assert result.content[1].mime_type == mime
+
+
+@pytest.mark.parametrize("kind", ["image/svg+xml", "image/tiff", "image/x-icon", "image/bmp"])
+def test_other_image_types_are_skipped_with_a_warning_line_not_sent(tmp_path, kind):
+    replay = task_replay(rec("shot.png"), rec("odd.xyz", kind=kind))
+    result = call(image_world(tmp_path), replay, "task", ref=TASK, images=True)
+    assert not result.is_error and [c.type for c in result.content] == ["text", "image"]
+    assert result.content[1].mime_type == "image/png"
+    assert f"odd.xyz not shown inline ({kind} is not png, jpeg, gif or webp)" in text_of(result)
 
 
 def test_bug_images_are_inline_too(tmp_path):
@@ -342,6 +392,39 @@ def test_credentials_are_redacted_from_log_records():
     flt = RedactSecrets(["super-secret-value", "refresh-token-value", None])
     rec_ = logging.LogRecord("x", logging.INFO, __file__, 1, "token super-secret-value and %s", ("refresh-token-value",), None)
     assert flt.filter(rec_) and rec_.getMessage() == "token *** and ***"
+
+
+def test_tool_calls_log_argument_names_and_sizes_never_values(tmp_path, caplog):
+    caplog.set_level(logging.INFO)
+    secret_text = "PRIVATE-NOTES-should-never-be-logged DM1-T2"
+    call(fixture_world(tmp_path, "log"), ReplayTransport(), "resolve", text=secret_text, check=False)
+    call(fixture_world(tmp_path, "log2"), ReplayTransport(), "tasks", status="Open-secret-status", limit=7)
+    assert "PRIVATE-NOTES" not in caplog.text and "Open-secret-status" not in caplog.text
+    assert f"-> resolve(text={len(secret_text)}c)" in caplog.text
+    assert "-> tasks(status=18c, limit)" in caplog.text
+
+
+def test_the_log_file_is_created_private_whatever_the_umask(tmp_path):
+    import os
+
+    from zoho_axi.mcp_server.server import setup_logging
+
+    log = tmp_path / "logs" / "zoho.log"
+    log.parent.mkdir()
+    settings = load_settings(env={"HOME": str(tmp_path), "ZOHO_AXI_LOG_FILE": str(log)}, legacy_env_file=tmp_path / "none.env")
+    root = logging.getLogger()
+    saved = (list(root.handlers), root.level)
+    old_umask = os.umask(0o000)
+    try:
+        setup_logging(settings)
+        logging.getLogger("zoho_axi.test").error("hello")
+    finally:
+        os.umask(old_umask)
+        for handler in root.handlers:
+            handler.close()
+        root.handlers, root.level = saved[0], saved[1]
+    assert log.stat().st_mode & 0o777 == 0o600
+    assert "hello" in log.read_text()
 
 
 def test_importing_the_server_has_no_side_effects(tmp_path):
