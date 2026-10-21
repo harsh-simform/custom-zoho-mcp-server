@@ -19,7 +19,9 @@ import os
 from dataclasses import dataclass
 from typing import Any, Mapping, Sequence
 
-from ..attachments import IMAGE_EXTENSIONS, default_attachments_dir, human_bytes, is_image, item_dir, save_images
+from ..attachments import (
+    IMAGE_EXTENSIONS, default_attachments_dir, human_bytes, inline_images, is_image, item_dir, save_images,
+)
 from ..errors import NotFoundError
 from ._scope import optional
 from ._shape import norm_date, person_name, task_key
@@ -134,6 +136,12 @@ def image_rows(ctx: Context, item: Item, records: Sequence[Mapping[str, Any]], w
     """`--images`: download the item's images (at most `max_images`, each at most `max_attachment_bytes`) into
     `<cache>/zoho-axi/attachments/<kind>-<id>/` and return {name, bytes, path} rows. Whatever was skipped or
     refused is added to `warnings`; the command still succeeds. `--fresh` downloads again."""
+    if ctx.image_sink is not None:  # MCP: bytes stay in memory and go back inline; no path to list
+        batch = inline_images(ctx.gateway.download, records, max_images=ctx.settings.max_images,
+                              max_bytes=ctx.settings.max_attachment_bytes)
+        ctx.image_sink.extend(batch.images)
+        warnings.extend(batch.warnings())
+        return [{"name": i.name, "bytes": i.size, "path": "(inline)"} for i in batch.images]
     base = default_attachments_dir(os.environ if ctx.env is None else ctx.env)
     batch = save_images(ctx.gateway.download, records, dest=item_dir(base, item.kind.name, item.id),
                         max_images=ctx.settings.max_images, max_bytes=ctx.settings.max_attachment_bytes,

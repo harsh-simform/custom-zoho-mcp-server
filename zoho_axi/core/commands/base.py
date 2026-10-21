@@ -17,6 +17,7 @@ from ..errors import UsageError
 from ..result import Result
 
 if TYPE_CHECKING:
+    from ..attachments import ImageFile
     from ..cache import CachedGateway
     from ..gateway import ZohoGateway
 
@@ -38,6 +39,9 @@ class Context:
     # command name -> the flags it accepts (`{"task": {"--comments", ...}}`), so a command that suggests other
     # commands (`resolve`) never names a flag the command table does not know. None = not supplied.
     command_flags: Mapping[str, frozenset[str]] | None = field(default=None, repr=False)
+    # MCP only: when a list, `images` downloads into memory (nothing is written to disk) and the delivered
+    # `ImageFile`s are appended here for the front-end to return inline; None (the CLI) saves files and lists paths.
+    image_sink: "list[ImageFile] | None" = field(default=None, repr=False)
 
     @property
     def gateway(self) -> "ZohoGateway":
