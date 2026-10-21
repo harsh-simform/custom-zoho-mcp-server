@@ -6,6 +6,7 @@ from __future__ import annotations
 
 from typing import Any, Callable, Mapping, Sequence
 
+from ..config import split_project_ref
 from ..errors import AuthError, ConfigError, NotFoundError, RateLimitedError, UsageError, ZohoAxiError
 from .base import Context
 
@@ -46,8 +47,9 @@ def portal_projects(ctx: Context, portal: str):
 
 def portal_of(ctx: Context) -> str:
     """The portal for a portal-wide call (users, tags, project list): `--project PORTAL:...` or the config."""
-    if ctx.project and ":" in ctx.project:
-        return ctx.project.split(":", 1)[0]
+    portal = split_project_ref(ctx.project)[0] if ctx.project else None
+    if portal:
+        return portal
     if ctx.settings.portal_id:
         return ctx.settings.portal_id
     raise ConfigError("config.portal_missing", "No portal to use.",

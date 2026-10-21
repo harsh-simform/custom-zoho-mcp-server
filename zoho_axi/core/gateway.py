@@ -47,6 +47,7 @@ class ZohoGateway:
         transport: Transport | None = None,
         *,
         token_provider: Callable[[], str] | None = None,
+        token_invalidator: Callable[[], None] | None = None,
         clock: Callable[[], float] = time.monotonic,
         sleep: Callable[[float], None] = time.sleep,
         rate_limit: int = DEFAULT_LIMIT,
@@ -59,6 +60,7 @@ class ZohoGateway:
         self._settings = settings
         self._transport = transport
         self._token_provider = token_provider
+        self._token_invalidator = token_invalidator  # how to drop a token Zoho rejected; None: cannot retry a 401
         self._auth: ZohoAuth | None = None
 
     # --- plumbing ---
@@ -104,6 +106,7 @@ class ZohoGateway:
         if self._token_provider is None:
             self._auth = self._auth or ZohoAuth(self._settings, post=self.token_post)
             self._token_provider = self._auth.get_access_token
+            self._token_invalidator = self._auth.invalidate
         return self._token_provider()
 
     def _fetch(self, url: str, params: Mapping[str, str] | None, max_bytes: int | None = None) -> TransportResponse:
@@ -141,7 +144,14 @@ class ZohoGateway:
 
     def _request(self, url: str, params, label: str, max_bytes: int | None = None) -> TransportResponse:
         try:
-            return self._fetch(url, params, max_bytes)
+            response = self._fetch(url, params, max_bytes)
+            if response.status == 401 and self._token_invalidator is not None:
+                # The cached token is dead (revoked, or expired early): drop it and retry this request ONCE
+                # with a fresh one. A long-lived `zoho-axi mcp` would otherwise fail every call until expiry.
+                logger.warning("401 from Zoho, refreshing the access token and retrying once")
+                self._token_invalidator()
+                response = self._fetch(url, params, max_bytes)
+            return response
         except PayloadTooLarge:
             raise self._too_large(max_bytes) from None
         except OSError as exc:

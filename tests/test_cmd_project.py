@@ -122,6 +122,28 @@ def test_project_flag_accepts_a_name_through_the_project_list(world):
     assert code == 0 and "DM1-T1" in out
 
 
+def test_a_project_name_with_a_colon_is_a_name_in_the_configured_portal(world):
+    named = project_rec("777", "Demo: Site")
+    replay = replay_of((f"{P}/projects", [project_rec(), named]),
+                       (f"{P}/projects/777/tasks", tasks_body(task(1, "A")), {}))
+    code, out, _ = world.run(["tasks", "--project", "Demo: Site"], replay)
+    assert code == 0 and "DM1-T1" in out
+
+
+def test_a_numeric_left_part_is_still_a_portal_id(world):
+    replay = replay_of((f"{API}/portal/4444/projects/777/tasks", tasks_body(task(1, "A")), {}))
+    code, out, _ = world.run(["tasks", "--project", "4444:777"], replay)
+    assert code == 0 and "DM1-T1" in out
+
+
+def test_project_use_and_list_keep_a_colon_name_in_the_configured_portal(world):
+    named = project_rec("777", "Demo: Site")
+    code, out, _ = world.run(["project", "list", "--project", "Demo: Site"], replay_of((f"{P}/projects", [named])))
+    assert code == 0 and "Demo: Site" in out
+    code, out, _ = world.run(["project", "use", "Demo: Site"], replay_of((f"{P}/projects", [named])))
+    assert code == 0 and out.splitlines()[0] == 'default: "777"'
+
+
 def test_overview_stays_inside_the_token_budget_with_a_big_project(world):
     many = overview_replay(project=project_rec(description="<p>" + "word " * 2000 + "</p>"))
     _, out, _ = world.run(["project"], many)

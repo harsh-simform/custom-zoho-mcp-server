@@ -178,15 +178,22 @@ def _loose_permissions(path: Path) -> bool:
     return os.name != "nt" and path.is_file() and bool(stat.S_IMODE(path.stat().st_mode) & 0o077)
 
 
+def split_project_ref(ref: str) -> tuple[str | None, str]:
+    """`PORTAL:PROJECT` -> (portal, project); anything else -> (None, ref). A colon only separates a portal
+    when what is left of it is all digits (a portal id), so a project NAME like "Demo: Site" stays a name."""
+    head, sep, tail = ref.partition(":")
+    if sep and head.isdigit():
+        return head, tail
+    return None, ref
+
+
 def resolve_project(settings: Settings, project_arg: str | None = None) -> tuple[str, str]:
     """`--project` (either `PROJECT` or `PORTAL:PROJECT`) wins over the configured default.
     There is no stateful "selected project": every call resolves it afresh."""
     portal, project = settings.portal_id, settings.project_id
     if project_arg:
-        if ":" in project_arg:
-            portal, project = project_arg.split(":", 1)
-        else:
-            project = project_arg
+        arg_portal, project = split_project_ref(project_arg)
+        portal = arg_portal or portal
     if not portal or not project:
         raise ConfigError(
             "config.project_missing",

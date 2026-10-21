@@ -29,6 +29,7 @@ import re
 from dataclasses import dataclass
 from typing import Mapping
 
+from ..config import VALID_DATA_CENTERS
 from ..errors import ConfigError, NotFoundError
 from ..result import Hint, Result
 from ._item import BUG, TASK, resolve_item
@@ -46,7 +47,9 @@ _ITEM_KIND = {"task": TASK, "bug": BUG}
 _GENERIC_PREFIX = r"[A-Za-z]{1,8}\d{1,3}"  # Zoho project prefixes look like PROJ1, AD1, DM1, EC1
 
 _URL = re.compile(r"https?://[^\s<>\"'`)\]]+", re.IGNORECASE)
-_URL_HOST = re.compile(r"(?:^|\.)zoho\.[a-z.]+$", re.IGNORECASE)
+# `zoho.<dc>` or any subdomain of it, for a data center Zoho actually runs: `zoho.evil.com` is not Zoho's
+_URL_HOST = re.compile(
+    r"(?:^|\.)zoho\.(?:" + "|".join(re.escape(dc) for dc in VALID_DATA_CENTERS) + r")$", re.IGNORECASE)
 _URL_IDS = (  # (pattern, kind word group, group order) over the whole URL, fragment included
     re.compile(r"(taskdetail|buginfo|bugdetail|issuedetail)/(\d+)/(\d+)/(\d+)", re.IGNORECASE),
     re.compile(r"(?:portal/(\d+)/)?projects/(\d+)/(tasks|bugs|issues)/(\d+)", re.IGNORECASE),

@@ -11,6 +11,7 @@ It replaces the old stateful select/switch tools: there is no other place a defa
 """
 from __future__ import annotations
 
+from ..config import split_project_ref
 from ..config_edit import set_default_project
 from ..errors import NotFoundError, UsageError
 from ..result import Hint, Result
@@ -72,7 +73,7 @@ def overview(ctx: Context) -> Result:
 
 
 def list_projects(ctx: Context) -> Result:
-    portal = ctx.project.split(":", 1)[0] if ctx.project and ":" in ctx.project else ctx.settings.portal_id
+    portal = (split_project_ref(ctx.project)[0] if ctx.project else None) or ctx.settings.portal_id
     portals = [portal] if portal else [str(p["id"]) for p in ctx.data.get("portals") if p.get("id")]
     rows: list[dict] = []
     warnings: list[str] = []
@@ -86,8 +87,8 @@ def list_projects(ctx: Context) -> Result:
 
 
 def _use_portal(ctx: Context, ref: str) -> tuple[str, str]:
-    if ":" in ref:
-        portal, ref = ref.split(":", 1)
+    portal, ref = split_project_ref(ref)
+    if portal:
         return portal, ref
     if ctx.settings.portal_id:
         return ctx.settings.portal_id, ref

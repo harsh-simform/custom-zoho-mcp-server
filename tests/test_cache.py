@@ -306,6 +306,50 @@ def test_task_and_bug_keys_are_remembered_as_ids(tmp_path):
     assert index.resolve("task", "PROJ1-T2000") == "77"
 
 
+def _v3_page(n):
+    # invented-but-plausible v3 list rows: the human key is `prefix`, there is no `key`
+    return {"tasks": [{"id": str(3000 + i), "prefix": f"DM1-T{i}", "name": f"Task {i}"} for i in range(1, n + 1)]}
+
+
+def test_v3_prefix_keys_are_learned_from_a_task_page(tmp_path):
+    replay = ReplayTransport().get(f"{API}/portal/11/projects/22/tasks", json=_v3_page(3))
+    cached = build(tmp_path, replay)
+    cached.get("tasks", **IDS)
+    index = cached.index(portal="11", project="22")
+    assert index.resolve("task", "DM1-T2") == "3002"
+    assert index.known_keys() == [("task", "DM1-T1"), ("task", "DM1-T2"), ("task", "DM1-T3")]
+
+
+def test_a_100_row_page_writes_its_keys_in_one_transaction(tmp_path, monkeypatch):
+    log: list[tuple[bool, str]] = []  # (inside an explicit transaction, statement)
+    state = {"open": False}
+    real_connect = sqlite3.connect
+
+    def tracing_connect(*args, **kwargs):
+        conn = real_connect(*args, **kwargs)
+
+        def trace(statement):
+            head = statement.strip().upper()
+            if head.startswith("BEGIN"):
+                state["open"] = True
+            log.append((state["open"], head))
+            if head.startswith(("COMMIT", "ROLLBACK", "END")):
+                state["open"] = False
+
+        conn.set_trace_callback(trace)
+        return conn
+
+    monkeypatch.setattr(sqlite3, "connect", tracing_connect)
+    replay = ReplayTransport().get(f"{API}/portal/11/projects/22/tasks", json=_v3_page(100))
+    cached = build(tmp_path, replay)
+    cached.get("tasks", **IDS)
+
+    key_inserts = [inside for inside, stmt in log if "INTO TASK_KEYS" in stmt]
+    assert len(key_inserts) == 100 and all(key_inserts), "every key insert must run inside an open transaction"
+    assert [stmt for _, stmt in log].count("BEGIN IMMEDIATE") <= 2  # the key batch (+ at most one index batch)
+    assert cached.index(portal="11", project="22").resolve("task", "DM1-T100") == "3100"
+
+
 def test_two_processes_hammering_one_cache_do_not_corrupt_or_warn(tmp_path):
     ctx = multiprocessing.get_context("spawn")
     start = ctx.Event()
