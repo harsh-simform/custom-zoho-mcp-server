@@ -120,7 +120,7 @@ class _Shaper:
             names = list(dict.fromkeys(name for row in rows for name in row))
         else:
             names = list(schema.list_fields)
-        return [{n: self._text(row.get(n), ROW_TEXT_LIMIT, collapse=True) for n in names} for row in rows]
+        return [{n: self._text(row.get(n), ROW_TEXT_LIMIT, collapse=not schema.verbatim) for n in names} for row in rows]
 
     def detail_value(self, value: Any) -> Any:
         return self._text(value, DETAIL_TEXT_LIMIT, collapse=False)

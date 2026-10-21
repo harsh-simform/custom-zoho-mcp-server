@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from ..core.commands import auth, cache, home, people, project, task, tasks
+from ..core.commands import auth, cache, home, hooks, people, project, session, skill, task, tasks
 from ..core.commands.base import Command
 
 
@@ -39,6 +39,7 @@ class Spec:
     examples: tuple[str, ...]
     args: tuple[Arg, ...] = ()
     flags: tuple[Flag, ...] = ()
+    hook: bool = False  # a Claude Code hook entrypoint: plain output, never an error, always exit 0 (see cli/main.py)
 
 
 GLOBAL_FLAGS: tuple[Flag, ...] = (
@@ -94,4 +95,16 @@ REGISTRY: tuple[Spec, ...] = (
     Spec("cache clear", "delete the cache and derived index (needs --yes; never prompts)", cache.clear,
          flags=(Flag("--yes", "confirm the deletion"),),
          examples=("zoho-axi cache clear --yes", "zoho-axi cache clear")),
+    Spec("session-start", "Claude Code SessionStart hook: project snapshot from the cache; silent on any failure",
+         session.session_start, hook=True,
+         examples=("zoho-axi session-start", "zoho-axi hooks install")),
+    Spec("hooks install", "add the SessionStart hook to ~/.claude/settings.json (shows the diff; --yes applies)",
+         hooks.install, flags=(Flag("--yes", "apply the change (without it nothing is written)"),),
+         examples=("zoho-axi hooks install", "zoho-axi hooks install --yes")),
+    Spec("hooks uninstall", "remove the SessionStart hook again (shows the diff; --yes applies)",
+         hooks.uninstall, flags=(Flag("--yes", "apply the change (without it nothing is written)"),),
+         examples=("zoho-axi hooks uninstall", "zoho-axi hooks uninstall --yes")),
+    Spec("skill install", "copy the zoho-axi skill to ~/.claude/skills/zoho-axi/ (shows the change; --yes applies)",
+         skill.install, flags=(Flag("--yes", "apply the change (without it nothing is written)"),),
+         examples=("zoho-axi skill install", "zoho-axi skill install --yes")),
 )
