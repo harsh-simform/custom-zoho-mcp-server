@@ -241,6 +241,18 @@ class CacheStore:
         except sqlite3.Error as exc:
             self._failed(exc)
 
+    def key_list(self, portal: str, project: str) -> list[tuple[str, str]]:
+        """(kind, key) of every remembered task/bug key of the project, however old: a prefix does not expire."""
+        conn = self._connect()
+        if conn is None:
+            return []
+        try:
+            return conn.execute("SELECT kind, key FROM task_keys WHERE portal=? AND project=? ORDER BY key",
+                                (portal, project)).fetchall()
+        except sqlite3.Error as exc:
+            self._failed(exc)
+            return []
+
     def key_get(self, portal: str, project: str, kind: str, key: str) -> tuple[str, float] | None:
         conn = self._connect()
         if conn is None:
@@ -400,6 +412,15 @@ class Index:
         """The display name for an id (e.g. for `owner: Asha K`), or None when not warm."""
         kind = self._kind(kind)
         return next((n for i, n in self._rows(kind) if i == str(ident)), None)
+
+    def names(self, kind: str) -> list[str]:
+        """The display names of every fresh entry of `kind` (e.g. milestones), for matching text against them."""
+        return [n for _, n in self._rows(self._kind(kind))]
+
+    def known_keys(self) -> list[tuple[str, str]]:
+        """(kind, KEY) pairs remembered for this project, e.g. ("task", "DM1-T2"): what `resolve` learns the
+        project prefix(es) and the bug key letter from. Local database only."""
+        return self._store.key_list(self._portal, self._project)
 
     def remember_key(self, key: str, ident: str, *, kind: str = "task") -> None:
         self._store.key_put(self._portal, self._project, self._kind(kind), key, str(ident))

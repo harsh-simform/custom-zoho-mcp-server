@@ -53,15 +53,18 @@ class World:
     def config_path(self) -> Path:
         return self.tmp / ".config" / "zoho-axi" / "config.toml"
 
-    def run(self, argv, replay: ReplayTransport | None = None, *, today: date = TODAY, env: dict | None = None):
-        """(exit code, stdout, stderr). stderr carries `requests: N` because every run adds --debug."""
+    def run(self, argv, replay: ReplayTransport | None = None, *, today: date = TODAY, env: dict | None = None,
+            stdin=None, registry=None):
+        """(exit code, stdout, stderr). stderr carries `requests: N` because every run adds --debug.
+        `stdin` is handed to `main` (only a command that declares it reads it); `registry` swaps the command table."""
         replay = replay if replay is not None else ReplayTransport()
         self.last_replay = replay
         env = {**self.env, **(env or {})}
         settings = load_settings(env=env, legacy_env_file=self.tmp / "none.env")
         gateway = ZohoGateway(settings, transport=replay, token_provider=lambda: "tok-abc", sleep=lambda s: None)
         out, err = io.StringIO(), io.StringIO()
-        code = main([*argv, "--debug"], env, out, err, gateway=gateway, today=today)
+        extra = {"registry": registry} if registry is not None else {}
+        code = main([*argv, "--debug"], env, out, err, gateway=gateway, today=today, stdin=stdin, **extra)
         return code, out.getvalue().rstrip("\n"), err.getvalue()
 
     def requests(self, err: str) -> int:

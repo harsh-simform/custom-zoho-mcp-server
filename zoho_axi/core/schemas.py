@@ -52,6 +52,8 @@ SCHEMAS: dict[str, Schema] = {s.name: s for s in (
         sections={"comments": "comment", "attachments": "attachment", "linked_task": "task"},
         text_limit=1000,  # the bug default view has a 500-token budget (T09)
     ),
+    # `resolve` (T11): the entities found in free text; `resolved` is yes/no (known to the index, or verified by --check).
+    Schema("resolve", "found", list_fields=("key", "type", "resolved")),
     Schema("comment", "comments", list_fields=("by", "at", "text")),
     Schema("history", "history", list_fields=("at", "by", "from", "to")),
     Schema("attachment", "attachments", list_fields=("name", "type", "size")),
