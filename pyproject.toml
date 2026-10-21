@@ -1,7 +1,9 @@
 [project]
 name = "zoho-projects-mcp"
-version = "0.1.0"
-description = "Read-only MCP server exposing Zoho Projects context to Claude"
+version = "0.2.0"
+description = "Read-only Zoho Projects for agents: the token-lean zoho-axi CLI and a six-tool MCP server"
+readme = "README.md"
+keywords = ["zoho", "zoho-projects", "mcp", "claude", "cli", "toon"]
 requires-python = ">=3.10"
 dependencies = [
     "mcp>=2.0.0",
@@ -11,14 +13,15 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0"]
+dev = ["pytest>=8.0", "mypy>=1.8", "types-requests>=2.31"]
 # Optional: tiktoken adds its count to token-budget failure messages (reporting only, never gates a test).
 tokens = ["tiktoken>=0.7"]
 
 [project.scripts]
-zoho-projects-mcp = "zoho_axi.mcp_server.server:main"
 zoho-axi = "zoho_axi.cli.main:console_main"
-zoho = "zoho_axi.cli.main:console_main"  # alias; `command -v zoho` found nothing on this machine
+zoho = "zoho_axi.cli.main:console_main"  # short alias for zoho-axi
+# Deprecated: the pre-0.2 MCP entry point, kept so existing registrations keep working. Use `zoho-axi mcp`.
+zoho-projects-mcp = "zoho_axi.mcp_server.server:main"
 
 [build-system]
 requires = ["setuptools>=68"]
