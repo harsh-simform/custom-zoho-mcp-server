@@ -56,6 +56,20 @@ _LEGACY_ENV = {
 
 _LEGACY_SOURCES = ("legacy-env", "legacy-dotenv")
 
+# The data center is interpolated into hostnames that receive the OAuth credentials, so it is an allowlist.
+VALID_DATA_CENTERS = ("com", "eu", "in", "com.au", "jp")
+
+_MINIMUMS = {
+    "max_images": 0,
+    "max_attachment_bytes": 1,
+    "ttl_long_seconds": 0,
+    "ttl_task_seconds": 0,
+    "ttl_comment_seconds": 0,
+}
+
+# Only meaningful in a source checkout (see _default_legacy_env_file); computing it reads nothing.
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+
 
 @dataclass(frozen=True)
 class Settings:
@@ -113,21 +127,41 @@ def default_config_path(env: Mapping[str, str]) -> Path:
     return root / "zoho-axi" / "config.toml"
 
 
-def _default_legacy_env_file(env: Mapping[str, str]) -> Path:
+def _default_legacy_env_file(env: Mapping[str, str]) -> Path | None:
     explicit = env.get("ZOHO_MCP_ENV_FILE")
-    return Path(explicit) if explicit else Path(__file__).resolve().parents[2] / ".env"
+    if explicit:
+        return Path(explicit)
+    # Only a source checkout has a repo-root .env; for an installed package this path is arbitrary.
+    return _REPO_ROOT / ".env" if (_REPO_ROOT / "pyproject.toml").is_file() else None
+
+
+def _invalid(name: str, source: str, problem: str, hint: str | None = None) -> ConfigError:
+    return ConfigError(
+        "config.invalid",
+        f"{name} from {source} {problem}",
+        hint=hint or f"Fix `{name}` in your config file or environment.",
+    )
 
 
 def _coerce(name: str, raw: object, source: str):
     kind = _SPEC[name][0]
-    try:
-        return kind(raw)
-    except (TypeError, ValueError):
-        raise ConfigError(
-            "config.invalid",
-            f"{name} from {source} must be {kind.__name__}, got {raw!r}",
-            hint=f"Fix `{name}` in your config file or environment.",
-        ) from None
+    if kind is int:
+        if isinstance(raw, bool) or (isinstance(raw, float) and not raw.is_integer()):
+            raise _invalid(name, source, f"must be a whole number, got {raw!r}")
+        try:
+            value = int(raw)  # type: ignore[call-overload]
+        except (TypeError, ValueError):
+            raise _invalid(name, source, f"must be a whole number, got {raw!r}") from None
+        if value < _MINIMUMS.get(name, 0):
+            raise _invalid(name, source, f"must be at least {_MINIMUMS.get(name, 0)}, got {value}")
+        return value
+    value = str(raw)
+    if name == "dc" and value not in VALID_DATA_CENTERS:
+        raise _invalid(
+            name, source, f"must be one of {', '.join(VALID_DATA_CENTERS)}, got {value!r}",
+            hint=f"Set dc to your Zoho data center: {', '.join(VALID_DATA_CENTERS)}.",
+        )
+    return value
 
 
 def _read_file(path: Path) -> dict:
@@ -184,7 +218,8 @@ def load_settings(
         permission_warning = message
 
     file_values = _read_file(path)
-    dotenv_legacy = {k: v for k, v in dotenv_values(legacy_dotenv_path).items() if v}
+    dotenv_legacy = {k: v for k, v in dotenv_values(legacy_dotenv_path).items() if v} if legacy_dotenv_path else {}
+    file_values = {k: v for k, v in file_values.items() if v != ""}  # an empty value means "unset", as in env
     env_legacy = {k: env[k] for k in _LEGACY_ENV if env.get(k)}
 
     layers: list[tuple[str, Mapping[str, object]]] = [

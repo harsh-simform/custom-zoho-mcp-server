@@ -104,3 +104,59 @@ def test_no_project_anywhere_is_an_error_with_a_hint(tmp_path):
     assert exc.value.code == "config.project_missing"
     assert exc.value.exit_code == 3
     assert "project_id" in exc.value.hint
+
+
+# --- review fixes: data center allowlist, empty values, numeric validation, legacy path ---
+
+@pytest.mark.parametrize("bad_dc", ["com.evil.test", "com/x#", "ca", "COM"])
+def test_unknown_data_center_is_rejected_so_credentials_cannot_go_to_arbitrary_hosts(tmp_path, bad_dc):
+    with pytest.raises(ConfigError) as exc:
+        load(tmp_path, env={"ZOHO_AXI_DC": bad_dc})
+    assert exc.value.code == "config.invalid"
+    assert "dc" in exc.value.message
+    assert "eu" in exc.value.hint  # the allowed values are listed
+
+
+def test_unknown_data_center_in_the_config_file_is_rejected_too(tmp_path):
+    write_config(tmp_path, 'dc = "evil.test"\n')
+    with pytest.raises(ConfigError):
+        load(tmp_path)
+
+
+def test_empty_file_value_counts_as_unset_so_a_lower_layer_can_supply_it(tmp_path):
+    write_config(tmp_path, 'client_id = ""\n')
+    s = load(tmp_path, env={"ZOHO_CLIENT_ID": "legacy-id"})
+    assert s.client_id == "legacy-id"
+    assert s.sources["client_id"] == "legacy-env"
+
+
+@pytest.mark.parametrize(
+    "toml_line",
+    ["max_images = -1", "max_attachment_bytes = 0", "ttl_task_seconds = -5", "max_images = 1.9", "max_images = true"],
+)
+def test_numeric_settings_must_be_whole_numbers_in_range(tmp_path, toml_line):
+    write_config(tmp_path, toml_line + "\n")
+    with pytest.raises(ConfigError) as exc:
+        load(tmp_path)
+    assert exc.value.code == "config.invalid"
+
+
+def test_zero_is_allowed_where_it_means_off(tmp_path):
+    write_config(tmp_path, "max_images = 0\nttl_task_seconds = 0\n")
+    s = load(tmp_path)
+    assert (s.max_images, s.ttl_task_seconds) == (0, 0)
+
+
+def test_default_legacy_dotenv_is_only_read_from_a_source_checkout(tmp_path, monkeypatch):
+    import zoho_axi.core.config as config
+
+    fake_root = tmp_path / "site-packages-parent"
+    fake_root.mkdir()
+    (fake_root / ".env").write_text("ZOHO_CLIENT_ID=stray\n")
+    monkeypatch.setattr(config, "_REPO_ROOT", fake_root)
+
+    env = {"XDG_CONFIG_HOME": str(tmp_path / "xdg"), "HOME": str(tmp_path / "home")}
+    assert config.load_settings(env=env).client_id is None  # no pyproject.toml next to it: not a checkout
+
+    (fake_root / "pyproject.toml").write_text("[project]\nname='x'\n")
+    assert config.load_settings(env=env).client_id == "stray"

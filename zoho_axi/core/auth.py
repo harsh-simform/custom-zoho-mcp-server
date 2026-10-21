@@ -3,6 +3,7 @@ nothing here writes to disk, and no credential or token is ever logged or put in
 from __future__ import annotations
 
 import logging
+import threading
 import time
 from typing import Callable
 
@@ -36,6 +37,7 @@ class ZohoAuth:
         self._clock = clock
         self._access_token: str | None = None
         self._expires_at = 0.0
+        self._lock = threading.Lock()
 
     def _refresh(self) -> None:
         client_id, client_secret, refresh_token = self._settings.require_credentials()
@@ -60,21 +62,29 @@ class ZohoAuth:
 
         token = body.get("access_token") if isinstance(body, dict) else None
         if not token:
-            reason = body.get("error", "unknown error") if isinstance(body, dict) else "unexpected response"
+            reason = str(body.get("error", "unknown error")) if isinstance(body, dict) else "unexpected response"
             logger.error("OAuth refresh failed: %s", reason)
             raise AuthError(
                 "auth.refresh_failed",
                 f"Zoho rejected the token refresh: {reason}",
-                hint="Check client_id, client_secret and refresh_token, and that `dc` matches your account's region.",
+                hint=(
+                    "Check client_id, client_secret and refresh_token, and that `dc` matches your account's region. "
+                    "If Zoho mentions too many requests, wait a few minutes and retry."
+                ),
             )
+        lifetime = body.get("expires_in")
+        if isinstance(lifetime, bool) or not isinstance(lifetime, (int, float)) or lifetime <= 0:
+            lifetime = 3600
         self._access_token = token
-        self._expires_at = self._clock() + body.get("expires_in", 3600) - EXPIRY_MARGIN_SECONDS
+        self._expires_at = self._clock() + lifetime - min(EXPIRY_MARGIN_SECONDS, lifetime / 2)
         logger.info("Access token refreshed")
 
     def get_access_token(self) -> str:
-        if not self._access_token or self._clock() >= self._expires_at:
-            self._refresh()
-        return self._access_token  # type: ignore[return-value]
+        with self._lock:
+            if not self._access_token or self._clock() >= self._expires_at:
+                self._refresh()
+            return self._access_token  # type: ignore[return-value]
 
     def validate(self) -> None:
-        self._refresh()
+        with self._lock:
+            self._refresh()

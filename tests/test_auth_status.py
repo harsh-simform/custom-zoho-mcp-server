@@ -73,3 +73,17 @@ def test_login_help_lists_the_self_client_steps_and_the_config_path(tmp_path):
     assert "ZohoProjects.search.READ" in text
     assert str(settings.config_path) in text
     assert "refresh_token" in text
+
+
+def test_unexpected_exceptions_are_reported_not_raised(tmp_path):
+    settings = make_settings(tmp_path)
+    auth = ZohoAuth(settings, post=FakePost(ValueError("weird")))
+    result = auth_status(settings, auth=auth)
+    assert result["token"] == "unverified"
+    assert result["token_error"] == "ValueError"
+
+
+def test_login_help_points_at_the_console_for_the_configured_data_center(tmp_path):
+    text = login_help(make_settings(tmp_path, ZOHO_AXI_DC="eu"))
+    assert "https://api-console.zoho.eu" in text
+    assert "api-console.zoho.com" not in text

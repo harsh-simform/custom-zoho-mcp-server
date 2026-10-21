@@ -38,13 +38,15 @@ def auth_status(settings: Settings, auth: ZohoAuth | None = None, online: bool =
         result["token"], result["token_error"] = "unreachable", exc.code
     except ZohoAxiError as exc:
         result["token"], result["token_error"] = "unverified", exc.code
+    except Exception as exc:  # a diagnostic command must report broken setups, not crash on them
+        result["token"], result["token_error"] = "unverified", type(exc).__name__
     return result
 
 
 def login_help(settings: Settings) -> str:
     return "\n".join([
         "Zoho has no interactive login here; create a Self Client and put its values in the config file.",
-        "1. Open https://api-console.zoho.com and create a Self Client.",
+        f"1. Open https://api-console.zoho.{settings.dc} and create a Self Client.",
         "2. Request read scopes: ZohoProjects.<module>.READ for portals, projects, tasks, tasklists,",
         "   milestones, bugs, users and tags, plus ZohoProjects.search.READ (needed to resolve keys",
         "   like PROJ1-T1000 to ids).",

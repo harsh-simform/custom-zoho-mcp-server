@@ -137,3 +137,47 @@ def test_access_token_is_not_logged(tmp_path, caplog):
     caplog.set_level(logging.DEBUG)
     ZohoAuth(make_settings(tmp_path), post=FakePost({"access_token": "tok-do-not-log", "expires_in": 3600})).get_access_token()
     assert "tok-do-not-log" not in caplog.text
+
+
+# --- review fixes: expires_in handling, concurrency, error formatting ---
+
+def test_non_numeric_expires_in_falls_back_to_an_hour_instead_of_crashing(tmp_path):
+    post = FakePost({"access_token": "t", "expires_in": "3600"})
+    auth = ZohoAuth(make_settings(tmp_path), post=post, clock=Clock())
+    assert auth.get_access_token() == "t"
+    assert auth.get_access_token() == "t"
+    assert len(post.calls) == 1
+
+
+def test_very_short_lived_token_is_still_reused_within_the_same_instant(tmp_path):
+    post = FakePost({"access_token": "t", "expires_in": 30}, {"access_token": "t2", "expires_in": 30})
+    auth = ZohoAuth(make_settings(tmp_path), post=post, clock=Clock())
+    auth.get_access_token()
+    auth.get_access_token()
+    assert len(post.calls) == 1
+
+
+def test_concurrent_callers_trigger_a_single_refresh(tmp_path):
+    import threading
+    import time
+
+    calls = []
+
+    def slow_post(url, data, timeout):
+        calls.append(1)
+        time.sleep(0.05)
+        return {"access_token": "t", "expires_in": 3600}
+
+    auth = ZohoAuth(make_settings(tmp_path), post=slow_post)
+    threads = [threading.Thread(target=auth.get_access_token) for _ in range(8)]
+    [t.start() for t in threads]
+    [t.join() for t in threads]
+    assert len(calls) == 1
+
+
+def test_non_string_error_value_is_rendered_safely_and_hint_mentions_throttling(tmp_path):
+    auth = ZohoAuth(make_settings(tmp_path), post=FakePost({"error": {"nested": "value"}}))
+    with pytest.raises(AuthError) as exc:
+        auth.get_access_token()
+    assert exc.value.code == "auth.refresh_failed"
+    assert "too many requests" in exc.value.hint.lower()
