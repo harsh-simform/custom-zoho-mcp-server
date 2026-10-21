@@ -32,15 +32,21 @@ def test_bare_command_shows_home_with_stdin_closed(command, tmp_path):
     assert done.stderr == ""
 
 
+# With no config and no credentials, the commands that need Zoho end in a structured config/auth error
+# (exit 3) and `project use` / `cache clear` in a usage error (exit 2: no argument / no --yes); every
+# other command works offline. What matters for this test is that none of them reads stdin or crashes.
+EXPECTED_WITHOUT_CONFIG = {"project use": 2, "cache clear": 2, "project": 3, "project list": 3, "people": 3, "tasks": 3, "task": 2}
+
+
 def test_every_wired_command_runs_with_stdin_closed(tmp_path):
     from zoho_axi.cli.registry import REGISTRY
 
     for spec in REGISTRY:
         args = [*spec.name.split(), "--offline"] if spec.name == "auth status" else spec.name.split()
-        needs_arg = any(a.required for a in spec.args)
-        args += ["1" for a in spec.args if a.required]  # e.g. `task 1`: unconfigured here, so a config error (3)
         done = run_installed("zoho-axi", args, tmp_path)
-        assert done.returncode == (3 if needs_arg else 0), (spec.name, done.stdout, done.stderr)
+        expected = EXPECTED_WITHOUT_CONFIG.get(spec.name, 0)
+        assert done.returncode == expected, (spec.name, done.stdout, done.stderr)
+        assert (done.stdout.startswith("error: ") if expected else not done.stdout.startswith("error: ")), spec.name
         assert done.stderr == ""
 
 

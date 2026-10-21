@@ -4,9 +4,15 @@ List rows carry 3-4 fields; a detail view about 8-9. `--full` ignores these and 
 gateway returned. Field names are the already-normalized ones from the Zoho gateway (T02). Commands
 extend or adjust this table; nothing else in the code base lists display fields.
 
-Entries for task/comment are taken from the T05/T08 specs; the rest (bug, history, attachment,
-project, tasklist, milestone, user, tag) are invented-but-plausible and should be confirmed against
-real fixtures by T08-T10.
+Entries for task/comment are taken from the T05/T08 specs; bug, history and attachment are
+invented-but-plausible and should be confirmed against real fixtures by T08/T09. The T10 entries
+(project, default, tasklist, milestone, user, tag, people, home, due_task) are what the `project`,
+`tasks`, `people` and `home` commands emit, built against the research-note shapes rather than
+recorded responses: confirm them when T04's fixtures exist.
+
+The gateway only normalizes casing, not meaning, so commands map Zoho's fields (`prefix` -> `key`,
+`name` -> `title`, `status.name` -> `status`, `owners_and_work.owners[].name` -> `owner`) into these
+flat names themselves (see commands/_shape.py).
 """
 from __future__ import annotations
 
@@ -48,23 +54,31 @@ SCHEMAS: dict[str, Schema] = {s.name: s for s in (
     Schema("attachment", "attachments", list_fields=("name", "type", "size")),
     Schema(
         "project", "projects",
-        list_fields=("id", "name", "status"),
-        detail_fields=("name", "status", "owner", "start", "end"),
-        text_fields=("description",),
-        id_field="id",
+        list_fields=("id", "name", "status", "portal"),
+        detail_fields=("name", "status", "owner", "start", "end", "next_milestone"),
+        id_field="id",  # `description` is deliberately not listed: it only appears with --full
+        sections={"tasklists": "tasklist", "milestones": "milestone"},  # present only with `project --lists`
     ),
-    Schema("tasklist", "tasklists", list_fields=("id", "name", "open")),
+    # `project use`: what was written to the config file (T10).
+    Schema("default", "defaults", list_fields=("project", "name"), detail_fields=("portal", "name", "config"),
+           id_field="project"),
+    Schema("tasklist", "tasklists", list_fields=("id", "name", "status")),
     Schema("milestone", "milestones", list_fields=("id", "name", "due", "status")),
     Schema("user", "users", list_fields=("id", "name", "role")),
     Schema("tag", "tags", list_fields=("id", "name")),
+    # `people`: users and tags side by side, one section each (T10).
+    Schema("people", "peoples", list_fields=("name",), sections={"users": "user", "tags": "tag"}),
     # `zoho-axi cache status|clear` (T07): a detail view; the tallies ride in `counts`.
     Schema("cache", "caches", list_fields=("path",), detail_fields=("path", "size", "oldest", "cleared")),
-    # T06 commands (home is a placeholder until T10)
+    # T06 commands
     Schema("auth", "auths", list_fields=("credentials", "token"), detail_fields=(
         "config_file", "config_file_exists", "credentials", "token", "token_error", "settings")),
     Schema("step", "steps", list_fields=("text",)),
+    # `home` (T10): the default project at a glance; offline (credentials missing) it carries portal/credentials/note.
     Schema("home", "homes", list_fields=("project",),
-           detail_fields=("portal", "project", "credentials", "note")),
+           detail_fields=("portal", "project", "name", "status", "credentials", "note"),
+           sections={"due": "due_task"}),
+    Schema("due_task", "due_tasks", list_fields=("key", "title", "due", "owner")),
 )}
 
 
