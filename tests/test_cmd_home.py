@@ -5,7 +5,7 @@ from support.factories import API
 from support.world import P, PR, World, project_rec, replay_of, task, tasks_body, token_count
 
 HOME_BUDGET = 300
-PAGE = {"page": "1", "per_page": "100"}
+PAGE = {}  # Zoho serves page 1 of 100 by default, so the plain call carries no paging params
 
 
 @pytest.fixture

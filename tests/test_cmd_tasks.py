@@ -11,7 +11,7 @@ from support.world import (
 )
 
 TASKS_BUDGET = 500
-PAGE = {"page": "1", "per_page": "100"}
+PAGE = {}  # Zoho serves page 1 of 100 by default, so the plain call carries no paging params
 
 
 @pytest.fixture
@@ -111,7 +111,7 @@ def test_more_pages_on_the_server_produce_a_next_page_hint(world):
 
 
 def test_page_flag_requests_that_page_from_zoho(world):
-    params = {"page": "2", "per_page": "100"}
+    params = {"page": "2"}
     code, out, _ = world.run(["tasks", "--page", "2"], replay_of((f"{PR}/tasks", tasks_body(task(1, "A")), params)))
     assert code == 0 and "DM1-T1" in out
 

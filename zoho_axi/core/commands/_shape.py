@@ -12,7 +12,7 @@ from typing import Any, Mapping
 
 _ISO_DATE = re.compile(r"^(\d{4}-\d{2}-\d{2})")
 _US_DATE = re.compile(r"^(\d{2})-(\d{2})-(\d{4})")
-_NAME_KEYS = ("name", "display_name", "full_name")
+_NAME_KEYS = ("name", "full_name", "display_name")  # users: display_name can be just a first name
 _UNASSIGNED = {"unassigned user", "unassigned"}
 _CLOSED_WORDS = {"closed", "completed", "complete", "done", "resolved"}
 

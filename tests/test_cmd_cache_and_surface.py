@@ -5,7 +5,7 @@ from support.world import PR, World, replay_of, task, tasks_body
 
 from zoho_axi.cli.registry import REGISTRY
 
-PAGE = {"page": "1", "per_page": "100"}
+PAGE = {}  # Zoho serves page 1 of 100 by default, so the plain call carries no paging params
 
 
 def tasks_replay():

@@ -46,11 +46,13 @@ def filter_param(criteria: list[tuple[str, str]]) -> str | None:
 
 def fetch_page(ctx: Context, portal: str, project: str, *, page: int = 1, criteria: list[tuple[str, str]] | None = None):
     """One page of project tasks through the cache; remembers each task's key -> id for `task <KEY>`."""
-    params = {"page": str(page), "per_page": str(PER_PAGE)}
+    params: dict[str, str] = {}  # Zoho's defaults (page 1, 100 per page) are not sent, so the plain call is one cache entry
+    if page > 1:
+        params["page"] = str(page)
     flt = filter_param(criteria or [])
     if flt:
         params["filter"] = flt
-    rows = ctx.data.get("tasks", params=params, portal=portal, project=project)
+    rows = ctx.data.get("tasks", params=params or None, portal=portal, project=project)
     index = ctx.data.index(portal=portal, project=project)
     for record in rows:
         if record.get("id") and _shape.task_key(record) != str(record["id"]):

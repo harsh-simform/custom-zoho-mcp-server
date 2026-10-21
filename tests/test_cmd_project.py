@@ -117,7 +117,7 @@ def test_description_only_with_full_and_html_stripped(world):
 def test_project_flag_accepts_a_name_through_the_project_list(world):
     other = project_rec("777", "Mobile App")
     replay = replay_of((f"{P}/projects", [project_rec(), other]), (f"{P}/projects/777", other),
-                       (f"{P}/projects/777/tasks", tasks_body(task(1, "A")), {"page": "1", "per_page": "100"}))
+                       (f"{P}/projects/777/tasks", tasks_body(task(1, "A")), {}))
     code, out, _ = world.run(["tasks", "--project", "mobile"], replay)
     assert code == 0 and "DM1-T1" in out
 
@@ -241,7 +241,7 @@ def test_absent_keys_are_inserted_before_the_first_table(tmp_path):
 def test_the_new_default_is_what_the_next_command_uses(tmp_path):
     w = World(tmp_path, configured=False, ZOHO_AXI_PORTAL_ID="1100")
     w.run(["project", "use", "demo"], replay_of((f"{P}/projects", [project_rec()])))
-    page = {"page": "1", "per_page": "100"}
+    page = {}
     code, out, _ = w.run(["tasks"], replay_of((f"{P}/projects/2200/tasks", tasks_body(task(1, "A")), page)))
     assert code == 0 and "DM1-T1" in out
 
