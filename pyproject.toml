@@ -7,7 +7,11 @@ dependencies = [
     "mcp>=2.0.0",
     "requests>=2.31.0",
     "python-dotenv>=1.0.0",
+    "tomli>=2.0.0; python_version < '3.11'",
 ]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
 
 [project.scripts]
 zoho-projects-mcp = "zoho_mcp.server:main"
@@ -17,4 +21,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["zoho_mcp*"]
+include = ["zoho_mcp*", "zoho_axi*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
