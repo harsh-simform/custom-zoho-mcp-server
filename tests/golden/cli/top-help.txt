@@ -4,6 +4,7 @@ commands:
   home             live overview (placeholder until T10); also what bare `zoho-axi` runs
   auth status      check config and credentials, and verify the token with Zoho
   auth login-help  how to create the Zoho Self Client and where its values go
+  task             one task: status, owner, counts; add slices for comments, history, subtasks, attachments
 global flags:
   --project P  project to use: PROJECT or PORTAL:PROJECT (default: config)
   --fresh      bypass the cache

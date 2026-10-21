@@ -37,8 +37,10 @@ def test_every_wired_command_runs_with_stdin_closed(tmp_path):
 
     for spec in REGISTRY:
         args = [*spec.name.split(), "--offline"] if spec.name == "auth status" else spec.name.split()
+        needs_arg = any(a.required for a in spec.args)
+        args += ["1" for a in spec.args if a.required]  # e.g. `task 1`: unconfigured here, so a config error (3)
         done = run_installed("zoho-axi", args, tmp_path)
-        assert done.returncode == 0, (spec.name, done.stdout, done.stderr)
+        assert done.returncode == (3 if needs_arg else 0), (spec.name, done.stdout, done.stderr)
         assert done.stderr == ""
 
 

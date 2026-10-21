@@ -1,0 +1,13 @@
+task: DM1-T5
+title: Redesign settings page
+status: In Progress
+owner: Hugo Okoye
+priority: medium
+tasklist: "50000000001"
+counts: comments=0 subtasks=2 attachments=0
+description: Parent task for the settings redesign.
+subtasks[2]{key,title,status,owner}:
+  DM1-T6,"Settings: profile tab",Open,Hugo Okoye
+  DM1-T7,"Settings: billing tab",Open,Hugo Voss
+warnings[1]{message}:
+  "subtasks unverified: Zoho cannot filter tasks by parent; listing the tasks whose parent is this one (first page of the project only)"

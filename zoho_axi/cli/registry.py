@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from ..core.commands import auth, home
+from ..core.commands import auth, home, task
 from ..core.commands.base import Command
 
 
@@ -56,4 +56,11 @@ REGISTRY: tuple[Spec, ...] = (
          examples=("zoho-axi auth status", "zoho-axi auth status --offline")),
     Spec("auth login-help", "how to create the Zoho Self Client and where its values go", auth.login_steps,
          examples=("zoho-axi auth login-help", "zoho-axi auth login-help --json")),
+    Spec("task", "one task: status, owner, counts; add slices for comments, history, subtasks, attachments", task.task,
+         args=(Arg("ref", "task key (PROJ1-T1000) or numeric id"),),
+         flags=(Flag("--comments", "show the last 3 comments (--full: all)"),
+                Flag("--history", "show the task's status changes"),
+                Flag("--subtasks", "list subtasks (unverified: Zoho cannot filter by parent)"),
+                Flag("--attachments", "list attachment names, types and sizes")),
+         examples=("zoho-axi task PROJ1-T1000", "zoho-axi task 4000000012345 --comments --full")),
 )

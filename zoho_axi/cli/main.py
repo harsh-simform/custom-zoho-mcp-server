@@ -45,7 +45,7 @@ def main(
             stdout.write((command_help(inv.spec) if inv.spec else top_help(registry)) + "\n")
             return 0
         fmt = "json" if inv.json else "toon"
-        ctx = Context(load_settings(env), inv.params or {}, project=inv.project, fresh=inv.fresh,
+        ctx = Context(load_settings(env), inv.params or {}, project=inv.project, fresh=inv.fresh, full=inv.full,
                       _gateway=gateway, env=env, today=today)
         assert inv.spec is not None  # only top-level help has no spec, and it returned above
         result = inv.spec.run(ctx)

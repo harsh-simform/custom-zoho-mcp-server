@@ -1,0 +1,13 @@
+task: DM1-T2
+title: Fix checkout validation
+status: In Progress
+owner: Hugo Voss
+priority: high
+tasklist: "50000000001"
+counts: comments=2 subtasks=0 attachments=2 images=1
+description: "Context\nCustomers report that the checkout form accepts malformed postcodes and then fails at the payment step with a generic error.\nSteps to reproduce\n- Add any item to the cart.\n- Open checkout.\n- Enter 12-34 as the postcode and a valid card.\n- Press Pay now.\nExpected: inline validation message before the payment call.\nActual: HTTP 500 from /api/orders and the cart is cleared.\nBrowserBuildReproduced\nFirefox 1282026.03.1yes\nSafari 172026.03.1yes\nNotes: see the linked design review & the QA checklist.\nAdditional background paragraph repeated to simulate a long rich-text body. The validation layer was rewritten in January; the regression likely came with that change.\nAdditional background paragraph repeated to simulate a long rich-text body. The validation layer was rewritten in January; the regression likely came with that change.\nAdditional background paragraph repeated to simulate a long rich-text body. The validation layer was rewritten in January; the regression likely came with that change.\nAdditional background paragraph repeated to simulate a long rich-text body. The validation layer was rewritten in January; the regression likely came with that change.\nAdditional background paragraph repeated to simulate a long rich-text body. The validation layer was rewritten in January; the regression likely came with that change.\nAdditional background paragraph repeated to simulate a long rich-text body. The validation layer was rewritten in January; the regression likely came wit ... (+350 chars, --full)"
+comments[2]{by,at,text}:
+  Hugo Voss,2026-03-03,"Reproduced on staging. The validator only checks length, not the pattern."
+  Hugo Okoye,2026-03-04,Linking the design review. Please also cover the UK and IE formats.
+help[1]{run}:
+  zoho-axi task DM1-T2 --attachments
