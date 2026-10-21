@@ -1,0 +1,225 @@
+{
+  "_provenance": {
+    "groups": {
+      "bare-array envelope + entry fields": "documented: Get Status History (Project)",
+      "unfiltered page (ignores task_id; other tasks' histories included)": "proven-by-legacy-code",
+      "entry id = task id": "proven-by-legacy-code: context_builders.py",
+      "values": "invented",
+      "target task missing from the page": "proven-by-legacy-code: code warns and returns []"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/projects/20000000001/taskstatushistory",
+      "status": 200,
+      "json": [
+        {
+          "name": "Prepare release notes",
+          "id": "4690721349386",
+          "project": {
+            "id": "20000000001"
+          },
+          "status": {
+            "name": "Open",
+            "id": "222632101249",
+            "type": "open"
+          },
+          "status_history": [
+            {
+              "updated_on": "2026-03-02T09:15:00.000Z",
+              "updated_status": {
+                "name": "Open",
+                "id": "222632101249",
+                "type": "open"
+              },
+              "updated_by": {
+                "name": "Hugo Okoye",
+                "id": "53657865",
+                "email": "user-05342de3@example.test",
+                "zp_id": "10000000001"
+              },
+              "transition_time": {
+                "duration": "0 days 0 hrs 0 mins 0 secs",
+                "duration_in_millis": "0"
+              },
+              "previous_status": {
+                "name": "Open",
+                "id": "222632101249",
+                "type": "open"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Archive old campaign assets",
+          "id": "5073407544152",
+          "project": {
+            "id": "20000000001"
+          },
+          "status": {
+            "name": "Closed",
+            "id": "410358298431",
+            "type": "closed"
+          },
+          "status_history": [
+            {
+              "updated_on": "2026-03-05T10:00:00.000Z",
+              "updated_status": {
+                "name": "In Progress",
+                "id": "409111260389",
+                "type": "open"
+              },
+              "updated_by": {
+                "name": "Hugo Okoye",
+                "id": "53657865",
+                "email": "user-05342de3@example.test",
+                "zp_id": "10000000001"
+              },
+              "transition_time": {
+                "duration": "2 days 0 hrs 0 mins 0 secs",
+                "duration_in_millis": "172800000"
+              },
+              "previous_status": {
+                "name": "Open",
+                "id": "222632101249",
+                "type": "open"
+              }
+            },
+            {
+              "updated_on": "2026-03-09T16:40:00.000Z",
+              "updated_status": {
+                "name": "Closed",
+                "id": "410358298431",
+                "type": "closed"
+              },
+              "updated_by": {
+                "name": "Hugo Okoye",
+                "id": "53657865",
+                "email": "user-05342de3@example.test",
+                "zp_id": "10000000001"
+              },
+              "transition_time": {
+                "duration": "4 days 5 hrs 40 mins 0 secs",
+                "duration_in_millis": "366000000"
+              },
+              "previous_status": {
+                "name": "In Progress",
+                "id": "409111260389",
+                "type": "open"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/projects/20000000001/taskstatushistory",
+      "params": {
+        "task_id": "30000000001"
+      },
+      "status": 200,
+      "json": [
+        {
+          "name": "Prepare release notes",
+          "id": "4690721349386",
+          "project": {
+            "id": "20000000001"
+          },
+          "status": {
+            "name": "Open",
+            "id": "222632101249",
+            "type": "open"
+          },
+          "status_history": [
+            {
+              "updated_on": "2026-03-02T09:15:00.000Z",
+              "updated_status": {
+                "name": "Open",
+                "id": "222632101249",
+                "type": "open"
+              },
+              "updated_by": {
+                "name": "Hugo Okoye",
+                "id": "53657865",
+                "email": "user-05342de3@example.test",
+                "zp_id": "10000000001"
+              },
+              "transition_time": {
+                "duration": "0 days 0 hrs 0 mins 0 secs",
+                "duration_in_millis": "0"
+              },
+              "previous_status": {
+                "name": "Open",
+                "id": "222632101249",
+                "type": "open"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Archive old campaign assets",
+          "id": "5073407544152",
+          "project": {
+            "id": "20000000001"
+          },
+          "status": {
+            "name": "Closed",
+            "id": "410358298431",
+            "type": "closed"
+          },
+          "status_history": [
+            {
+              "updated_on": "2026-03-05T10:00:00.000Z",
+              "updated_status": {
+                "name": "In Progress",
+                "id": "409111260389",
+                "type": "open"
+              },
+              "updated_by": {
+                "name": "Hugo Okoye",
+                "id": "53657865",
+                "email": "user-05342de3@example.test",
+                "zp_id": "10000000001"
+              },
+              "transition_time": {
+                "duration": "2 days 0 hrs 0 mins 0 secs",
+                "duration_in_millis": "172800000"
+              },
+              "previous_status": {
+                "name": "Open",
+                "id": "222632101249",
+                "type": "open"
+              }
+            },
+            {
+              "updated_on": "2026-03-09T16:40:00.000Z",
+              "updated_status": {
+                "name": "Closed",
+                "id": "410358298431",
+                "type": "closed"
+              },
+              "updated_by": {
+                "name": "Hugo Okoye",
+                "id": "53657865",
+                "email": "user-05342de3@example.test",
+                "zp_id": "10000000001"
+              },
+              "transition_time": {
+                "duration": "4 days 5 hrs 40 mins 0 secs",
+                "duration_in_millis": "366000000"
+              },
+              "previous_status": {
+                "name": "In Progress",
+                "id": "409111260389",
+                "type": "open"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

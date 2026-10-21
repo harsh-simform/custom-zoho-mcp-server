@@ -1,0 +1,46 @@
+# zoho-axi configuration. Copy to ~/.config/zoho-axi/config.toml (or $XDG_CONFIG_HOME/zoho-axi/config.toml):
+#
+#     mkdir -p ~/.config/zoho-axi
+#     cp config.example.toml ~/.config/zoho-axi/config.toml
+#     chmod 600 ~/.config/zoho-axi/config.toml
+#
+# The file holds OAuth secrets, so it must be mode 600. With looser permissions every command prints a
+# warning telling you to run `chmod 600 <file>`.
+#
+# Flat `key = value` lines only. Nothing in this file is a real value. Every setting can also be set
+# with an environment variable named ZOHO_AXI_<KEY> (ZOHO_AXI_CLIENT_ID, ZOHO_AXI_DC, ...), which wins
+# over this file. `zoho-axi auth status --offline` shows which source each setting came from, and
+# `zoho-axi auth login-help` prints the Self Client steps and scopes.
+#
+# DEPRECATED: the old ZOHO_CLIENT_ID / ZOHO_CLIENT_SECRET / ZOHO_REFRESH_TOKEN / ZOHO_PORTAL_ID /
+# ZOHO_PROJECT_ID / ZOHO_DC / ZOHO_MCP_* environment variables and a repo-root `.env` file (or the file
+# named by ZOHO_MCP_ENV_FILE) are still read as a last-resort fallback, with a warning. Move those values
+# here; the fallback will be removed in a future release.
+
+# --- Required: from your Zoho Self Client (https://api-console.zoho.com, or .eu / .in / .com.au / .jp) ---
+client_id = "1000.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+client_secret = "replace-with-the-self-client-secret"
+refresh_token = "1000.replace-with-the-refresh-token"
+
+# --- Data center: must be one of com, eu, in, com.au, jp (default com) ---
+# It selects accounts.zoho.<dc> and projectsapi.zoho.<dc>, so it is an allowlist: any other value is
+# rejected before a credential is sent anywhere. Use the data center your Zoho account lives in.
+# dc = "com"
+
+# --- Default project (so you do not need --project every time) ---
+# `zoho-axi project list` shows ids; `zoho-axi project use "<name or id>"` writes these two lines for you.
+# portal_id = "1100000000001"
+# project_id = "2200000000123"
+
+# --- Images (task/bug --images, MCP images=true) ---
+# max_images = 5                    # at most this many images per call; 0 disables image downloads
+# max_attachment_bytes = 8388608    # skip any single image larger than this (default 8 MiB)
+
+# --- Cache lifetimes, in seconds (see "Cache" in the README; `--fresh` bypasses them for one call) ---
+# ttl_long_seconds = 86400          # portals, projects, users, tags, tasklists, milestones (24 h)
+# ttl_task_seconds = 300            # tasks, bugs, search (5 min)
+# ttl_comment_seconds = 120         # comments, attachments, status history (2 min)
+
+# --- Logging (the MCP server logs to stderr; stdout belongs to the protocol) ---
+# log_level = "INFO"                # DEBUG, INFO, WARNING, ERROR
+# log_file = "/absolute/path/to/zoho-axi.log"   # optional extra log destination; secrets are redacted

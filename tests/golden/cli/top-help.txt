@@ -1,0 +1,29 @@
+zoho-axi: read-only Zoho Projects for agents. Output is TOON; --json gives JSON.
+usage: zoho-axi [COMMAND] [flags]   (no command = home)
+commands:
+  home             live overview of the default project; also what bare `zoho-axi` runs
+  auth status      check config and credentials, and verify the token with Zoho
+  auth login-help  how to create the Zoho Self Client and where its values go
+  project          overview of the project: status, owner, next milestone, counts
+  project list     list the projects of the portal (id, name, status)
+  project use      make a project the default (writes portal_id/project_id to the config file)
+  people           list the portal's users and tags (both by default)
+  tasks            list tasks: key, title, status, owner, with totals by status
+  task             one task: status, owner, counts; add slices for comments, history, subtasks, attachments
+  bug              one bug: status, severity, owner, counts; add slices for comments, attachments, linked task
+  resolve          find task/bug keys, ids and Zoho links in free text and suggest the exact commands (offline)
+  cache status     cache size, entry counts and the oldest entry
+  cache clear      delete the cache and derived index (needs --yes; never prompts)
+  session-start    Claude Code SessionStart hook: project snapshot from the cache; silent on any failure
+  hooks install    add the SessionStart hook to ~/.claude/settings.json (shows the diff; --yes applies)
+  hooks uninstall  remove the SessionStart hook again (shows the diff; --yes applies)
+  skill install    copy the zoho-axi skill to ~/.claude/skills/zoho-axi/ (shows the change; --yes applies)
+  mcp              run the MCP server over stdio (launched by an MCP client, not for a terminal)
+global flags:
+  --project P  project to use: PROJECT or PORTAL:PROJECT (default: config)
+  --fresh      bypass the cache
+  --json       print JSON instead of TOON
+  --full       show every field and never truncate text
+  --debug      print the Zoho request count to stderr
+  --help       show help
+Run `zoho-axi COMMAND --help` for a command's flags and examples.

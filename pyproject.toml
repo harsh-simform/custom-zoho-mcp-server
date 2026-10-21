@@ -1,20 +1,36 @@
 [project]
-name = "zoho-projects-mcp"
-version = "0.1.0"
-description = "Read-only MCP server exposing Zoho Projects context to Claude"
+name = "zoho-axi"
+version = "0.2.0"
+description = "Read-only Zoho Projects for agents: the token-lean zoho-axi CLI and a six-tool MCP server"
+readme = "README.md"
+keywords = ["zoho", "zoho-projects", "mcp", "claude", "cli", "toon"]
 requires-python = ">=3.10"
 dependencies = [
     "mcp>=2.0.0",
     "requests>=2.31.0",
     "python-dotenv>=1.0.0",
+    "tomli>=2.0.0; python_version < '3.11'",
 ]
 
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "mypy>=1.8", "types-requests>=2.31"]
+# Optional: tiktoken adds its count to token-budget failure messages (reporting only, never gates a test).
+tokens = ["tiktoken>=0.7"]
+
 [project.scripts]
-zoho-projects-mcp = "zoho_mcp.server:main"
+zoho-axi = "zoho_axi.cli.main:console_main"
+zoho = "zoho_axi.cli.main:console_main"  # short alias for zoho-axi
 
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["zoho_mcp*"]
+include = ["zoho_axi*"]
+
+[tool.setuptools.package-data]
+# The Claude Code skill `zoho-axi skill install` copies (read via importlib.resources).
+zoho_axi = ["skills/*/SKILL.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

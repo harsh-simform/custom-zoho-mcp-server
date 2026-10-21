@@ -1,255 +1,356 @@
-# Zoho Projects MCP Server
+# zoho-axi
 
-A read-only [MCP](https://modelcontextprotocol.io) server that exposes Zoho Projects
-data (portals, projects, tasklists, milestones, tasks, bugs, users, tags) to Claude —
-so it can look up task/bug context directly instead of you copy-pasting it in.
+Read-only [Zoho Projects](https://www.zoho.com/projects/) for AI agents. Two front-ends share one command layer:
 
-No write operations are performed against Zoho — this server only reads.
+- **`zoho-axi`**, a command-line tool whose output is compact [TOON](https://github.com/toon-format/toon) text
+  (`--json` gives JSON), built to cost an agent few tokens.
+- **A six-tool MCP server** (`zoho-axi mcp`) that returns the same text, for MCP clients such as Claude Code and
+  Claude Desktop.
 
-## Features
+It never creates or changes anything in Zoho: only GET requests (plus the OAuth token refresh) can leave the process.
 
-- **One-call context fetch** — `get_task_context` / `get_bug_context` return details,
-  comments, subtasks/linked task, status history, and attachments in a single call,
-  instead of chaining several lookups yourself.
-- **Inline screenshot viewing** — image attachments on a task/bug (screenshots, etc.)
-  are downloaded and returned as actual images in the same response, so Claude can
-  visually inspect them without a follow-up call. Capped by
-  `ZOHO_MCP_MAX_CONTEXT_IMAGES` (default 5) and `ZOHO_MCP_MAX_ATTACHMENT_BYTES`
-  (default 8MB/image); anything skipped or oversized is noted in the response's
-  `errors` list instead of failing the whole call.
-- **Multi-portal / multi-project selection** — select several portal/project pairs in
-  one running instance and switch the active one with `switch_portal`, without
-  re-entering OAuth or re-validating each time. (In-memory for that session only —
-  see Features note on state below.)
-- **Human-readable key resolution** — task/bug keys like `PROJ1-T1000` are resolved to
-  Zoho's internal IDs automatically (needs the `ZohoProjects.search.READ` scope).
-- **Guarded state machine** — tools are gated behind
-  `NOT_CONFIGURED → OAUTH_READY → CONTEXT_SELECTED`. Calling a tool before its
-  required stage returns a plain-language error telling you which step to do first,
-  instead of a raw API failure.
-- **Legacy endpoint fallback** — `client.py` tries the current v3 API first and falls
-  back to the legacy `/restapi` path on 404, since Zoho's public docs still only
-  document the legacy path for some endpoints (milestones, comments, attachments).
-- **Automatic retry** — transient HTTP failures are retried (`MAX_RETRIES`, default 3)
-  before surfacing an error.
-- **Secure logging** — every tool call, OAuth refresh, HTTP request/retry, and stage
-  transition is logged to **stderr only** (stdout is reserved for the MCP JSON-RPC
-  wire protocol). Secrets (`client_secret`, `refresh_token`, `access_token`) are
-  redacted by parameter name before logging, so they never end up in logs.
-- **Everything from `.env`, nothing persisted to disk** — OAuth credentials and the
-  default portal/project load from `.env` (see `.env.example`) at startup, so no
-  manual `configure_oauth` / `select_portal_and_project` call is needed for the
-  common case. There is no state file at all — the server keeps its session state
-  (auth, active portal/project) in memory only, for that process's lifetime.
-  `configure_oauth` and `select_portal_and_project`/`switch_portal` still exist as
-  manual, in-memory-only overrides for a single running session (e.g. testing a
-  different token, or picking a project you didn't set as the `.env` default), and
-  simply reset to the `.env` defaults on restart.
+Version 0.2.0 is a breaking rewrite of the 0.1.x MCP server. See [CHANGELOG.md](CHANGELOG.md).
 
-## ⚠️ Before first run
+## Why
 
-Verify Zoho's current base URL / auth header and whether the legacy `/restapi` paths
-(comments, milestones, attachments) still work — see plan §0. Adjust
-`zoho_mcp/config.py` / `zoho_mcp/client.py` if they've changed.
+An agent that reads tickets pays for every character of tool output and for every tool schema loaded into every
+session. This project keeps both small and checks that in the test suite.
 
-## Prerequisites
+Numbers below are **measured by this repository's own tests**, on **synthetic fixtures** (see
+[Known limitations](#known-limitations-and-what-is-unverified)). The estimator everywhere is a deterministic proxy,
+`len(text) / 4` rounded up. It is not a tokenizer: it under-counts text dense in ids, digits and punctuation, so
+read the numbers as regression guards and relative sizes, not billing figures.
 
-- Python ≥ 3.10
-- A Zoho account with access to the Projects portal(s) you want to query
-- A registered Zoho Self Client (see Setup below)
+| What | Measured (tokens) | Budget enforced | Source |
+|---|---|---|---|
+| Tool schemas, the 6 MCP tools together | 651 (2,601 chars) | 800 | `tests/test_mcp_server.py` |
+| Tool schemas, the 15 tools of 0.1.x (for comparison) | 1,421 (5,686 chars) | none | recorded in `tests/test_mcp_server.py` |
+| `task` default view (largest synthetic task: 6k-char description, 30 comments) | 439 | 600 | `tests/test_cmd_task.py` |
+| `task --comments` (30 comments) | 721 | 900 | `tests/test_cmd_task.py` |
+| `bug` default view (same shape) | 334 | 500 | `tests/test_cmd_bug.py` |
+| `bug --comments` (30 comments) | 617 | 900 | `tests/test_cmd_bug.py` |
+| `tasks` list, 20 rows | 314 | 500 | `tests/test_cmd_fixtures.py` |
+| `home` / `project` overview | 75 / 74 | 300 / 400 | `tests/test_cmd_fixtures.py` |
+| SessionStart hook output | 83 | 150 | `tests/test_session_start.py` |
+| `--help` of one command (recorded for `task`: 180, `bug`: 166) | 166 to 180 | 250 per command | `tests/test_cmd_task.py`, `tests/test_cmd_bug.py` |
 
-## Setup
+Run the suite to see every measured/allowed pair (`venv/bin/python -m pytest tests -q` prints a "token budgets"
+table). The estimator and its weakness are described in [tests/README.md](tests/README.md). The README does not
+claim anything about the size of 0.1.x tool *output*: only its tool schemas were measured.
 
-1. **Register a Self Client** at the [Zoho API Console](https://api-console.zoho.com),
-   request the scopes listed in plan §1 — including `ZohoProjects.search.READ`, needed
-   to resolve a task/bug's human-readable key (e.g. `PROJ1-T1000`) to its internal ID —
-   and generate a refresh token. Note down the **client ID**, **client secret**, and
-   **refresh token**.
+How the savings are made: lean default views with explicit slices (`--comments`, `--history`, ...), long text cut
+with a size hint, a local response cache, `resolve` to turn free text into exact commands without a network call,
+and `help[]` lines that tell the agent the next command instead of making it guess.
 
-2. **Clone and install** into a virtual environment:
+## Install
 
-   ```bash
-   git clone <this-repo-url> zoho-mcp
-   cd zoho-mcp
-   python -m venv venv && source venv/bin/activate
-   pip install -e .
-   ```
-
-3. **Create `.env`** from the template and fill in the values from step 1:
-
-   ```bash
-   cp .env.example .env
-   chmod 600 .env
-   ```
-
-   Then edit `.env`:
-
-   ```
-   ZOHO_CLIENT_ID=...
-   ZOHO_CLIENT_SECRET=...
-   ZOHO_REFRESH_TOKEN=...
-
-   # optional — skip select_portal_and_project by setting a default here
-   ZOHO_PORTAL_ID=...
-   ZOHO_PROJECT_ID=...
-   ```
-
-   `.env` is gitignored — never commit it. If you'd rather not use a default
-   portal/project, leave those two blank and pick interactively at runtime instead
-   (see First-time usage flow below).
-
-4. **Run it standalone** (optional, to sanity-check it starts):
-
-   ```bash
-   python -m zoho_mcp
-   ```
-
-   It should start and wait on stdin/stdout for MCP messages, with startup logs on
-   stderr. Ctrl-C to stop.
-
-## Register with Claude Code — globally (recommended)
-
-This server is meant to be usable from **any project, any directory** — not just when
-Claude happens to be started from inside this repo. Register it once, at **user
-scope**, and it's available everywhere:
+Requires Python 3.10 or newer. Install from git as an isolated tool, which puts `zoho-axi` (and the short alias
+`zoho`) on your `PATH`:
 
 ```bash
-claude mcp add --scope user custom-zoho-project-mcp-server \
-  -- /absolute/path/to/zoho-mcp/venv/bin/python -m zoho_mcp
+uv tool install git+https://github.com/harsh-simform/custom-zoho-mcp-server
 ```
 
-That's the whole global setup — no extra env flags needed on the `claude mcp add`
-command itself. Two things make this work reliably from any cwd:
-
-- **Use the absolute path** to the venv's Python (`/absolute/path/to/zoho-mcp/venv/bin/python`),
-  not a relative one — the command needs to resolve the same way regardless of which
-  directory Claude was started from.
-- **`.env` is anchored to the repo root**, not to the process's current working
-  directory (see `config.py`: `Path(__file__).resolve().parent.parent / ".env"`). So
-  once `.env` is filled in (Setup, step 3), OAuth and the default project load the
-  same way whether Claude was launched from this repo, some other project's directory,
-  or anywhere else. Nothing to configure per-directory.
-
-Verify it's visible globally:
+or
 
 ```bash
-claude mcp list
+pipx install git+https://github.com/harsh-simform/custom-zoho-mcp-server
 ```
 
-`custom-zoho-project-mcp-server` should show up regardless of which directory you run
-that from. If a session was already open in another directory before you registered
-it, restart that session to pick up the new server.
+Upgrade with `uv tool upgrade zoho-axi` or `pipx upgrade zoho-axi`. Check the install:
 
-### Claude Code — project-local (alternative)
+```bash
+zoho-axi --help
+zoho-axi auth status --offline
+```
 
-If you'd rather this only be available inside this one repo, run the same command
-without `--scope user` (or with `--scope project`/`--scope local`) from inside this
-directory.
+For development, clone the repo and run `uv venv venv && uv pip install --python venv/bin/python -e ".[dev]"`.
 
-### Claude Desktop config
+## Configure
 
-Add to Claude Desktop's MCP config file:
+All settings live in one TOML file, `~/.config/zoho-axi/config.toml` (or `$XDG_CONFIG_HOME/zoho-axi/config.toml`).
+[`config.example.toml`](config.example.toml) lists every setting, commented, with its default.
+
+1. Create a Zoho **Self Client** at <https://api-console.zoho.com> (use `.eu`, `.in`, `.com.au` or `.jp` for your
+   data center). `zoho-axi auth login-help` prints these steps with your data center filled in.
+2. Request read scopes: `ZohoProjects.<module>.READ` for portals, projects, tasks, tasklists, milestones, bugs,
+   users and tags, plus `ZohoProjects.search.READ`, which is needed to resolve keys like `PROJ1-T1000` to ids. As a
+   single scope string:
+   `ZohoProjects.portals.READ,ZohoProjects.projects.READ,ZohoProjects.tasks.READ,ZohoProjects.tasklists.READ,ZohoProjects.milestones.READ,ZohoProjects.bugs.READ,ZohoProjects.users.READ,ZohoProjects.tags.READ,ZohoProjects.search.READ`.
+   Only read scopes are needed and only read scopes should be granted.
+3. Generate the code in the Self Client, then exchange it once for a refresh token (the code is short-lived and
+   single-use; use your data center's `accounts.zoho.<dc>` host):
+
+   ```bash
+   curl -s -X POST https://accounts.zoho.com/oauth/v2/token \
+     -d grant_type=authorization_code -d client_id=YOUR_CLIENT_ID \
+     -d client_secret=YOUR_CLIENT_SECRET -d code=THE_GENERATED_CODE
+   ```
+
+   The response contains `refresh_token`. Treat it like a password.
+4. Write the values to the config file and lock it down:
+
+   ```bash
+   mkdir -p ~/.config/zoho-axi
+   curl -sO https://raw.githubusercontent.com/harsh-simform/custom-zoho-mcp-server/main/config.example.toml
+   cp config.example.toml ~/.config/zoho-axi/config.toml
+   chmod 600 ~/.config/zoho-axi/config.toml
+   ```
+
+   Edit `client_id`, `client_secret`, `refresh_token`, and `dc` if your account is not on `com`.
+5. Check it, pick a default project and look around:
+
+   ```bash
+   zoho-axi auth status
+   zoho-axi project list
+   zoho-axi project use "Demo Site"
+   zoho-axi
+   zoho-axi task PROJ1-T1000
+   ```
+
+   `project use` writes `portal_id` and `project_id` into the config file (the only thing the CLI ever writes
+   there, preserving comments). You can also pass `--project NAME` or `--project PORTAL:ID` on any call.
+
+### Settings
+
+| Key | Default | Meaning |
+|---|---|---|
+| `client_id`, `client_secret`, `refresh_token` | none (required) | Self Client credentials |
+| `dc` | `com` | Zoho data center: `com`, `eu`, `in`, `com.au` or `jp`. An allowlist, because it is placed in the hostnames that receive your credentials |
+| `portal_id`, `project_id` | none | default project (set by `project use`) |
+| `max_images` | 5 | images per `--images` call; 0 disables |
+| `max_attachment_bytes` | 8388608 | skip any single image bigger than this |
+| `ttl_long_seconds` | 86400 | cache lifetime of portals, projects, users, tags, tasklists, milestones |
+| `ttl_task_seconds` | 300 | cache lifetime of tasks, bugs, search |
+| `ttl_comment_seconds` | 120 | cache lifetime of comments, attachments, status history |
+| `log_level`, `log_file` | `INFO`, none | MCP server logging (stderr, secrets redacted, optional file) |
+
+Precedence, highest first: command-line flags, `ZOHO_AXI_<KEY>` environment variables (for example
+`ZOHO_AXI_DC`), the config file, then the deprecated legacy sources and defaults. `zoho-axi auth status --offline`
+shows where each setting came from without printing secrets.
+
+**Deprecated legacy sources.** The 0.1.x environment variables (`ZOHO_CLIENT_ID`, `ZOHO_CLIENT_SECRET`,
+`ZOHO_REFRESH_TOKEN`, `ZOHO_PORTAL_ID`, `ZOHO_PROJECT_ID`, `ZOHO_DC`, `ZOHO_MCP_*`) and a repo-root `.env` file are
+still read as a last-resort fallback, with a warning on every command. Move them into the config file.
+
+## CLI quick reference
+
+Output is TOON by default; add `--json` for JSON. Every answer ends with a `help[]` block of the next commands worth
+running. Unknown flags fail with exit code 2 and a "did you mean" hint, and nothing ever prompts. Run
+`zoho-axi <command> --help` for flags and examples (this table is checked against the command registry by the tests).
+
+| Command | What it does |
+|---|---|
+| `zoho-axi` / `zoho-axi home` | live overview of the default project |
+| `zoho-axi project` | project overview: status, owner, next milestone, counts (`--lists` adds tasklists and milestones) |
+| `zoho-axi project list` | projects of the portal (id, name, status) |
+| `zoho-axi project use <name or id>` | make a project the default (writes the config file) |
+| `zoho-axi people` | portal users and tags (`--users`, `--tags`, `--limit N`) |
+| `zoho-axi tasks` | task list with totals by status (`--tasklist`, `--milestone`, `--status`, `--owner`, `--limit`, `--page`) |
+| `zoho-axi task <KEY or id>` | one task; slices `--comments`, `--history`, `--subtasks`, `--attachments`, `--images` |
+| `zoho-axi bug <KEY or id>` | one bug; slices `--comments`, `--attachments`, `--images`, `--task` (linked task) |
+| `zoho-axi resolve <text or ->` | find task/bug keys, ids and Zoho links in free text, offline; `--check` confirms them |
+| `zoho-axi auth status` | config and credential check, verifies the token with Zoho (`--offline` skips the network) |
+| `zoho-axi auth login-help` | the Self Client steps and where the values go |
+| `zoho-axi cache status` | cache size, entry counts, oldest entry |
+| `zoho-axi cache clear` | delete the cache (needs `--yes`) |
+| `zoho-axi hooks install` / `zoho-axi hooks uninstall` | add or remove the Claude Code SessionStart hook |
+| `zoho-axi skill install` | install the Claude Code skill |
+| `zoho-axi session-start` | the hook entrypoint (plain output, always exit 0) |
+| `zoho-axi mcp` | run the MCP server over stdio |
+
+Global flags, accepted before or after the command: `--project P` (`PROJECT` or `PORTAL:PROJECT`), `--fresh` (bypass
+the cache), `--json`, `--full` (every field, no truncation) and `--debug` (prints the Zoho request count to stderr).
+
+Examples:
+
+```bash
+zoho-axi tasks --status open --owner asha --limit 10
+zoho-axi task PROJ1-T1000 --comments --history
+zoho-axi bug PROJ1-I12 --comments --images
+zoho-axi task PROJ1-T1000 --json
+zoho-axi resolve "why does PROJ1-T123 loop? see AD1-I45"
+zoho-axi project --project "Demo Site" --lists
+zoho-axi task 4000000012345 --fresh --debug
+```
+
+Exit codes: `0` ok, `2` usage error, `3` auth or config problem, `4` not found, `5` Zoho unreachable or failing,
+`6` rate limited, `1` anything else. Errors are three lines on stdout (`error`, `message`, `hint`).
+
+## Use it from Claude (MCP)
+
+The MCP server exposes six tools: `project`, `tasks`, `task`, `bug`, `people` and `resolve`. Each is the CLI command
+of the same name, with the same arguments, plus `project`, `fresh`, `full` and `format` (`toon` or `json`).
+`images=true` on `task` or `bug` returns images inline. Configuration comes from the config file, so the server
+needs nothing but the command to start.
+
+### Claude Code
+
+```bash
+claude mcp add --scope user zoho -- /absolute/path/to/zoho-axi mcp
+```
+
+Use the **absolute path** of the executable (`command -v zoho-axi`; for `uv tool` it is usually
+`~/.local/bin/zoho-axi`). A client launches the server from its own environment, which may not have your shell's
+`PATH`, and a path into a project virtualenv that later moves or is deleted is exactly what silently killed the
+0.1.x registration. A tool-installed executable does not depend on any checkout. Then run `claude mcp list` and
+check that `zoho` is connected. The tools appear as `mcp__zoho__task`, `mcp__zoho__tasks` and so on; the name you
+pass to `claude mcp add` is the prefix.
+
+### Claude Desktop
+
+Add the server to `claude_desktop_config.json` (on macOS usually
+`~/Library/Application Support/Claude/claude_desktop_config.json`) and restart the app:
 
 ```json
 {
   "mcpServers": {
-    "custom-zoho-project-mcp-server": {
-      "command": "/absolute/path/to/zoho-mcp/venv/bin/python",
-      "args": ["-m", "zoho_mcp"]
+    "zoho": {
+      "command": "/absolute/path/to/zoho-axi",
+      "args": ["mcp"]
     }
   }
 }
 ```
 
-Restart Claude Desktop (or start a new Claude Code session) after adding or changing
-the config for it to take effect.
+Do not put secrets in this JSON; the config file already holds them.
 
-## First-time usage flow
+### Notes
 
-**If `.env` has all five values filled in** (client ID/secret, refresh token, portal
-ID, project ID): nothing to do — OAuth and the active project are both loaded
-automatically at startup. Go straight to calling `get_project_context`,
-`get_tasklist_context`, `get_milestone_context`, `get_task_context`, `get_bug_context`,
-`list_users`, or `list_tags`.
+- The MCP server has no tool to list or switch projects. Choose the default with the CLI: `zoho-axi project list`,
+  then `zoho-axi project use "<name>"`. Any tool call can also pass `project=` for one call.
+- Older registrations that run `python -m zoho_mcp` or `zoho-projects-mcp` no longer exist (removed in 0.2.0);
+  re-register with `zoho-axi mcp`.
+- Stdout is the protocol wire. The server logs to stderr (and `log_file`, if set), redacting credentials.
 
-**If you left `ZOHO_PORTAL_ID` / `ZOHO_PROJECT_ID` blank** (OAuth still auto-loads from
-`.env`), pick a project interactively once per session:
+## Claude Code hook and skill
 
-1. `list_portals()` → pick a portal, then `list_projects(portal_id)` → pick a project.
-2. `select_portal_and_project(portal_id, project_id)` — validates and makes it active.
-3. Now call any of the context tools listed above.
-
-**If you're not using `.env` at all**, configure OAuth manually first (in-memory only,
-for that session):
-
-1. `configure_oauth(client_id, client_secret, refresh_token)`.
-2. `list_portals()` → `list_projects(portal_id)` → `select_portal_and_project(portal_id,
-   project_id)`.
-3. Now call any of the context tools listed above.
-
-Optional, once more than one portal/project has been selected (in-memory for the
-current session only — resets to the `.env` default, if any, on restart):
-- `list_selected_portals()` — see everything selected and which is active.
-- `switch_portal(portal_id, project_id)` — move the active pair between ones already
-  selected, without re-validating.
-- `remove_portal_selection(portal_id, project_id)` — drop one pair.
-- `reset_selection()` — clear all selections without losing OAuth config.
-
-## Tool reference
-
-| Tool | Requires | Purpose |
-|---|---|---|
-| `configure_oauth` | — | Validate and store OAuth credentials. Must succeed first. |
-| `list_portals` | OAuth | List portals available to this account. |
-| `list_projects` | OAuth | List projects in a portal. |
-| `select_portal_and_project` | OAuth | Validate and activate a portal/project. |
-| `switch_portal` | — | Switch active pair among already-selected ones. |
-| `list_selected_portals` | — | Show all selected pairs and which is active. |
-| `remove_portal_selection` | — | Drop one selected pair. |
-| `reset_selection` | — | Clear all selections, keep OAuth config. |
-| `get_project_context` | Context selected | Project details + tasklists + milestones + users + tags. |
-| `get_tasklist_context` | Context selected | Tasklist metadata + every task in it. |
-| `get_milestone_context` | Context selected | Milestone metadata + every task under it. |
-| `get_task_context` | Context selected | Full task context (details, comments, subtasks, status history, attachments incl. inline images). |
-| `get_bug_context` | Context selected | Full bug context (details, comments, attachments incl. inline images, linked task). |
-| `list_users` | OAuth | List users in the current portal. |
-| `list_tags` | OAuth | List tags in the current portal. |
-
-## Logging
-
-Env vars:
-- `ZOHO_MCP_LOG_LEVEL` (default `INFO`; set `DEBUG` for per-request logs)
-- `ZOHO_MCP_LOG_FILE` (optional; also writes logs to this file)
+Both commands print a diff first and write nothing without `--yes`. They only touch `~/.claude`.
 
 ```bash
-ZOHO_MCP_LOG_LEVEL=DEBUG python -m zoho_mcp 2>server.log
+zoho-axi hooks install
+zoho-axi hooks install --yes
+zoho-axi skill install
+zoho-axi skill install --yes
 ```
 
-## Other environment variables
+- **Hook.** Adds a `SessionStart` entry to `~/.claude/settings.json` that runs `zoho-axi session-start`: a
+  cache-only snapshot of the default project (about 83 tokens), silent on any failure. The previous file is copied to
+  `settings.json.bak`. `zoho-axi hooks uninstall --yes` removes it. The hook runs the bare command `zoho-axi`, so it
+  must be on the `PATH` that Claude Code sees.
+- **Skill.** Copies the packaged skill to `~/.claude/skills/zoho-axi/SKILL.md`; it teaches an agent to start with
+  `resolve`, ask for slices and not paste credentials.
 
-- `ZOHO_DC` (default `com`) — Zoho data center region: `com`, `eu`, `in`, `com.au`, `jp`.
-- `ZOHO_MCP_ENV_FILE` (default: `.env` at the repo root) — override where `.env` is
-  read from, if you want it somewhere else.
-- `ZOHO_MCP_MAX_CONTEXT_IMAGES` (default `5`) — max inline images returned per
-  task/bug context call.
-- `ZOHO_MCP_MAX_ATTACHMENT_BYTES` (default `8388608`, i.e. 8MB) — max size per inline
-  image.
+## Cache
 
-## Project layout
+Responses are cached in SQLite at `~/.cache/zoho-axi/cache.sqlite` (`$XDG_CACHE_HOME/zoho-axi/`), so repeated commands
+cost no Zoho requests. Lifetimes are set by the `ttl_*` settings (portals, projects, users and tags 24 h; tasks and
+bugs 5 min; comments and attachments 2 min by default) and applied when an entry is read, so changing one takes
+effect immediately. Errors and downloads are never cached; a corrupt cache degrades to "no cache" with a warning.
 
-```
-zoho_mcp/
-├── __init__.py
-├── __main__.py          # python -m zoho_mcp
-├── server.py            # tool registration + gating + call logging
-├── auth.py              # OAuth token exchange/refresh
-├── client.py            # Zoho Projects REST wrapper
-├── state.py             # in-memory session state (env-driven, nothing persisted)
-├── config.py            # base URLs, data center, paths, log config
-├── logging_config.py    # stderr/file logging setup
-└── context_builders.py  # merges multi-endpoint entity context
+```bash
+zoho-axi cache status
+zoho-axi cache clear --yes
+zoho-axi task PROJ1-T1000 --fresh
 ```
 
-## Out of scope (v1)
+`--fresh` skips the cache for one call (and still refreshes it). `cache clear` also deletes the derived name index
+and needs `--yes`. Images saved by `--images` go to `~/.cache/zoho-axi/attachments/`.
 
-Write operations, time logs, forums/documents/events. See plan §11.
+## Troubleshooting
+
+- **`auth.missing` or `config.project_missing` (exit 3).** Run `zoho-axi auth status --offline` to see what is unset
+  and where each value comes from, then `zoho-axi auth login-help`. Environment variables override the file, which is
+  a common reason a changed value seems ignored.
+- **Token problems.** `zoho-axi auth status` verifies the token online: `valid`, `invalid` (revoked or wrong
+  credentials; create a new Self Client code and refresh token), or `unreachable` (network, or a wrong `dc`). A
+  refresh token can mint only a limited number of access tokens per ten minutes, so do not loop on a failing login.
+- **Config permissions warning.** `... is readable by other users; run chmod 600 ...`. Run
+  `chmod 600 ~/.config/zoho-axi/config.toml`.
+- **Wrong data center.** `dc` must be `com`, `eu`, `in`, `com.au` or `jp`; anything else is rejected before any
+  request. A token from one data center does not work on another.
+- **`rate_limited.client` (exit 6).** The built-in limiter refuses beyond 100 requests per 2 minutes so Zoho never
+  locks the API (Zoho's documented lockout is 30 minutes). Wait the number of seconds in the hint. Cached and narrower
+  commands use fewer requests.
+- **`rate_limited.zoho` (exit 6).** Zoho answered 429 three times in a row (after 1 s and 2 s back-offs). Wait several
+  minutes before retrying; repeated attempts extend the lockout.
+- **Stale data.** Cached answers can be up to their TTL old. Use `--fresh` on one call, lower the `ttl_*` values, or
+  `zoho-axi cache clear --yes`. The session-start hook deliberately serves a snapshot up to four hours old; run
+  `zoho-axi` for live numbers.
+- **A project is "not found" or the key does not resolve.** Key lookup needs the search scope; check
+  `zoho-axi project list`, pass `--project`, and see the unverified items below.
+- **MCP shows no `project list` or `project use`.** By design: use the CLI (`zoho-axi project use ...`), which writes the
+  config file the server reads.
+- **MCP server will not connect.** Run `zoho-axi mcp` in a terminal: it should wait silently for input (stop with
+  Ctrl-C). Make sure the registered command is an absolute path to an executable that still exists.
+- **`--debug`** prints the number of Zoho requests a command made to stderr.
+
+## Testing
+
+```bash
+uv venv venv && uv pip install --python venv/bin/python -e ".[dev]"
+venv/bin/python -m pytest tests -q
+uvx --quiet mypy zoho_axi --ignore-missing-imports --python-version 3.10
+```
+
+The default suite is offline: sockets are blocked and `ZOHO_*` variables are stripped per test. Its token budgets,
+goldens and fixtures are described in [tests/README.md](tests/README.md).
+
+**Live smoke (manual, never in the default suite).** With real credentials in place:
+
+```bash
+ZOHO_AXI_LIVE=1 venv/bin/python -m pytest tests/live -q
+```
+
+Tests marked `live` are skipped without the switch; all their calls are GETs through the gateway.
+
+## Known limitations and what is unverified
+
+Be careful before relying on any of the following. This project was built **without access to a live Zoho
+account**, so:
+
+- **Every test fixture is synthetic.** Bodies follow Zoho's published response shapes and what the earlier 0.1.x code
+  depended on, but values are made up. Each fixture file records, per field group, whether it is `documented`,
+  `proven-by-legacy-code`, `invented` or `recorded`; none is `recorded` yet. A green test suite proves the code
+  handles those shapes, not that Zoho sends them.
+- **No end-to-end run against Zoho.** `zoho-axi task <KEY>` was exercised only against replayed fixtures. I could not run
+  `claude mcp list` or register the server in a real Claude installation here; the MCP server was verified over stdio
+  by an MCP client in the test suite and a handshake in a throwaway environment (initialize and `tools/list`), not
+  inside Claude Code or Claude Desktop. The `claude mcp add` and Claude Desktop snippets follow those tools' documented
+  forms but were not executed.
+- **`uv tool install` and `pipx` were not run** (only documented here); the package was built into a wheel and installed
+  into a throwaway virtualenv, which is the same artifact those tools install.
+
+Zoho facts that are still unconfirmed (details in [tests/README.md](tests/README.md)):
+
+| Question | What the code does meanwhile |
+|---|---|
+| Zoho's v3 docs call bugs `/issues` and milestones `/phases`; the code uses `/bugs` and `/milestones` because 0.1.x did | tries v3 first and falls back to the legacy `/restapi` path on 404; milestone failure only becomes a warning |
+| Does a bug detail carry `associated_task`? v3 documents a separate associated-tasks call instead | `bug --task` reads `associated_task` and is labelled unverified |
+| Search result wrappers for bugs: `bugs`/`key` (as 0.1.x assumed) versus `issue`/`prefix` (as the legacy docs show); v3 documents a third shape (`results[]`, `entity_id`) | `resolve --check` and key lookup accept the known wrappers, and a key that does not resolve is reported as unresolved |
+| `page_info` differs between endpoints: `has_next_page` is missing for bug lists and bare arrays appear for projects and status history | parsers accept both wrapped and bare shapes and use only `has_next_page` when it exists |
+| The body of a throttle (429) reply, and of token-endpoint errors, is undocumented | 429 is detected by status code and retried; the token path reads an `error` string if present |
+| Rate limit: v3 docs say 200 calls per 2 minutes per endpoint and a 10 minute block, legacy docs say 100 and 30 minutes | the client assumes the stricter 100 per 2 minutes |
+| Search scope name: `ZohoProjects.search.READ` (used here) versus `ZohoSearch.securesearch.READ` (shown in Zoho's docs) | `auth login-help` asks for `ZohoProjects.search.READ`; if key resolution answers 401 or 403, add the other scope |
+| Task attachment list shape on v3 (the docs show no sample); subtask listing (Zoho cannot filter by parent) | name, type and size are read from every known spelling; `--subtasks` is labelled unverified |
+
+**How to settle them.** Record real, sanitized fixtures with the read-only recorder and commit the reviewed result:
+
+```bash
+python scripts/record_fixture.py task_comments/v3_404_legacy_ok \
+    --call "task_comments portal=<id> project=<id> task=<id>" --literal "<portal or company name>"
+```
+
+It drives the real gateway (GET only), sanitizes ids, people, emails and tokens, refuses to write if it finds a
+secret, and writes `tests/fixtures/zoho/<endpoint>/<name>.json`; use `--dry-run` first and read the output, since free
+text is scrubbed by pattern only. Then run the live smoke (above) and update the provenance of the fixtures you replaced.
+
+## Layout
+
+- `zoho_axi/core`: config, auth, HTTP gateway, cache, TOON encoder, render layer and the commands.
+- `zoho_axi/cli`: parser and registry (the single source of the command table, `--help` and the MCP tools).
+- `zoho_axi/mcp_server`: the MCP front-end.
+- `zoho_axi/skills`: the packaged Claude Code skill.
+- `scripts/record_fixture.py`: the dev-only fixture recorder.
+
+MIT licensed; see [LICENSE](LICENSE).

@@ -1,0 +1,15 @@
+{
+  "_provenance": {
+    "groups": {
+      "empty body": "invented: HTTP 204 with no body for a task without comments"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/projects/20000000001/tasks/30000000001/comments",
+      "status": 204
+    }
+  ]
+}

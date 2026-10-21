@@ -1,0 +1,81 @@
+{
+  "_provenance": {
+    "groups": {
+      "envelope+fields": "documented: https://projects.zoho.com/api-docs/task_lists (page_info has sort_by as a string)",
+      "values": "invented"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/projects/20000000001/tasklists",
+      "status": 200,
+      "json": {
+        "page_info": {
+          "page": 1,
+          "per_page": 200,
+          "page_count": 2,
+          "has_next_page": false,
+          "sort_by": "DESC(milestone_sequence),ASC(id)"
+        },
+        "tasklists": [
+          {
+            "created_time": "2026-01-03T07:11:46.275000Z",
+            "sequence": {
+              "project_sequence": 1,
+              "milestone_sequence": 1
+            },
+            "flag": "internal",
+            "milestone": {
+              "id": "4690721349386"
+            },
+            "last_updated_time": "2026-03-01T07:12:52.876000Z",
+            "created_via": "web",
+            "meta_info": {
+              "is_rolled": false,
+              "has_comments": false,
+              "is_general": false,
+              "count_info": {
+                "filtered_task_count": 4
+              },
+              "is_completed": false,
+              "is_none_milestone_tasklist": false
+            },
+            "name": "Backlog",
+            "id": "50000000001",
+            "status": "active",
+            "color": "#74cb80"
+          },
+          {
+            "created_time": "2026-01-03T07:15:00.000000Z",
+            "sequence": {
+              "project_sequence": 2,
+              "milestone_sequence": 1
+            },
+            "flag": "internal",
+            "milestone": {
+              "id": "2109022559570"
+            },
+            "last_updated_time": "2026-02-01T07:12:52.000000Z",
+            "created_via": "api",
+            "meta_info": {
+              "is_rolled": false,
+              "has_comments": true,
+              "is_general": false,
+              "count_info": {
+                "filtered_task_count": 0
+              },
+              "is_completed": false,
+              "is_none_milestone_tasklist": true
+            },
+            "name": "Ideas",
+            "id": "8119213570011",
+            "status": "active",
+            "color": "#d359aa"
+          }
+        ]
+      }
+    }
+  ]
+}

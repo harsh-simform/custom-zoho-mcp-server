@@ -1,0 +1,88 @@
+{
+  "_provenance": {
+    "groups": {
+      "envelope+fields": "documented: Get Users (deprecated v3); numeric-looking strings for status/user_type",
+      "values": "invented"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/users",
+      "status": 200,
+      "json": {
+        "page_info": {
+          "per_page": "100",
+          "has_next_page": "false",
+          "count": "2",
+          "page": "1"
+        },
+        "users": [
+          {
+            "updated_time": "2026-01-07T07:50:20.347Z",
+            "added_time": "2025-07-27T14:39:49.031Z",
+            "is_active": true,
+            "role": {
+              "name": "Administrator",
+              "id": "2435603418122",
+              "type": "1"
+            },
+            "is_confirmed": true,
+            "profile": {
+              "name": "Portal Owner",
+              "id": "6951310734344",
+              "type": "1",
+              "is_default": true
+            },
+            "last_name": "Okoye",
+            "display_name": "Hugo",
+            "zuid": "53657865",
+            "last_accessed_on": "2026-03-10T07:32:28.422Z",
+            "full_name": "Hugo Okoye",
+            "user_type": "1",
+            "id": "10000000001",
+            "first_name": "Hugo",
+            "email": "user-05342de3@example.test",
+            "status": "1",
+            "budget": {
+              "rate_per_hour": "120.0",
+              "cost_per_hour": "80.0"
+            }
+          },
+          {
+            "updated_time": "2026-01-08T07:50:20.347Z",
+            "added_time": "2025-08-01T14:39:49.031Z",
+            "is_active": true,
+            "role": {
+              "name": "Employee",
+              "id": "1425735831555",
+              "type": "2"
+            },
+            "is_confirmed": true,
+            "profile": {
+              "name": "Employee",
+              "id": "5440229043354",
+              "type": "2",
+              "is_default": false
+            },
+            "last_name": "Voss",
+            "display_name": "Hugo",
+            "zuid": "50484411",
+            "last_accessed_on": "2026-03-09T09:00:00.000Z",
+            "full_name": "Hugo Voss",
+            "user_type": "1",
+            "id": "9100136940932",
+            "first_name": "Hugo",
+            "email": "user-c521c67d@example.test",
+            "status": "1",
+            "budget": {
+              "rate_per_hour": "60.0",
+              "cost_per_hour": "40.0"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

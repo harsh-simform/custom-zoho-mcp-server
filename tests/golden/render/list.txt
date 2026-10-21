@@ -1,0 +1,7 @@
+counts: total=57 open=40 closed=17
+tasks[3]{key,title,status,owner}:
+  PROJ1-T1,Fix login redirect loop,In Progress,Asha K
+  PROJ1-T2,Add SSO,Open,Ravi P
+  PROJ1-T3,Upgrade deps,Open,null
+help[1]{run}:
+  zoho-axi task PROJ1-T1

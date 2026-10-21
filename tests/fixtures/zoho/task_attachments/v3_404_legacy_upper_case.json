@@ -1,0 +1,76 @@
+{
+  "_provenance": {
+    "groups": {
+      "fallback sequence": "proven-by-legacy-code",
+      "UPPER_CASE keys FILENAME/DOWNLOAD_URL/CONTENT_TYPE + bare-array body": "documented: legacy tasks API; names consumed by legacy _first (proven)",
+      "fourth record with camelCase fileName/downloadUrl/contentType": "invented (legacy _first accepts downloadUrl)",
+      "image detectable only by extension (octet-stream .JPG)": "invented",
+      "values": "invented"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/projects/20000000001/tasks/30000000001/attachments",
+      "status": 404,
+      "json": {
+        "error": {
+          "status_code": "404",
+          "instance": "/api/v3/portal/10000000001/projects/20000000001/tasks/30000000001/attachments",
+          "method": "GET",
+          "error_type": "FIELDS_VALIDATION_ERROR",
+          "details": [
+            {
+              "message": "Resource Not Found"
+            }
+          ],
+          "title": "RESOURCE_NOT_FOUND"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/restapi/portal/10000000001/projects/20000000001/tasks/30000000001/attachments/",
+      "status": 200,
+      "json": [
+        {
+          "FILENAME": "checkout-error.png",
+          "RESOURCE_ID": "23573271050440",
+          "DOWNLOAD_URL": "https://projects.zoho.com/portal/portal-fef921/downloadfile",
+          "THUMBNAIL_URL": "https://projects.zoho.com/portal/portal-fef921/thumb",
+          "CONTENT_TYPE": "image/png",
+          "AUTHOR_ID": "50484411",
+          "OWNER": "Bea Fixture",
+          "UPLOADED_TIME": "03-03-2026 09:50 AM"
+        },
+        {
+          "FILENAME": "design-review-notes.pdf",
+          "RESOURCE_ID": "70330341386410",
+          "DOWNLOAD_URL": "https://projects.zoho.com/portal/portal-fef921/downloadfile",
+          "THUMBNAIL_URL": "",
+          "CONTENT_TYPE": "application/pdf",
+          "AUTHOR_ID": "53657865",
+          "OWNER": "Alex Sample",
+          "UPLOADED_TIME": "03-04-2026 11:05 AM"
+        },
+        {
+          "FILENAME": "screenshot-2.JPG",
+          "RESOURCE_ID": "89647060312020",
+          "DOWNLOAD_URL": "https://projects.zoho.com/portal/portal-fef921/downloadfile",
+          "THUMBNAIL_URL": "",
+          "CONTENT_TYPE": "application/octet-stream",
+          "AUTHOR_ID": "50484411",
+          "OWNER": "Bea Fixture",
+          "UPLOADED_TIME": "03-05-2026 08:00 AM"
+        },
+        {
+          "fileName": "wireframe.webp",
+          "downloadUrl": "https://projects.zoho.com/portal/portal-fef921/downloadfile",
+          "contentType": "image/webp",
+          "OWNER": "Chen Placeholder"
+        }
+      ]
+    }
+  ]
+}

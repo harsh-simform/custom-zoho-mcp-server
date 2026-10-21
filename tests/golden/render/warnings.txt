@@ -1,0 +1,9 @@
+task: PROJ1-T1000
+title: Fix login redirect loop
+status: In Progress
+counts: comments=7 history=4
+warnings[2]{message}:
+  "history: task not on the fetched page, 100 rows scanned"
+  "attachments: Zoho returned 500, skipped"
+help[1]{run}:
+  zoho-axi task PROJ1-T1000 --history

@@ -1,0 +1,74 @@
+{
+  "_provenance": {
+    "groups": {
+      "bug fields": "documented",
+      "no associated_task key": "invented",
+      "values": "invented"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/projects/20000000001/bugs/40000000002",
+      "status": 200,
+      "json": {
+        "id": "40000000002",
+        "prefix": "DM1-I2",
+        "name": "Footer links 404 on mobile",
+        "flag": "Internal",
+        "created_time": "2026-02-20T11:25:58.000Z",
+        "created_by": {
+          "zuid": 53657865,
+          "zpuid": "10000000001",
+          "name": "Hugo Okoye",
+          "email": "user-05342de3@example.test",
+          "first_name": "Hugo",
+          "last_name": "Okoye"
+        },
+        "status": {
+          "id": "1103127042924",
+          "name": "In Progress",
+          "color": "#f5a623",
+          "color_hexcode": "#f5a623",
+          "is_closed_type": false,
+          "is_default": false
+        },
+        "assignee": {
+          "zuid": 28737165,
+          "zpuid": "1532719309028",
+          "name": "Hugo Shah",
+          "email": "user-19fad823@example.test",
+          "first_name": "Hugo",
+          "last_name": "Shah"
+        },
+        "tags": [
+          {
+            "id": "1551200003123",
+            "name": "checkout",
+            "color_hexcode": "#0995ba"
+          }
+        ],
+        "last_updated_time": "2026-03-06T09:28:58.000Z",
+        "severity": {
+          "id": "2004238243565",
+          "value": "Minor"
+        },
+        "classification": {
+          "id": "4188227652234",
+          "value": "Functional"
+        },
+        "is_it_reproducible": {
+          "id": "2249122055385",
+          "value": "Always"
+        },
+        "module": {
+          "id": "3244603982371",
+          "value": "Checkout"
+        },
+        "rate_per_hour": 0.0,
+        "cost_per_hour": 0.0
+      }
+    }
+  ]
+}

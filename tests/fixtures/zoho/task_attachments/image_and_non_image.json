@@ -1,0 +1,72 @@
+{
+  "_provenance": {
+    "groups": {
+      "v3 task attachment list shape": "invented: the docs show no response sample; copied by analogy from Project Attachments (`attachment` wrapper, name/type/download_url)",
+      "one image + one non-image": "invented",
+      "download entry": "invented: stub PNG, never real bytes"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/projects/20000000001/tasks/30000000001/attachments",
+      "status": 200,
+      "json": {
+        "attachment": [
+          {
+            "attachment_id": "1133082121027",
+            "name": "checkout-error.png",
+            "type": "image/png",
+            "size": "183422",
+            "third_party_file_id": "1a61d1f65b6a4b887c07",
+            "entity_id": "30000000001",
+            "entity_type": "task",
+            "app_domain": "workdrive",
+            "app_id": "1",
+            "app_name": "WorkDrive",
+            "created_by": "50484411",
+            "created_time": "1772531440594",
+            "associated_by": "50484411",
+            "associated_by_name": "Bea Fixture",
+            "associated_time_long": "1772531442560",
+            "preview_url": "https://host-77e8b9b4.example.test/thumbnail/WD/fake0001",
+            "download_url": "https://download.zoho.com/v1/workdrive/download/fake0001",
+            "permanent_url": "https://workdrive.zoho.com/file/fake0001",
+            "uploadedZpuid": "9100136940932",
+            "trashed": false
+          },
+          {
+            "attachment_id": "1230311025204",
+            "name": "design-review-notes.pdf",
+            "type": "application/pdf",
+            "size": "90211",
+            "third_party_file_id": "b6abe997f2ac8c975457",
+            "entity_id": "30000000001",
+            "entity_type": "task",
+            "app_domain": "workdrive",
+            "app_id": "1",
+            "app_name": "WorkDrive",
+            "created_by": "50484411",
+            "created_time": "1772531440594",
+            "associated_by": "50484411",
+            "associated_by_name": "Bea Fixture",
+            "associated_time_long": "1772531442560",
+            "preview_url": "https://host-77e8b9b4.example.test/thumbnail/WD/fake0002",
+            "download_url": "https://download.zoho.com/v1/workdrive/download/fake0002",
+            "permanent_url": "https://workdrive.zoho.com/file/fake0002",
+            "uploadedZpuid": "9100136940932",
+            "trashed": false
+          }
+        ]
+      }
+    },
+    {
+      "method": "GET",
+      "url": "https://download.zoho.com/v1/workdrive/download/fake0001",
+      "status": 200,
+      "content_type": "image/png",
+      "body_base64": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+    }
+  ]
+}

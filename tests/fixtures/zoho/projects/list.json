@@ -1,0 +1,145 @@
+{
+  "_provenance": {
+    "groups": {
+      "envelope": "documented: Get All Projects sample is a bare array (suspect: other v3 lists are wrapped)",
+      "project fields": "documented: https://projects.zoho.com/api-docs/projects",
+      "values": "invented"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/projects",
+      "status": 200,
+      "json": [
+        {
+          "id": "20000000001",
+          "name": "Demo Website Redesign",
+          "key": "54",
+          "description": "Redesign the demo site.",
+          "project_type": "active",
+          "start_date": "2026-01-05",
+          "end_date": "2026-09-30",
+          "is_public_project": "false",
+          "is_strict_project": "false",
+          "is_rollup_project": "false",
+          "is_completed": "false",
+          "is_linked_project": "false",
+          "percent_complete": 45,
+          "color": "#4573d2",
+          "comments_count": 12,
+          "owner": {
+            "id": "3854533048004",
+            "zpuid": "10000000001",
+            "name": "Hugo Okoye",
+            "email": "user-05342de3@example.test"
+          },
+          "status": {
+            "id": "1458465635017",
+            "name": "In Progress",
+            "color": "green",
+            "color_hexcode": "#3cb371",
+            "is_closed_type": "false",
+            "is_default": "false"
+          },
+          "layout": {
+            "id": "7826844072821",
+            "name": "Standard Layout",
+            "is_default": "true",
+            "type": "public"
+          },
+          "tasks": {
+            "open_count": 15,
+            "closed_count": 10
+          },
+          "issues": {
+            "open_count": 5,
+            "closed_count": 3
+          },
+          "milestones": {
+            "open_count": 2,
+            "closed_count": 1
+          },
+          "created_by": {
+            "id": "3854533048004",
+            "zpuid": "10000000001",
+            "name": "Hugo Okoye",
+            "email": "user-05342de3@example.test"
+          },
+          "created_time": "2026-01-02T10:30:00.000Z",
+          "updated_by": {
+            "id": "3854533048004",
+            "zpuid": "9100136940932",
+            "name": "Hugo Voss",
+            "email": "user-c521c67d@example.test"
+          },
+          "modified_time": "2026-03-15T14:20:00.000Z"
+        },
+        {
+          "id": "5625179216024",
+          "name": "Demo Mobile App",
+          "key": "55",
+          "description": "",
+          "project_type": "active",
+          "start_date": "2026-02-01",
+          "end_date": "2026-12-31",
+          "is_public_project": "false",
+          "is_strict_project": "false",
+          "is_rollup_project": "false",
+          "is_completed": "false",
+          "is_linked_project": "false",
+          "percent_complete": 5,
+          "color": "#e06c75",
+          "comments_count": 0,
+          "owner": {
+            "id": "3854533048004",
+            "zpuid": "9100136940932",
+            "name": "Hugo Voss",
+            "email": "user-c521c67d@example.test"
+          },
+          "status": {
+            "id": "4341016038921",
+            "name": "Active",
+            "color": "green",
+            "color_hexcode": "#3cb371",
+            "is_closed_type": "false",
+            "is_default": "true"
+          },
+          "layout": {
+            "id": "7826844072821",
+            "name": "Standard Layout",
+            "is_default": "true",
+            "type": "public"
+          },
+          "tasks": {
+            "open_count": 4,
+            "closed_count": 0
+          },
+          "issues": {
+            "open_count": 0,
+            "closed_count": 0
+          },
+          "milestones": {
+            "open_count": 0,
+            "closed_count": 0
+          },
+          "created_by": {
+            "id": "3854533048004",
+            "zpuid": "9100136940932",
+            "name": "Hugo Voss",
+            "email": "user-c521c67d@example.test"
+          },
+          "created_time": "2026-02-01T08:00:00.000Z",
+          "updated_by": {
+            "id": "3854533048004",
+            "zpuid": "9100136940932",
+            "name": "Hugo Voss",
+            "email": "user-c521c67d@example.test"
+          },
+          "modified_time": "2026-02-01T08:00:00.000Z"
+        }
+      ]
+    }
+  ]
+}
