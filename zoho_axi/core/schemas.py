@@ -30,7 +30,8 @@ class Schema:
     id_field: str | None = None     # detail header value; excluded from the field lines
     sections: Mapping[str, str] = field(default_factory=dict)  # payload key -> entity of its rows
     text_limit: int | None = None   # detail text cut-off in characters; None = the renderer's default
-    verbatim: bool = False          # rows keep their whitespace (a diff's indentation); the default collapses it
+    verbatim: bool = False          # rows keep their text exactly (a diff's indentation, `<x>`, `&amp;`): no HTML stripping, no collapsing
+    plain_sections: tuple[str, ...] = ()  # sections the TOON text prints as raw lines (a unified diff); JSON keeps rows
 
 
 SCHEMAS: dict[str, Schema] = {s.name: s for s in (
@@ -87,9 +88,9 @@ SCHEMAS: dict[str, Schema] = {s.name: s for s in (
     Schema("due_task", "due_tasks", list_fields=("key", "title", "due", "owner")),
     # T14: `hooks install|uninstall`, `skill install` (the diff of the edit, one row per line) and `session-start`.
     Schema("hooks", "hooks", list_fields=("text",), detail_fields=("file", "status", "backup"),
-           sections={"diff": "diff_line"}),
+           sections={"diff": "diff_line"}, plain_sections=("diff",)),
     Schema("skill", "skills", list_fields=("text",), detail_fields=("file", "change", "status", "backup"),
-           sections={"diff": "diff_line"}),
+           sections={"diff": "diff_line"}, plain_sections=("diff",)),
     Schema("diff_line", "diff_lines", list_fields=("text",), verbatim=True),
     Schema("session", "sessions", list_fields=("project",), detail_fields=("project", "name", "status", "note")),
 )}

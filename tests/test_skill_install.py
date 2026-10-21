@@ -100,7 +100,9 @@ def test_a_changed_installed_copy_is_shown_as_a_diff_and_only_replaced_with_yes(
     installed(home).write_text("---\nname: zoho-axi\ndescription: my edited copy\n---\nlocal notes\n")
     edited = installed(home).read_text()
     code, out, _ = run(home, "skill", "install")
-    assert code == 0 and "change: update" in out and "diff[" in out and "my edited copy" in out
+    assert code == 0 and "change: update" in out
+    assert "diff[" not in out  # a real unified diff on stdout, not TOON rows
+    assert "-description: my edited copy" in out.splitlines()  # the user's line is what the install would remove
     assert installed(home).read_text() == edited
     code, out, _ = run(home, "skill", "install", "--yes")
     assert "status: installed" in out

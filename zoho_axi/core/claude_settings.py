@@ -20,7 +20,6 @@ diff noise is not a surprise; an unparseable file is never overwritten.
 from __future__ import annotations
 
 import difflib
-import html
 import json
 import os
 import re
@@ -191,9 +190,8 @@ def unified_diff(old: str | None, new: str, path: Path) -> list[str]:
 
 
 def diff_rows(lines: list[str]) -> list[dict]:
-    """The diff as `diff_line` rows for the renderer. It strips HTML-looking text, so escape what settings
-    content may hold (`<`, `&&`) and the renderer's decoding gives it back unchanged."""
-    return [{"text": html.escape(line, quote=False)} for line in lines]
+    """The diff as `diff_line` rows for the renderer (a verbatim schema: the text is shown exactly as it is)."""
+    return [{"text": line} for line in lines]
 
 
 def _backup_names(path: Path):

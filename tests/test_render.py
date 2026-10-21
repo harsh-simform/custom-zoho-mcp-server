@@ -366,3 +366,34 @@ def test_html_blocks_and_entities_become_plain_lines():
     html = "<p>Fails on &amp; after login</p><ul><li>one</li><li>two&nbsp;</li></ul><script>x()</script>"
     out = render(minimal_task(html), full=False).text
     assert 'description: "Fails on & after login\\n- one\\n- two"' in out
+
+
+def _description(html, fmt="json"):
+    return json.loads(render(minimal_task(html), fmt=fmt).text)["description"]
+
+
+def test_table_cells_are_separated_and_rows_are_lines():
+    html = ("<table><tr><th>Browser</th><th>Version</th><th>Works</th></tr>"
+            "<tr><td>Firefox</td><td>128</td><td>yes</td></tr>"
+            "<tr><td>Safari</td><td></td><td>no</td></tr></table>")
+    assert _description(html) == "Browser | Version | Works\nFirefox | 128 | yes\nSafari | | no"
+
+
+def test_adjacent_cells_never_run_together_even_without_markup_whitespace():
+    assert _description("<table><tr><td>Firefox</td><td>128</td><td>2026.03.1</td><td>yes</td></tr></table>") \
+        == "Firefox | 128 | 2026.03.1 | yes"
+
+
+def verbatim_diff(*lines):
+    return Result("hooks", {"file": "/h/settings.json", "status": "dry run", "diff": [{"text": t} for t in lines]})
+
+
+def test_verbatim_rows_keep_indentation_entities_and_tag_like_text():
+    row = '+      "command": "echo  <module> &amp; <KEY>  x"'  # two-space runs, a tag-like token and an entity
+    doc = json.loads(render(verbatim_diff(" {", row), fmt="json").text)
+    assert [r["text"] for r in doc["diff"]] == [" {", row]
+
+
+def test_non_verbatim_rows_are_still_stripped_and_collapsed():
+    result = Result("comment", [{"by": "A", "at": "2026-10-18", "text": "<p>one   &amp;  two</p>"}])
+    assert json.loads(render(result, fmt="json").text)["comments"][0]["text"] == "one & two"
