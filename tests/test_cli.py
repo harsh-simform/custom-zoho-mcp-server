@@ -56,7 +56,7 @@ def test_auth_status_without_credentials_points_at_login_help(tmp_path):
 def test_auth_login_help_keeps_placeholders_like_module_and_key(tmp_path):
     code, out, _ = run(["auth", "login-help"], tmp_path)
     assert code == 0
-    assert "ZohoProjects.<module>.READ" in out
+    assert "ZohoProjects.search.READ" in out
     assert "ZOHO_AXI_<KEY>" in out
 
 
@@ -160,7 +160,7 @@ def test_unknown_subcommand_suggests_the_closest_one(tmp_path):
 def test_group_without_subcommand_lists_the_subcommands(tmp_path):
     code, out, _ = run(["auth"], tmp_path)
     assert code == 2
-    assert "status, login-help" in out
+    assert "status, login, login-help" in out
 
 
 def test_usage_errors_never_touch_settings(tmp_path):
@@ -250,3 +250,13 @@ def test_help_works_even_when_a_required_argument_is_missing(tmp_path):
     code, out, _ = run(["thing", "--help"], tmp_path, registry=FAKE)
     assert code == 0
     assert out.startswith("usage: zoho-axi thing <ref>")
+
+
+def test_auth_login_help_golden(tmp_path):
+    assert run(["auth", "login", "--help"], tmp_path) == (0, golden("auth-login-help.txt"), "")
+
+
+def test_auth_login_rejects_a_bad_port_before_anything_else(tmp_path):
+    code, out, _ = run(["auth", "login", "--port", "80"], tmp_path)
+    assert code == 2
+    assert "usage.invalid_arguments" in out

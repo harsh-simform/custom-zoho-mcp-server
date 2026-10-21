@@ -3,7 +3,8 @@ usage: zoho-axi [COMMAND] [flags]   (no command = home)
 commands:
   home             live overview of the default project; also what bare `zoho-axi` runs
   auth status      check config and credentials, and verify the token with Zoho
-  auth login-help  how to create the Zoho Self Client and where its values go
+  auth login       sign in with your browser (OAuth) and save the refresh token to the config file
+  auth login-help  one-time Zoho client registration that `auth login` needs, step by step
   project          overview of the project: status, owner, next milestone, counts
   project list     list the projects of the portal (id, name, status)
   project use      make a project the default (writes portal_id/project_id to the config file)

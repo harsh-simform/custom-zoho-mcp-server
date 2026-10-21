@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from .auth import ZohoAuth
 from .config import Settings
+from .oauth_login import DEFAULT_PORT, SCOPES
 from .errors import AuthError, UpstreamError, ZohoAxiError
 
 _REPORTED = ("client_id", "client_secret", "refresh_token", "dc", "portal_id", "project_id")
@@ -45,13 +46,13 @@ def auth_status(settings: Settings, auth: ZohoAuth | None = None, online: bool =
 
 def login_help(settings: Settings) -> str:
     return "\n".join([
-        "Zoho has no interactive login here; create a Self Client and put its values in the config file.",
-        f"1. Open https://api-console.zoho.{settings.dc} and create a Self Client.",
-        "2. Request read scopes: ZohoProjects.<module>.READ for portals, projects, tasks, tasklists,",
-        "   milestones, bugs, users and tags, plus ZohoProjects.search.READ (needed to resolve keys",
-        "   like PROJ1-T1000 to ids).",
-        "3. Generate a refresh token from the Self Client's generated code.",
-        f"4. Write client_id, client_secret and refresh_token (and dc, portal_id, project_id) to {settings.config_path}",
-        f"   and run `chmod 600 {settings.config_path}`.",
+        "Sign in with your browser: register a client once, then run `zoho-axi auth login`.",
+        f"1. Open https://api-console.zoho.{settings.dc} and add a client of type Server-based Applications.",
+        f"2. Set its Authorized Redirect URI to http://localhost:{DEFAULT_PORT}/callback (or your --port).",
+        f"3. Write its client_id and client_secret (and dc, if not com) to {settings.config_path}",
+        f"   and run `chmod 600 {settings.config_path}`; or set ZOHO_AXI_CLIENT_ID / ZOHO_AXI_CLIENT_SECRET.",
+        "4. Run `zoho-axi auth login`: it opens Zoho's consent page and saves the refresh token for you.",
+        "   Read-only scopes are requested: " + ", ".join(SCOPES) + ".",
+        "No browser (ssh, CI)? Use a Self Client at the same console instead and put its refresh_token in the config.",
         "Environment variables ZOHO_AXI_<KEY> override the file.",
     ])

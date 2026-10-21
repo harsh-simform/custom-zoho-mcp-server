@@ -124,6 +124,7 @@ def main(
         assert inv.spec is not None  # only top-level help has no spec, and it returned above
         ctx = make_context(inv.spec, registry, load_settings(env), inv.params or {}, project=inv.project,
                            fresh=inv.fresh, full=inv.full, gateway=gateway, env=env, today=today, stdin=stdin)
+        ctx.notify = lambda line: print(line, file=stderr)
         rendered: Rendered = execute(inv.spec, ctx, "cli", fmt)
     except Exception as exc:  # the CLI never crashes with a traceback on stdout
         if debug:
