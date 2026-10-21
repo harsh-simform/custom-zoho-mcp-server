@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from zoho_axi.core.config import load_settings
+from zoho_axi.core.gateway import ZohoGateway
 
 API = "https://projectsapi.zoho.com/api/v3"
 LEGACY = "https://projectsapi.zoho.com/restapi"
@@ -25,3 +26,12 @@ class Clock:
 
     def __call__(self) -> float:
         return self.now
+
+
+def make_gateway(tmp_path, transport, **kwargs) -> ZohoGateway:
+    """A gateway over `transport` (usually a ReplayTransport) with a fixed token, no real sleeping and a
+    frozen clock, so retries and the limiter are instant and deterministic."""
+    kwargs.setdefault("token_provider", lambda: "tok-abc")
+    kwargs.setdefault("sleep", lambda seconds: None)
+    kwargs.setdefault("clock", Clock())
+    return ZohoGateway(make_settings(tmp_path), transport=transport, **kwargs)

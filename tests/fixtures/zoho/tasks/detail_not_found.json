@@ -1,0 +1,30 @@
+{
+  "_provenance": {
+    "groups": {
+      "error envelope": "documented: v3 RESOURCE_NOT_FOUND",
+      "values": "invented"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/projects/20000000001/tasks/30000000001",
+      "status": 404,
+      "json": {
+        "error": {
+          "status_code": "404",
+          "instance": "/api/v3/portal/10000000001/projects/20000000001/tasks/30000000001",
+          "method": "GET",
+          "error_type": "FIELDS_VALIDATION_ERROR",
+          "details": [
+            {
+              "message": "Resource Not Found"
+            }
+          ],
+          "title": "RESOURCE_NOT_FOUND"
+        }
+      }
+    }
+  ]
+}

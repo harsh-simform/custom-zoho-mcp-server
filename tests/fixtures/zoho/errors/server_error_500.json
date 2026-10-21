@@ -1,0 +1,28 @@
+{
+  "_provenance": {
+    "groups": {
+      "envelope": "documented: v3 error envelope, 500 INTERNAL_SERVER_ERROR",
+      "values": "invented"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/projects/20000000001/tasks",
+      "status": 500,
+      "json": {
+        "error": {
+          "status_code": "500",
+          "error_type": "OPERATIONAL_ERROR",
+          "details": [
+            {
+              "message": "Internal server error."
+            }
+          ],
+          "title": "INTERNAL_SERVER_ERROR"
+        }
+      }
+    }
+  ]
+}

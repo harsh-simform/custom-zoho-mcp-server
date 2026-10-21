@@ -1,0 +1,29 @@
+{
+  "_provenance": {
+    "groups": {
+      "envelope": "documented: v3 INVALID_OAUTHTOKEN",
+      "values": "invented"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/projects/20000000001/tasks",
+      "status": 401,
+      "json": {
+        "error": {
+          "status_code": "401",
+          "instance": "/api/v3/portal/10000000001/projects/20000000001/tasks",
+          "error_type": "FIELDS_VALIDATION_ERROR",
+          "details": [
+            {
+              "message": "Invalid OAuth access token."
+            }
+          ],
+          "title": "INVALID_OAUTHTOKEN"
+        }
+      }
+    }
+  ]
+}

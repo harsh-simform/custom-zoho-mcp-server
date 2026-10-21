@@ -1,0 +1,1477 @@
+{
+  "_provenance": {
+    "groups": {
+      "envelope": "documented: page_info {page, per_page, page_count, has_next_page}",
+      "task fields": "documented: Get Tasks By Project",
+      "has_next_page=true": "invented (exercises the more-results state)",
+      "24 generated rows, mixed status/priority/owner/depth": "invented",
+      "values": "invented"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/projects/20000000001/tasks",
+      "status": 200,
+      "json": {
+        "page_info": {
+          "page": 1,
+          "per_page": 24,
+          "page_count": 3,
+          "has_next_page": true
+        },
+        "tasks": [
+          {
+            "tasklist": {
+              "id": "50000000001"
+            },
+            "id": "4690721349386",
+            "prefix": "DM1-T1",
+            "name": "Prepare release notes",
+            "description": "Short plain-text summary for task 1.",
+            "status": {
+              "id": "10000000001",
+              "name": "Open",
+              "color": "#2cc8ba",
+              "color_hexcode": "#2cc8ba",
+              "is_closed_type": false
+            },
+            "color": "#2cc8ba",
+            "priority": "none",
+            "owners_and_work": {
+              "work_type": "standard",
+              "total_work": "06:00",
+              "unit": "hours_per_day",
+              "copy_task_duration": false,
+              "owners": [
+                {
+                  "zuid": 53657865,
+                  "zpuid": "10000000001",
+                  "name": "Hugo Okoye",
+                  "email": "user-05342de3@example.test",
+                  "first_name": "Hugo",
+                  "last_name": "Okoye",
+                  "work_values": "06:00"
+                }
+              ]
+            },
+            "duration": {
+              "value": "3",
+              "type": "days"
+            },
+            "completion_percentage": 0,
+            "sequence": {
+              "sequence": 1
+            },
+            "depth": 0,
+            "created_time": "2026-03-01T09:15:00.000Z",
+            "last_modified_time": "2026-03-01T14:02:11.250Z",
+            "is_completed": false,
+            "created_via": "web",
+            "created_by": {
+              "zuid": 53657865,
+              "zpuid": "10000000001",
+              "name": "Hugo Okoye",
+              "email": "user-05342de3@example.test",
+              "first_name": "Hugo",
+              "last_name": "Okoye"
+            },
+            "billing_type": "none",
+            "budget_info": {
+              "exchange_rate": 1.0
+            }
+          },
+          {
+            "tasklist": {
+              "id": "50000000001"
+            },
+            "id": "30000000001",
+            "prefix": "DM1-T2",
+            "name": "Fix checkout validation",
+            "description": "Short plain-text summary for task 2.",
+            "status": {
+              "id": "9100136940932",
+              "name": "In Progress",
+              "color": "#f5a623",
+              "color_hexcode": "#f5a623",
+              "is_closed_type": false
+            },
+            "color": "#f5a623",
+            "priority": "low",
+            "owners_and_work": {
+              "work_type": "standard",
+              "total_work": "06:00",
+              "unit": "hours_per_day",
+              "copy_task_duration": false,
+              "owners": [
+                {
+                  "zuid": 50484411,
+                  "zpuid": "9100136940932",
+                  "name": "Hugo Voss",
+                  "email": "user-c521c67d@example.test",
+                  "first_name": "Hugo",
+                  "last_name": "Voss",
+                  "work_values": "06:00"
+                }
+              ]
+            },
+            "duration": {
+              "value": "3",
+              "type": "days"
+            },
+            "completion_percentage": 13,
+            "sequence": {
+              "sequence": 2
+            },
+            "depth": 0,
+            "created_time": "2026-03-02T09:15:00.000Z",
+            "last_modified_time": "2026-03-02T14:02:11.250Z",
+            "is_completed": false,
+            "created_via": "web",
+            "created_by": {
+              "zuid": 53657865,
+              "zpuid": "10000000001",
+              "name": "Hugo Okoye",
+              "email": "user-05342de3@example.test",
+              "first_name": "Hugo",
+              "last_name": "Okoye"
+            },
+            "billing_type": "none",
+            "budget_info": {
+              "exchange_rate": 1.0
+            }
+          },
+          {
+            "tasklist": {
+              "id": "50000000001"
+            },
+            "id": "4543221090893",
+            "prefix": "DM1-T3",
+            "name": "Update onboarding copy",
+            "description": "Short plain-text summary for task 3.",
+            "status": {
+              "id": "1532719309028",
+              "name": "Closed",
+              "color": "#9b9b9b",
+              "color_hexcode": "#9b9b9b",
+              "is_closed_type": true
+            },
+            "color": "#9b9b9b",
+            "priority": "medium",
+            "owners_and_work": {
+              "work_type": "standard",
+              "total_work": "06:00",
+              "unit": "hours_per_day",
+              "copy_task_duration": false,
+              "owners": [
+                {
+                  "zuid": 28737165,
+                  "zpuid": "1532719309028",
+                  "name": "Sana Hale",
+                  "email": "user-22513cd0@example.test",
+                  "first_name": "Sana",
+                  "last_name": "Hale",
+                  "work_values": "06:00"
+                }
+              ]
+            },
+            "duration": {
+              "value": "3",
+              "type": "days"
+            },
+            "completion_percentage": 26,
+            "sequence": {
+              "sequence": 3
+            },
+            "depth": 0,
+            "created_time": "2026-03-03T09:15:00.000Z",
+            "last_modified_time": "2026-03-03T14:02:11.250Z",
+            "is_completed": true,
+            "created_via": "web",
+            "created_by": {
+              "zuid": 53657865,
+              "zpuid": "10000000001",
+              "name": "Hugo Okoye",
+              "email": "user-05342de3@example.test",
+              "first_name": "Hugo",
+              "last_name": "Okoye"
+            },
+            "billing_type": "none",
+            "budget_info": {
+              "exchange_rate": 1.0
+            }
+          },
+          {
+            "tasklist": {
+              "id": "50000000001"
+            },
+            "id": "5073407544152",
+            "prefix": "DM1-T4",
+            "name": "Archive old campaign assets",
+            "description": "Short plain-text summary for task 4.",
+            "status": {
+              "id": "10000000001",
+              "name": "Open",
+              "color": "#2cc8ba",
+              "color_hexcode": "#2cc8ba",
+              "is_closed_type": false
+            },
+            "color": "#2cc8ba",
+            "priority": "high",
+            "owners_and_work": {
+              "work_type": "standard",
+              "total_work": "06:00",
+              "unit": "hours_per_day",
+              "copy_task_duration": false,
+              "owners": [
+                {
+                  "zuid": 53657865,
+                  "zpuid": "10000000001",
+                  "name": "Hugo Okoye",
+                  "email": "user-05342de3@example.test",
+                  "first_name": "Hugo",
+                  "last_name": "Okoye",
+                  "work_values": "06:00"
+                }
+              ]
+            },
+            "duration": {
+              "value": "3",
+              "type": "days"
+            },
+            "completion_percentage": 39,
+            "sequence": {
+              "sequence": 4
+            },
+            "depth": 0,
+            "created_time": "2026-03-04T09:15:00.000Z",
+            "last_modified_time": "2026-03-04T14:02:11.250Z",
+            "is_completed": false,
+            "created_via": "web",
+            "created_by": {
+              "zuid": 53657865,
+              "zpuid": "10000000001",
+              "name": "Hugo Okoye",
+              "email": "user-05342de3@example.test",
+              "first_name": "Hugo",
+              "last_name": "Okoye"
+            },
+            "billing_type": "none",
+            "budget_info": {
+              "exchange_rate": 1.0
+            }
+          },
+          {
+            "tasklist": {
+              "id": "50000000001"
+            },
+            "id": "30000000005",
+            "prefix": "DM1-T5",
+            "name": "Redesign settings page",
+            "description": "Short plain-text summary for task 5.",
+            "status": {
+              "id": "9100136940932",
+              "name": "In Progress",
+              "color": "#f5a623",
+              "color_hexcode": "#f5a623",
+              "is_closed_type": false
+            },
+            "color": "#f5a623",
+            "priority": "none",
+            "owners_and_work": {
+              "work_type": "standard",
+              "total_work": "06:00",
+              "unit": "hours_per_day",
+              "copy_task_duration": false,
+              "owners": [
+                {
+                  "zuid": 50484411,
+                  "zpuid": "9100136940932",
+                  "name": "Hugo Voss",
+                  "email": "user-c521c67d@example.test",
+                  "first_name": "Hugo",
+                  "last_name": "Voss",
+                  "work_values": "06:00"
+                }
+              ]
+            },
+            "duration": {
+              "value": "3",
+              "type": "days"
+            },
+            "completion_percentage": 52,
+            "sequence": {
+              "sequence": 5
+            },
+            "depth": 0,
+            "created_time": "2026-03-05T09:15:00.000Z",
+            "last_modified_time": "2026-03-05T14:02:11.250Z",
+            "is_completed": false,
+            "created_via": "web",
+            "created_by": {
+              "zuid": 53657865,
+              "zpuid": "10000000001",
+              "name": "Hugo Okoye",
+              "email": "user-05342de3@example.test",
+              "first_name": "Hugo",
+              "last_name": "Okoye"
+            },
+            "billing_type": "none",
+            "budget_info": {
+              "exchange_rate": 1.0
+            }
+          },
+          {
+            "tasklist": {
+              "id": "50000000001"
+            },
+            "id": "7351259951945",
+            "prefix": "DM1-T6",
+            "name": "Settings: dark mode toggle",
+            "description": "Short plain-text summary for task 6.",
+            "status": {
+              "id": "1532719309028",
+              "name": "Closed",
+              "color": "#9b9b9b",
+              "color_hexcode": "#9b9b9b",
+              "is_closed_type": true
+            },
+            "color": "#9b9b9b",
+            "priority": "low",
+            "owners_and_work": {
+              "work_type": "standard",
+              "total_work": "06:00",
+              "unit": "hours_per_day",
+              "copy_task_duration": false,
+              "owners": [
+                {
+                  "zuid": 28737165,
+                  "zpuid": "1532719309028",
+                  "name": "Sana Hale",
+                  "email": "user-22513cd0@example.test",
+                  "first_name": "Sana",
+                  "last_name": "Hale",
+                  "work_values": "06:00"
+                }
+              ]
+            },
+            "duration": {
+              "value": "3",
+              "type": "days"
+            },
+            "completion_percentage": 65,
+            "sequence": {
+              "sequence": 6
+            },
+            "depth": 1,
+            "created_time": "2026-03-06T09:15:00.000Z",
+            "last_modified_time": "2026-03-06T14:02:11.250Z",
+            "is_completed": true,
+            "created_via": "web",
+            "created_by": {
+              "zuid": 53657865,
+              "zpuid": "10000000001",
+              "name": "Hugo Okoye",
+              "email": "user-05342de3@example.test",
+              "first_name": "Hugo",
+              "last_name": "Okoye"
+            },
+            "billing_type": "none",
+            "budget_info": {
+              "exchange_rate": 1.0
+            },
+            "parental_info": {
+              "parent_task_id": "30000000005",
+              "root_task_id": "30000000005"
+            }
+          },
+          {
+            "tasklist": {
+              "id": "50000000001"
+            },
+            "id": "1109245822860",
+            "prefix": "DM1-T7",
+            "name": "Settings: notification matrix",
+            "description": "Short plain-text summary for task 7.",
+            "status": {
+              "id": "10000000001",
+              "name": "Open",
+              "color": "#2cc8ba",
+              "color_hexcode": "#2cc8ba",
+              "is_closed_type": false
+            },
+            "color": "#2cc8ba",
+            "priority": "medium",
+            "owners_and_work": {
+              "work_type": "standard",
+              "total_work": "06:00",
+              "unit": "hours_per_day",
+              "copy_task_duration": false,
+              "owners": [
+                {
+                  "zuid": 53657865,
+                  "zpuid": "10000000001",
+                  "name": "Hugo Okoye",
+                  "email": "user-05342de3@example.test",
+                  "first_name": "Hugo",
+                  "last_name": "Okoye",
+                  "work_values": "06:00"
+                }
+              ]
+            },
+            "duration": {
+              "value": "3",
+              "type": "days"
+            },
+            "completion_percentage": 78,
+            "sequence": {
+              "sequence": 7
+            },
+            "depth": 1,
+            "created_time": "2026-03-07T09:15:00.000Z",
+            "last_modified_time": "2026-03-07T14:02:11.250Z",
+            "is_completed": false,
+            "created_via": "web",
+            "created_by": {
+              "zuid": 53657865,
+              "zpuid": "10000000001",
+              "name": "Hugo Okoye",
+              "email": "user-05342de3@example.test",
+              "first_name": "Hugo",
+              "last_name": "Okoye"
+            },
+            "billing_type": "none",
+            "budget_info": {
+              "exchange_rate": 1.0
+            },
+            "parental_info": {
+              "parent_task_id": "30000000005",
+              "root_task_id": "30000000005"
+            }
+          },
+          {
+            "tasklist": {
+              "id": "50000000001"
+            },
+            "id": "7420132200062",
+            "prefix": "DM1-T8",
+            "name": "Audit third-party scripts",
+            "description": "Short plain-text summary for task 8.",
+            "status": {
+              "id": "9100136940932",
+              "name": "In Progress",
+              "color": "#f5a623",
+              "color_hexcode": "#f5a623",
+              "is_closed_type": false
+            },
+            "color": "#f5a623",
+            "priority": "high",
+            "owners_and_work": {
+              "work_type": "standard",
+              "total_work": "06:00",
+              "unit": "hours_per_day",
+              "copy_task_duration": false,
+              "owners": [
+                {
+                  "zuid": 50484411,
+                  "zpuid": "9100136940932",
+                  "name": "Hugo Voss",
+                  "email": "user-c521c67d@example.test",
+                  "first_name": "Hugo",
+                  "last_name": "Voss",
+                  "work_values": "06:00"
+                }
+              ]
+            },
+            "duration": {
+              "value": "3",
+              "type": "days"
+            },
+            "completion_percentage": 91,
+            "sequence": {
+              "sequence": 8
+            },
+            "depth": 0,
+            "created_time": "2026-03-08T09:15:00.000Z",
+            "last_modified_time": "2026-03-08T14:02:11.250Z",
+            "is_completed": false,
+            "created_via": "web",
+            "created_by": {
+              "zuid": 53657865,
+              "zpuid": "10000000001",
+              "name": "Hugo Okoye",
+              "email": "user-05342de3@example.test",
+              "first_name": "Hugo",
+              "last_name": "Okoye"
+            },
+            "billing_type": "none",
+            "budget_info": {
+              "exchange_rate": 1.0
+            }
+          },
+          {
+            "tasklist": {
+              "id": "50000000001"
+            },
+            "id": "9832013415323",
+            "prefix": "DM1-T9",
+            "name": "Migrate image CDN",
+            "description": "Short plain-text summary for task 9.",
+            "status": {
+              "id": "1532719309028",
+              "name": "Closed",
+              "color": "#9b9b9b",
+              "color_hexcode": "#9b9b9b",
+              "is_closed_type": true
+            },
+            "color": "#9b9b9b",
+            "priority": "none",
+            "owners_and_work": {
+              "work_type": "standard",
+              "total_work": "06:00",
+              "unit": "hours_per_day",
+              "copy_task_duration": false,
+              "owners": [
+                {
+                  "zuid": 28737165,
+                  "zpuid": "1532719309028",
+                  "name": "Sana Hale",
+                  "email": "user-22513cd0@example.test",
+                  "first_name": "Sana",
+                  "last_name": "Hale",
+                  "work_values": "06:00"
+                }
+              ]
+            },
+            "duration": {
+              "value": "3",
+              "type": "days"
+            },
+            "completion_percentage": 3,
+            "sequence": {
+              "sequence": 9
+            },
+            "depth": 0,
+            "created_time": "2026-03-09T09:15:00.000Z",
+            "last_modified_time": "2026-03-09T14:02:11.250Z",
+            "is_completed": true,
+            "created_via": "web",
+            "created_by": {
+              "zuid": 53657865,
+              "zpuid": "10000000001",
+              "name": "Hugo Okoye",
+              "email": "user-05342de3@example.test",
+              "first_name": "Hugo",
+              "last_name": "Okoye"
+            },
+            "billing_type": "none",
+            "budget_info": {
+              "exchange_rate": 1.0
+            }
+          },
+          {
+            "tasklist": {
+              "id": "50000000001"
+            },
+            "id": "1071697951271",
+            "prefix": "DM1-T10",
+            "name": "Write analytics event spec",
+            "description": "Short plain-text summary for task 10.",
+            "status": {
+              "id": "10000000001",
+              "name": "Open",
+              "color": "#2cc8ba",
+              "color_hexcode": "#2cc8ba",
+              "is_closed_type": false
+            },
+            "color": "#2cc8ba",
+            "priority": "low",
+            "owners_and_work": {
+              "work_type": "standard",
+              "total_work": "06:00",
+              "unit": "hours_per_day",
+              "copy_task_duration": false,
+              "owners": [
+                {
+                  "zuid": 53657865,
+                  "zpuid": "10000000001",
+                  "name": "Hugo Okoye",
+                  "email": "user-05342de3@example.test",
+                  "first_name": "Hugo",
+                  "last_name": "Okoye",
+                  "work_values": "06:00"
+                }
+              ]
+            },
+            "duration": {
+              "value": "3",
+              "type": "days"
+            },
+            "completion_percentage": 16,
+            "sequence": {
+              "sequence": 10
+            },
+            "depth": 0,
+            "created_time": "2026-03-10T09:15:00.000Z",
+            "last_modified_time": "2026-03-10T14:02:11.250Z",
+            "is_completed": false,
+            "created_via": "web",
+            "created_by": {
+              "zuid": 53657865,
+              "zpuid": "10000000001",
+              "name": "Hugo Okoye",
+              "email": "user-05342de3@example.test",
+              "first_name": "Hugo",
+              "last_name": "Okoye"
+            },
+            "billing_type": "none",
+            "budget_info": {
+              "exchange_rate": 1.0
+            }
+          },
+          {
+            "tasklist": {
+              "id": "50000000001"
+            },
+            "id": "1122413042129",
+            "prefix": "DM1-T11",
+            "name": "Cache product listing",
+            "description": "Short plain-text summary for task 11.",
+            "status": {
+              "id": "9100136940932",
+              "name": "In Progress",
+              "color": "#f5a623",
+              "color_hexcode": "#f5a623",
+              "is_closed_type": false
+            },
+            "color": "#f5a623",
+            "priority": "medium",
+            "owners_and_work": {
+              "work_type": "standard",
+              "total_work": "06:00",
+              "unit": "hours_per_day",
+              "copy_task_duration": false,
+              "owners": [
+                {
+                  "zuid": 50484411,
+                  "zpuid": "9100136940932",
+                  "name": "Hugo Voss",
+                  "email": "user-c521c67d@example.test",
+                  "first_name": "Hugo",
+                  "last_name": "Voss",
+                  "work_values": "06:00"
+                }
+              ]
+            },
+            "duration": {
+              "value": "3",
+              "type": "days"
+            },
+            "completion_percentage": 29,
+            "sequence": {
+              "sequence": 11
+            },
+            "depth": 0,
+            "created_time": "2026-03-11T09:15:00.000Z",
+            "last_modified_time": "2026-03-11T14:02:11.250Z",
+            "is_completed": false,
+            "created_via": "web",
+            "created_by": {
+              "zuid": 53657865,
+              "zpuid": "10000000001",
+              "name": "Hugo Okoye",
+              "email": "user-05342de3@example.test",
+              "first_name": "Hugo",
+              "last_name": "Okoye"
+            },
+            "billing_type": "none",
+            "budget_info": {
+              "exchange_rate": 1.0
+            }
+          },
+          {
+            "tasklist": {
+              "id": "50000000001"
+            },
+            "id": "8123305469815",
+            "prefix": "DM1-T12",
+            "name": "Add address autocomplete",
+            "description": "Short plain-text summary for task 12.",
+            "status": {
+              "id": "1532719309028",
+              "name": "Closed",
+              "color": "#9b9b9b",
+              "color_hexcode": "#9b9b9b",
+              "is_closed_type": true
+            },
+            "color": "#9b9b9b",
+            "priority": "high",
+            "owners_and_work": {
+              "work_type": "standard",
+              "total_work": "06:00",
+              "unit": "hours_per_day",
+              "copy_task_duration": false,
+              "owners": [
+                {
+                  "zuid": 28737165,
+                  "zpuid": "1532719309028",
+                  "name": "Sana Hale",
+                  "email": "user-22513cd0@example.test",
+                  "first_name": "Sana",
+                  "last_name": "Hale",
+                  "work_values": "06:00"
+                }
+              ]
+            },
+            "duration": {
+              "value": "3",
+              "type": "days"
+            },
+            "completion_percentage": 42,
+            "sequence": {
+              "sequence": 12
+            },
+            "depth": 0,
+            "created_time": "2026-03-12T09:15:00.000Z",
+            "last_modified_time": "2026-03-12T14:02:11.250Z",
+            "is_completed": true,
+            "created_via": "web",
+            "created_by": {
+              "zuid": 53657865,
+              "zpuid": "10000000001",
+              "name": "Hugo Okoye",
+              "email": "user-05342de3@example.test",
+              "first_name": "Hugo",
+              "last_name": "Okoye"
+            },
+            "billing_type": "none",
+            "budget_info": {
+              "exchange_rate": 1.0
+            }
+          },
+          {
+            "tasklist": {
+              "id": "50000000001"
+            },
+            "id": "1155119357519",
+            "prefix": "DM1-T13",
+            "name": "Review accessibility findings",
+            "description": "Short plain-text summary for task 13.",
+            "status": {
+              "id": "10000000001",
+              "name": "Open",
+              "color": "#2cc8ba",
+              "color_hexcode": "#2cc8ba",
+              "is_closed_type": false
+            },
+            "color": "#2cc8ba",
+            "priority": "none",
+            "owners_and_work": {
+              "work_type": "standard",
+              "total_work": "06:00",
+              "unit": "hours_per_day",
+              "copy_task_duration": false,
+              "owners": [
+                {
+                  "zuid": 53657865,
+                  "zpuid": "10000000001",
+                  "name": "Hugo Okoye",
+                  "email": "user-05342de3@example.test",
+                  "first_name": "Hugo",
+                  "last_name": "Okoye",
+                  "work_values": "06:00"
+                }
+              ]
+            },
+            "duration": {
+              "value": "3",
+              "type": "days"
+            },
+            "completion_percentage": 55,
+            "sequence": {
+              "sequence": 13
+            },
+            "depth": 0,
+            "created_time": "2026-03-13T09:15:00.000Z",
+            "last_modified_time": "2026-03-13T14:02:11.250Z",
+            "is_completed": false,
+            "created_via": "web",
+            "created_by": {
+              "zuid": 53657865,
+              "zpuid": "10000000001",
+              "name": "Hugo Okoye",
+              "email": "user-05342de3@example.test",
+              "first_name": "Hugo",
+              "last_name": "Okoye"
+            },
+            "billing_type": "none",
+            "budget_info": {
+              "exchange_rate": 1.0
+            }
+          },
+          {
+            "tasklist": {
+              "id": "50000000001"
+            },
+            "id": "4754816567319",
+            "prefix": "DM1-T14",
+            "name": "Localize error messages",
+            "description": "Short plain-text summary for task 14.",
+            "status": {
+              "id": "9100136940932",
+              "name": "In Progress",
+              "color": "#f5a623",
+              "color_hexcode": "#f5a623",
+              "is_closed_type": false
+            },
+            "color": "#f5a623",
+            "priority": "low",
+            "owners_and_work": {
+              "work_type": "standard",
+              "total_work": "06:00",
+              "unit": "hours_per_day",
+              "copy_task_duration": false,
+              "owners": [
+                {
+                  "zuid": 50484411,
+                  "zpuid": "9100136940932",
+                  "name": "Hugo Voss",
+                  "email": "user-c521c67d@example.test",
+                  "first_name": "Hugo",
+                  "last_name": "Voss",
+                  "work_values": "06:00"
+                }
+              ]
+            },
+            "duration": {
+              "value": "3",
+              "type": "days"
+            },
+            "completion_percentage": 68,
+            "sequence": {
+              "sequence": 14
+            },
+            "depth": 0,
+            "created_time": "2026-03-14T09:15:00.000Z",
+            "last_modified_time": "2026-03-14T14:02:11.250Z",
+            "is_completed": false,
+            "created_via": "web",
+            "created_by": {
+              "zuid": 53657865,
+              "zpuid": "10000000001",
+              "name": "Hugo Okoye",
+              "email": "user-05342de3@example.test",
+              "first_name": "Hugo",
+              "last_name": "Okoye"
+            },
+            "billing_type": "none",
+            "budget_info": {
+              "exchange_rate": 1.0
+            }
+          },
+          {
+            "tasklist": {
+              "id": "50000000001"
+            },
+            "id": "1085072435820",
+            "prefix": "DM1-T15",
+            "name": "Rotate API keys",
+            "description": "Short plain-text summary for task 15.",
+            "status": {
+              "id": "1532719309028",
+              "name": "Closed",
+              "color": "#9b9b9b",
+              "color_hexcode": "#9b9b9b",
+              "is_closed_type": true
+            },
+            "color": "#9b9b9b",
+            "priority": "medium",
+            "owners_and_work": {
+              "work_type": "standard",
+              "total_work": "06:00",
+              "unit": "hours_per_day",
+              "copy_task_duration": false,
+              "owners": [
+                {
+                  "zuid": 28737165,
+                  "zpuid": "1532719309028",
+                  "name": "Sana Hale",
+                  "email": "user-22513cd0@example.test",
+                  "first_name": "Sana",
+                  "last_name": "Hale",
+                  "work_values": "06:00"
+                }
+              ]
+            },
+            "duration": {
+              "value": "3",
+              "type": "days"
+            },
+            "completion_percentage": 81,
+            "sequence": {
+              "sequence": 15
+            },
+            "depth": 0,
+            "created_time": "2026-03-15T09:15:00.000Z",
+            "last_modified_time": "2026-03-15T14:02:11.250Z",
+            "is_completed": true,
+            "created_via": "web",
+            "created_by": {
+              "zuid": 53657865,
+              "zpuid": "10000000001",
+              "name": "Hugo Okoye",
+              "email": "user-05342de3@example.test",
+              "first_name": "Hugo",
+              "last_name": "Okoye"
+            },
+            "billing_type": "none",
+            "budget_info": {
+              "exchange_rate": 1.0
+            }
+          },
+          {
+            "tasklist": {
+              "id": "50000000001"
+            },
+            "id": "1502700035223",
+            "prefix": "DM1-T16",
+            "name": "Remove unused feature flags",
+            "description": "Short plain-text summary for task 16.",
+            "status": {
+              "id": "10000000001",
+              "name": "Open",
+              "color": "#2cc8ba",
+              "color_hexcode": "#2cc8ba",
+              "is_closed_type": false
+            },
+            "color": "#2cc8ba",
+            "priority": "high",
+            "owners_and_work": {
+              "work_type": "standard",
+              "total_work": "06:00",
+              "unit": "hours_per_day",
+              "copy_task_duration": false,
+              "owners": [
+                {
+                  "zuid": 53657865,
+                  "zpuid": "10000000001",
+                  "name": "Hugo Okoye",
+                  "email": "user-05342de3@example.test",
+                  "first_name": "Hugo",
+                  "last_name": "Okoye",
+                  "work_values": "06:00"
+                }
+              ]
+            },
+            "duration": {
+              "value": "3",
+              "type": "days"
+            },
+            "completion_percentage": 94,
+            "sequence": {
+              "sequence": 16
+            },
+            "depth": 0,
+            "created_time": "2026-03-16T09:15:00.000Z",
+            "last_modified_time": "2026-03-16T14:02:11.250Z",
+            "is_completed": false,
+            "created_via": "web",
+            "created_by": {
+              "zuid": 53657865,
+              "zpuid": "10000000001",
+              "name": "Hugo Okoye",
+              "email": "user-05342de3@example.test",
+              "first_name": "Hugo",
+              "last_name": "Okoye"
+            },
+            "billing_type": "none",
+            "budget_info": {
+              "exchange_rate": 1.0
+            }
+          },
+          {
+            "tasklist": {
+              "id": "50000000001"
+            },
+            "id": "6484339255203",
+            "prefix": "DM1-T17",
+            "name": "Document deployment runbook",
+            "description": "Short plain-text summary for task 17.",
+            "status": {
+              "id": "9100136940932",
+              "name": "In Progress",
+              "color": "#f5a623",
+              "color_hexcode": "#f5a623",
+              "is_closed_type": false
+            },
+            "color": "#f5a623",
+            "priority": "none",
+            "owners_and_work": {
+              "work_type": "standard",
+              "total_work": "06:00",
+              "unit": "hours_per_day",
+              "copy_task_duration": false,
+              "owners": [
+                {
+                  "zuid": 50484411,
+                  "zpuid": "9100136940932",
+                  "name": "Hugo Voss",
+                  "email": "user-c521c67d@example.test",
+                  "first_name": "Hugo",
+                  "last_name": "Voss",
+                  "work_values": "06:00"
+                }
+              ]
+            },
+            "duration": {
+              "value": "3",
+              "type": "days"
+            },
+            "completion_percentage": 6,
+            "sequence": {
+              "sequence": 17
+            },
+            "depth": 0,
+            "created_time": "2026-03-17T09:15:00.000Z",
+            "last_modified_time": "2026-03-17T14:02:11.250Z",
+            "is_completed": false,
+            "created_via": "web",
+            "created_by": {
+              "zuid": 53657865,
+              "zpuid": "10000000001",
+              "name": "Hugo Okoye",
+              "email": "user-05342de3@example.test",
+              "first_name": "Hugo",
+              "last_name": "Okoye"
+            },
+            "billing_type": "none",
+            "budget_info": {
+              "exchange_rate": 1.0
+            }
+          },
+          {
+            "tasklist": {
+              "id": "50000000001"
+            },
+            "id": "3525780900215",
+            "prefix": "DM1-T18",
+            "name": "Improve search ranking",
+            "description": "Short plain-text summary for task 18.",
+            "status": {
+              "id": "1532719309028",
+              "name": "Closed",
+              "color": "#9b9b9b",
+              "color_hexcode": "#9b9b9b",
+              "is_closed_type": true
+            },
+            "color": "#9b9b9b",
+            "priority": "low",
+            "owners_and_work": {
+              "work_type": "standard",
+              "total_work": "06:00",
+              "unit": "hours_per_day",
+              "copy_task_duration": false,
+              "owners": [
+                {
+                  "zuid": 28737165,
+                  "zpuid": "1532719309028",
+                  "name": "Sana Hale",
+                  "email": "user-22513cd0@example.test",
+                  "first_name": "Sana",
+                  "last_name": "Hale",
+                  "work_values": "06:00"
+                }
+              ]
+            },
+            "duration": {
+              "value": "3",
+              "type": "days"
+            },
+            "completion_percentage": 19,
+            "sequence": {
+              "sequence": 18
+            },
+            "depth": 0,
+            "created_time": "2026-03-18T09:15:00.000Z",
+            "last_modified_time": "2026-03-18T14:02:11.250Z",
+            "is_completed": true,
+            "created_via": "web",
+            "created_by": {
+              "zuid": 53657865,
+              "zpuid": "10000000001",
+              "name": "Hugo Okoye",
+              "email": "user-05342de3@example.test",
+              "first_name": "Hugo",
+              "last_name": "Okoye"
+            },
+            "billing_type": "none",
+            "budget_info": {
+              "exchange_rate": 1.0
+            }
+          },
+          {
+            "tasklist": {
+              "id": "50000000001"
+            },
+            "id": "1687024904938",
+            "prefix": "DM1-T19",
+            "name": "Fix flaky checkout test",
+            "description": "Short plain-text summary for task 19.",
+            "status": {
+              "id": "10000000001",
+              "name": "Open",
+              "color": "#2cc8ba",
+              "color_hexcode": "#2cc8ba",
+              "is_closed_type": false
+            },
+            "color": "#2cc8ba",
+            "priority": "medium",
+            "owners_and_work": {
+              "work_type": "standard",
+              "total_work": "06:00",
+              "unit": "hours_per_day",
+              "copy_task_duration": false,
+              "owners": [
+                {
+                  "zuid": 53657865,
+                  "zpuid": "10000000001",
+                  "name": "Hugo Okoye",
+                  "email": "user-05342de3@example.test",
+                  "first_name": "Hugo",
+                  "last_name": "Okoye",
+                  "work_values": "06:00"
+                }
+              ]
+            },
+            "duration": {
+              "value": "3",
+              "type": "days"
+            },
+            "completion_percentage": 32,
+            "sequence": {
+              "sequence": 19
+            },
+            "depth": 0,
+            "created_time": "2026-03-19T09:15:00.000Z",
+            "last_modified_time": "2026-03-19T14:02:11.250Z",
+            "is_completed": false,
+            "created_via": "web",
+            "created_by": {
+              "zuid": 53657865,
+              "zpuid": "10000000001",
+              "name": "Hugo Okoye",
+              "email": "user-05342de3@example.test",
+              "first_name": "Hugo",
+              "last_name": "Okoye"
+            },
+            "billing_type": "none",
+            "budget_info": {
+              "exchange_rate": 1.0
+            }
+          },
+          {
+            "tasklist": {
+              "id": "50000000001"
+            },
+            "id": "1010345731445",
+            "prefix": "DM1-T20",
+            "name": "Refresh email templates",
+            "description": "Short plain-text summary for task 20.",
+            "status": {
+              "id": "9100136940932",
+              "name": "In Progress",
+              "color": "#f5a623",
+              "color_hexcode": "#f5a623",
+              "is_closed_type": false
+            },
+            "color": "#f5a623",
+            "priority": "high",
+            "owners_and_work": {
+              "work_type": "standard",
+              "total_work": "06:00",
+              "unit": "hours_per_day",
+              "copy_task_duration": false,
+              "owners": [
+                {
+                  "zuid": 50484411,
+                  "zpuid": "9100136940932",
+                  "name": "Hugo Voss",
+                  "email": "user-c521c67d@example.test",
+                  "first_name": "Hugo",
+                  "last_name": "Voss",
+                  "work_values": "06:00"
+                }
+              ]
+            },
+            "duration": {
+              "value": "3",
+              "type": "days"
+            },
+            "completion_percentage": 45,
+            "sequence": {
+              "sequence": 20
+            },
+            "depth": 0,
+            "created_time": "2026-03-20T09:15:00.000Z",
+            "last_modified_time": "2026-03-20T14:02:11.250Z",
+            "is_completed": false,
+            "created_via": "web",
+            "created_by": {
+              "zuid": 53657865,
+              "zpuid": "10000000001",
+              "name": "Hugo Okoye",
+              "email": "user-05342de3@example.test",
+              "first_name": "Hugo",
+              "last_name": "Okoye"
+            },
+            "billing_type": "none",
+            "budget_info": {
+              "exchange_rate": 1.0
+            }
+          },
+          {
+            "tasklist": {
+              "id": "50000000001"
+            },
+            "id": "3409135821295",
+            "prefix": "DM1-T21",
+            "name": "Upgrade build tooling",
+            "description": "Short plain-text summary for task 21.",
+            "status": {
+              "id": "1532719309028",
+              "name": "Closed",
+              "color": "#9b9b9b",
+              "color_hexcode": "#9b9b9b",
+              "is_closed_type": true
+            },
+            "color": "#9b9b9b",
+            "priority": "none",
+            "owners_and_work": {
+              "work_type": "standard",
+              "total_work": "06:00",
+              "unit": "hours_per_day",
+              "copy_task_duration": false,
+              "owners": [
+                {
+                  "zuid": 28737165,
+                  "zpuid": "1532719309028",
+                  "name": "Sana Hale",
+                  "email": "user-22513cd0@example.test",
+                  "first_name": "Sana",
+                  "last_name": "Hale",
+                  "work_values": "06:00"
+                }
+              ]
+            },
+            "duration": {
+              "value": "3",
+              "type": "days"
+            },
+            "completion_percentage": 58,
+            "sequence": {
+              "sequence": 21
+            },
+            "depth": 0,
+            "created_time": "2026-03-21T09:15:00.000Z",
+            "last_modified_time": "2026-03-21T14:02:11.250Z",
+            "is_completed": true,
+            "created_via": "web",
+            "created_by": {
+              "zuid": 53657865,
+              "zpuid": "10000000001",
+              "name": "Hugo Okoye",
+              "email": "user-05342de3@example.test",
+              "first_name": "Hugo",
+              "last_name": "Okoye"
+            },
+            "billing_type": "none",
+            "budget_info": {
+              "exchange_rate": 1.0
+            }
+          },
+          {
+            "tasklist": {
+              "id": "50000000001"
+            },
+            "id": "5209249137200",
+            "prefix": "DM1-T22",
+            "name": "Profile slow category page",
+            "description": "Short plain-text summary for task 22.",
+            "status": {
+              "id": "10000000001",
+              "name": "Open",
+              "color": "#2cc8ba",
+              "color_hexcode": "#2cc8ba",
+              "is_closed_type": false
+            },
+            "color": "#2cc8ba",
+            "priority": "low",
+            "owners_and_work": {
+              "work_type": "standard",
+              "total_work": "06:00",
+              "unit": "hours_per_day",
+              "copy_task_duration": false,
+              "owners": [
+                {
+                  "zuid": 53657865,
+                  "zpuid": "10000000001",
+                  "name": "Hugo Okoye",
+                  "email": "user-05342de3@example.test",
+                  "first_name": "Hugo",
+                  "last_name": "Okoye",
+                  "work_values": "06:00"
+                }
+              ]
+            },
+            "duration": {
+              "value": "3",
+              "type": "days"
+            },
+            "completion_percentage": 71,
+            "sequence": {
+              "sequence": 22
+            },
+            "depth": 0,
+            "created_time": "2026-03-22T09:15:00.000Z",
+            "last_modified_time": "2026-03-22T14:02:11.250Z",
+            "is_completed": false,
+            "created_via": "web",
+            "created_by": {
+              "zuid": 53657865,
+              "zpuid": "10000000001",
+              "name": "Hugo Okoye",
+              "email": "user-05342de3@example.test",
+              "first_name": "Hugo",
+              "last_name": "Okoye"
+            },
+            "billing_type": "none",
+            "budget_info": {
+              "exchange_rate": 1.0
+            }
+          },
+          {
+            "tasklist": {
+              "id": "50000000001"
+            },
+            "id": "1805396354778",
+            "prefix": "DM1-T23",
+            "name": "Plan Q3 usability study",
+            "description": "Short plain-text summary for task 23.",
+            "status": {
+              "id": "9100136940932",
+              "name": "In Progress",
+              "color": "#f5a623",
+              "color_hexcode": "#f5a623",
+              "is_closed_type": false
+            },
+            "color": "#f5a623",
+            "priority": "medium",
+            "owners_and_work": {
+              "work_type": "standard",
+              "total_work": "06:00",
+              "unit": "hours_per_day",
+              "copy_task_duration": false,
+              "owners": [
+                {
+                  "zuid": 50484411,
+                  "zpuid": "9100136940932",
+                  "name": "Hugo Voss",
+                  "email": "user-c521c67d@example.test",
+                  "first_name": "Hugo",
+                  "last_name": "Voss",
+                  "work_values": "06:00"
+                }
+              ]
+            },
+            "duration": {
+              "value": "3",
+              "type": "days"
+            },
+            "completion_percentage": 84,
+            "sequence": {
+              "sequence": 23
+            },
+            "depth": 0,
+            "created_time": "2026-03-23T09:15:00.000Z",
+            "last_modified_time": "2026-03-23T14:02:11.250Z",
+            "is_completed": false,
+            "created_via": "web",
+            "created_by": {
+              "zuid": 53657865,
+              "zpuid": "10000000001",
+              "name": "Hugo Okoye",
+              "email": "user-05342de3@example.test",
+              "first_name": "Hugo",
+              "last_name": "Okoye"
+            },
+            "billing_type": "none",
+            "budget_info": {
+              "exchange_rate": 1.0
+            }
+          },
+          {
+            "tasklist": {
+              "id": "50000000001"
+            },
+            "id": "2956353274495",
+            "prefix": "DM1-T24",
+            "name": "Triage backlog bugs",
+            "description": "Short plain-text summary for task 24.",
+            "status": {
+              "id": "1532719309028",
+              "name": "Closed",
+              "color": "#9b9b9b",
+              "color_hexcode": "#9b9b9b",
+              "is_closed_type": true
+            },
+            "color": "#9b9b9b",
+            "priority": "high",
+            "owners_and_work": {
+              "work_type": "standard",
+              "total_work": "06:00",
+              "unit": "hours_per_day",
+              "copy_task_duration": false,
+              "owners": [
+                {
+                  "zuid": 28737165,
+                  "zpuid": "1532719309028",
+                  "name": "Sana Hale",
+                  "email": "user-22513cd0@example.test",
+                  "first_name": "Sana",
+                  "last_name": "Hale",
+                  "work_values": "06:00"
+                }
+              ]
+            },
+            "duration": {
+              "value": "3",
+              "type": "days"
+            },
+            "completion_percentage": 97,
+            "sequence": {
+              "sequence": 24
+            },
+            "depth": 0,
+            "created_time": "2026-03-24T09:15:00.000Z",
+            "last_modified_time": "2026-03-24T14:02:11.250Z",
+            "is_completed": true,
+            "created_via": "web",
+            "created_by": {
+              "zuid": 53657865,
+              "zpuid": "10000000001",
+              "name": "Hugo Okoye",
+              "email": "user-05342de3@example.test",
+              "first_name": "Hugo",
+              "last_name": "Okoye"
+            },
+            "billing_type": "none",
+            "budget_info": {
+              "exchange_rate": 1.0
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

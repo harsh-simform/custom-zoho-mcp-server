@@ -1,0 +1,62 @@
+{
+  "_provenance": {
+    "groups": {
+      "legacy URL + search_term/module params": "proven-by-legacy-code: client.py search",
+      "tasks hit shape ({tasks:[{id,key,...}]})": "proven-by-legacy-code + documented: legacy search API",
+      "values": "invented"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/restapi/portal/10000000001/projects/20000000001/search",
+      "params": {
+        "search_term": "DM1-T2",
+        "module": "tasks"
+      },
+      "status": 200,
+      "json": {
+        "tasks": [
+          {
+            "id": 30000000001,
+            "id_string": "30000000001",
+            "key": "DM1-T2",
+            "name": "Fix checkout validation",
+            "description": "",
+            "project": {
+              "id": 20000000001,
+              "name": "Demo Website Redesign"
+            },
+            "tasklist_id": 50000000001,
+            "tasklist_id_str": "50000000001",
+            "status": {
+              "id": 409111260389,
+              "name": "In Progress",
+              "type": "open",
+              "color_code": "#f5a623"
+            },
+            "details": {
+              "owners": [
+                {
+                  "name": "Hugo Voss",
+                  "id": "50484411"
+                }
+              ]
+            },
+            "priority": "High",
+            "percent_complete": "60",
+            "completed": false,
+            "isparent": false,
+            "subtasks": false,
+            "created_person": "Alex Sample",
+            "created_time": "03-02-2026",
+            "created_time_long": 1772442900000,
+            "last_updated_time": "03-10-2026",
+            "last_updated_time_long": 1773151331250
+          }
+        ]
+      }
+    }
+  ]
+}

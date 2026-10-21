@@ -1,0 +1,83 @@
+{
+  "_provenance": {
+    "groups": {
+      "fallback sequence (v3 404 then legacy 200)": "proven-by-legacy-code: client.py _get_v3_or_legacy",
+      "404 body": "documented: v3 error envelope",
+      "legacy body": "documented: https://www.zoho.com/projects/help/rest-api/milestones-api.html (numeric ids, MM-dd-yyyy dates)",
+      "values": "invented"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/projects/20000000001/milestones",
+      "status": 404,
+      "json": {
+        "error": {
+          "status_code": "404",
+          "instance": "/api/v3/portal/10000000001/projects/20000000001/milestones",
+          "method": "GET",
+          "error_type": "FIELDS_VALIDATION_ERROR",
+          "details": [
+            {
+              "message": "Resource Not Found"
+            }
+          ],
+          "title": "RESOURCE_NOT_FOUND"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/restapi/portal/10000000001/projects/20000000001/milestones/",
+      "status": 200,
+      "json": {
+        "milestones": [
+          {
+            "id": 60000000001,
+            "link": {
+              "self": {
+                "url": "https://host-315e5040.example.test/restapi/portal/10000000001/projects/20000000001/milestones/60000000001/"
+              },
+              "status": {
+                "url": "https://host-315e5040.example.test/restapi/portal/10000000001/projects/20000000001/milestones/60000000001/status/"
+              }
+            },
+            "name": "Beta Release",
+            "owner_name": "Bea Fixture",
+            "owner_id": "50484411",
+            "flag": "internal",
+            "start_date": "02-01-2026 12:00 AM",
+            "start_date_long": 1769904000000,
+            "end_date": "04-30-2026 11:59 PM",
+            "end_date_long": 1777593540000,
+            "status": "notcompleted"
+          },
+          {
+            "id": 4543221090893,
+            "link": {
+              "self": {
+                "url": "https://host-315e5040.example.test/restapi/portal/10000000001/projects/20000000001/milestones/4543221090893/"
+              },
+              "status": {
+                "url": "https://host-315e5040.example.test/restapi/portal/10000000001/projects/20000000001/milestones/4543221090893/status/"
+              }
+            },
+            "name": "Kickoff",
+            "owner_name": "Alex Sample",
+            "owner_id": "53657865",
+            "flag": "internal",
+            "start_date": "01-05-2026 12:00 AM",
+            "start_date_long": 1767571200000,
+            "end_date": "01-31-2026 11:59 PM",
+            "end_date_long": 1769903940000,
+            "status": "completed",
+            "completed_date": "01-19-2026 01:11 PM",
+            "completed_date_long": 1768828260000
+          }
+        ]
+      }
+    }
+  ]
+}

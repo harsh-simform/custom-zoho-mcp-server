@@ -1,0 +1,62 @@
+{
+  "_provenance": {
+    "groups": {
+      "fallback sequence": "proven-by-legacy-code",
+      "legacy body (`attachment_details`, lowercase file_name/file_type/file_uri)": "documented: legacy bugs API",
+      "values": "invented"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portal/10000000001/projects/20000000001/bugs/40000000001/attachments",
+      "status": 404,
+      "json": {
+        "error": {
+          "status_code": "404",
+          "instance": "/api/v3/portal/10000000001/projects/20000000001/bugs/40000000001/attachments",
+          "method": "GET",
+          "error_type": "FIELDS_VALIDATION_ERROR",
+          "details": [
+            {
+              "message": "Resource Not Found"
+            }
+          ],
+          "title": "RESOURCE_NOT_FOUND"
+        }
+      }
+    },
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/restapi/portal/10000000001/projects/20000000001/bugs/40000000001/attachments/",
+      "status": 200,
+      "json": {
+        "attachment_details": [
+          {
+            "file_name": "checkout-500.png",
+            "file_type": "image/png",
+            "file_size": 183422,
+            "file_uri": "https://projects.zoho.com/portal/portal-fef921/downloadfile",
+            "author_id": "50484411",
+            "author_name": "Bea Fixture",
+            "attached_time": "03-05-2026",
+            "attached_time_format": "03-05-2026 05:02 AM",
+            "attached_time_long": 1772686976685
+          },
+          {
+            "file_name": "SessionValidation.java",
+            "file_type": "text/x-java",
+            "file_size": 3618,
+            "file_uri": "https://projects.zoho.com/portal/portal-fef921/downloadfile",
+            "author_id": "53657865",
+            "author_name": "Alex Sample",
+            "attached_time": "03-05-2026",
+            "attached_time_format": "03-05-2026 05:10 AM",
+            "attached_time_long": 1772687400000
+          }
+        ]
+      }
+    }
+  ]
+}

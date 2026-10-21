@@ -1,0 +1,35 @@
+{
+  "_provenance": {
+    "groups": {
+      "bug hit under `issue` with issue_id/prefix": "documented: legacy search API (the legacy code reads `bugs`/`key`/`id` instead: they disagree)",
+      "values": "invented"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/restapi/portal/10000000001/projects/20000000001/search",
+      "params": {
+        "search_term": "DM1-I1",
+        "module": "bugs"
+      },
+      "status": 200,
+      "json": {
+        "issue": [
+          {
+            "status_id": 253239530222,
+            "issue_id": 40000000001,
+            "issue_id_str": "40000000001",
+            "project_id": 20000000001,
+            "prefix": "DM1-I1",
+            "issue_title": "Postcode validation missing on checkout form",
+            "project_name": "Demo Website Redesign",
+            "assignee_name": "Bea Fixture",
+            "assignee_id": 50484411
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "_provenance": {
+    "groups": {
+      "envelope": "documented: v3 (deprecated) Get All Portals returns a bare JSON array",
+      "portal fields": "documented: https://projects.zoho.com/api-docs/portals",
+      "values": "invented"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/api/v3/portals",
+      "status": 200,
+      "json": [
+        {
+          "owner": {
+            "zpuid": "10000000001",
+            "full_name": "Hugo Okoye",
+            "name": "Hugo Okoye",
+            "last_name": "Okoye",
+            "id": "53657865",
+            "is_client_user": false,
+            "first_name": "Hugo",
+            "email": "user-05342de3@example.test"
+          },
+          "portal_name": "demoportal",
+          "is_default_portal": true,
+          "profile_id": "4145112915507",
+          "timezone": "Europe/Dublin",
+          "profile": {
+            "name": "Portal Owner",
+            "id": "4145112915507"
+          },
+          "portal_owner": "Hugo Okoye",
+          "org_name": "demoportalexampledotcom",
+          "zsoid": "53250570",
+          "id": "10000000001",
+          "org_logo": "/images/svg/zps-logo-default.svg",
+          "bug_plan": "Enterprise",
+          "project_plan": "Enterprise"
+        }
+      ]
+    }
+  ]
+}

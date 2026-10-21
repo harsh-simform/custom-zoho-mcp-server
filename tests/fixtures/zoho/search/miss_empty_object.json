@@ -1,0 +1,21 @@
+{
+  "_provenance": {
+    "groups": {
+      "params": "proven-by-legacy-code",
+      "miss body (empty object, module key absent)": "invented: legacy code tolerates it"
+    },
+    "note": "Synthetic: assembled from Zoho API docs shapes and legacy-code behavior; no live Zoho access."
+  },
+  "entries": [
+    {
+      "method": "GET",
+      "url": "https://projectsapi.zoho.com/restapi/portal/10000000001/projects/20000000001/search",
+      "params": {
+        "search_term": "NOPE-T999",
+        "module": "tasks"
+      },
+      "status": 200,
+      "json": {}
+    }
+  ]
+}
