@@ -57,6 +57,8 @@ SCHEMAS: dict[str, Schema] = {s.name: s for s in (
     Schema("milestone", "milestones", list_fields=("id", "name", "due", "status")),
     Schema("user", "users", list_fields=("id", "name", "role")),
     Schema("tag", "tags", list_fields=("id", "name")),
+    # `zoho-axi cache status|clear` (T07): a detail view; the tallies ride in `counts`.
+    Schema("cache", "caches", list_fields=("path",), detail_fields=("path", "size", "oldest", "cleared")),
 )}
 
 
