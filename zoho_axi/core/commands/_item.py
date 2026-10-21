@@ -15,15 +15,17 @@ request. No formatting happens here: the renderer owns text, truncation and TOON
 """
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from typing import Any, Mapping, Sequence
 
+from ..attachments import IMAGE_EXTENSIONS, default_attachments_dir, human_bytes, is_image, item_dir, save_images
 from ..errors import NotFoundError
 from ._scope import optional
 from ._shape import norm_date, person_name, task_key
 from .base import Context
 
-IMAGE_EXTENSIONS = (".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".svg", ".heic", ".tif", ".tiff")
+__all__ = ["IMAGE_EXTENSIONS", "human_bytes", "is_image"]  # re-exported: they lived here before T12
 
 
 @dataclass(frozen=True)
@@ -119,25 +121,22 @@ def comment_rows(records: Sequence[Mapping[str, Any]]) -> list[dict[str, str]]:
     } for r in records]
 
 
-def is_image(record: Mapping[str, Any]) -> bool:
-    """An image by MIME type, else by file extension (Zoho sometimes says octet-stream for a .JPG)."""
-    if str(record.get("content_type") or "").lower().startswith("image/"):
-        return True
-    return str(record.get("file_name") or "").lower().endswith(IMAGE_EXTENSIONS)
-
-
-def human_bytes(value: Any) -> str:
-    try:
-        n = int(float(str(value)))
-    except ValueError:
-        return ""
-    return f"{n} B" if n < 1024 else f"{n // 1024} KB" if n < 1024 * 1024 else f"{n / 1024 / 1024:.1f} MB"
-
-
 def attachment_rows(records: Sequence[Mapping[str, Any]]) -> list[dict[str, str]]:
-    """{name, type, size} only; never a download URL (images and downloads are T12)."""
+    """{name, type, size} only; never a download URL (images are fetched by `image_rows`, only on request)."""
     return [{
         "name": str(r.get("file_name") or ""),
         "type": str(r.get("content_type") or ""),
         "size": human_bytes(r.get("size")) if r.get("size") not in (None, "") else "",
     } for r in records]
+
+
+def image_rows(ctx: Context, item: Item, records: Sequence[Mapping[str, Any]], warnings: list[str]) -> list[dict[str, Any]]:
+    """`--images`: download the item's images (at most `max_images`, each at most `max_attachment_bytes`) into
+    `<cache>/zoho-axi/attachments/<kind>-<id>/` and return {name, bytes, path} rows. Whatever was skipped or
+    refused is added to `warnings`; the command still succeeds. `--fresh` downloads again."""
+    base = default_attachments_dir(os.environ if ctx.env is None else ctx.env)
+    batch = save_images(ctx.gateway.download, records, dest=item_dir(base, item.kind.name, item.id),
+                        max_images=ctx.settings.max_images, max_bytes=ctx.settings.max_attachment_bytes,
+                        fresh=ctx.fresh)
+    warnings.extend(batch.warnings())
+    return [{"name": i.name, "bytes": i.size, "path": str(i.path)} for i in batch.images]

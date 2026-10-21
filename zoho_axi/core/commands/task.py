@@ -24,7 +24,8 @@ from typing import Any, Mapping, Sequence
 
 from ..result import Hint, Result, Truncation
 from ._item import (
-    TASK, Item, attachment_rows, comment_rows, count_of, fetch_record, fetch_slice, is_image, resolve_item,
+    TASK, Item, attachment_rows, comment_rows, count_of, fetch_record, fetch_slice, image_rows, is_image,
+    resolve_item,
 )
 from ._scope import optional, scope
 from ._shape import due_date, norm_date, owner_names, person_name, status_name, task_key, task_row, truthy
@@ -75,6 +76,8 @@ def task(ctx: Context) -> Result:
             truncations.append(Truncation("comments", len(comments) - len(shown), "older", {"full": True}))
     if params.get("attachments") and attachments is not None:
         payload["attachments"] = attachment_rows(attachments)
+    if params.get("images") and attachments is not None:  # implies the attachments fetch (already made above)
+        payload["images"] = image_rows(ctx, item, attachments, warnings)
     if params.get("subtasks"):
         _subtasks(ctx, item, subtasks_flag, payload, counts, warnings)
     if params.get("history"):
@@ -194,4 +197,6 @@ def _help(key: str, params: Mapping[str, Any], counts: Mapping[str, Any], commen
         hints.append(hint(subtasks=True))
     if counts.get("attachments") not in (0, None) and not params.get("attachments"):
         hints.append(hint(attachments=True))
+    if params.get("attachments") and counts.get("images") and not params.get("images"):
+        hints.append(hint(images=True))
     return hints
