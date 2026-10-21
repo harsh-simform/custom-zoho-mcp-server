@@ -16,7 +16,7 @@ import pytest
 from support.world import PR, PORTAL, PROJECT, P, World, legacy_milestones, replay_of, task, tasks_body, token_count, \
     LEGACY, LEGACY_MILESTONES_URL, project_rec, tasklists_body, users_body, tags_body
 
-from zoho_axi.cli.registry import REGISTRY, Flag
+from zoho_axi.cli.registry import REGISTRY
 
 BUDGET = 200
 EMPTY_HELP = "zoho-axi tasks --limit 10"
@@ -103,19 +103,20 @@ WARM_CASES = [
     ("a URL that is not Zoho's is ignored", "https://example.com/portal/x#taskdetail/1/2/3", [], [EMPTY_HELP]),
     ("a look-alike host is ignored", "https://evilzoho.com/portal/x#taskdetail/1/2/3", [], [EMPTY_HELP]),
     # --- keyword -> slice table
-    ("screenshot -> attachments while --images is unknown", "screenshot attached to DM1-T2", [T("DM1-T2", "yes")],
-     ["zoho-axi task DM1-T2 --attachments"]),
-    ("image", "the image in DM1-T2", [T("DM1-T2", "yes")], ["zoho-axi task DM1-T2 --attachments"]),
+    ("screenshot -> images", "screenshot attached to DM1-T2", [T("DM1-T2", "yes")], ["zoho-axi task DM1-T2 --images"]),
+    ("image", "the image in DM1-T2", [T("DM1-T2", "yes")], ["zoho-axi task DM1-T2 --images"]),
+    ("attached files -> attachments too", "the attached files in DM1-T2", [T("DM1-T2", "yes")],
+     ["zoho-axi task DM1-T2 --attachments --images"]),
     ("comment words", "what was said about DM1-T2", [T("DM1-T2", "yes")], ["zoho-axi task DM1-T2 --comments"]),
     ("discussion", "the discussion on DM1-T2", [T("DM1-T2", "yes")], ["zoho-axi task DM1-T2 --comments"]),
     ("history words", "when was DM1-T2 moved to Done?", [T("DM1-T2", "yes")], ["zoho-axi task DM1-T2 --history"]),
     ("status changed", "DM1-T2 status changed twice", [T("DM1-T2", "yes")], ["zoho-axi task DM1-T2 --history"]),
     ("subtask", "does DM1-T2 have subtasks", [T("DM1-T2", "yes")], ["zoho-axi task DM1-T2 --subtasks"]),
     ("all slices, in the command's own order", "subtasks, history, comments and the screenshot on DM1-T2",
-     [T("DM1-T2", "yes")], ["zoho-axi task DM1-T2 --comments --history --subtasks --attachments"]),
+     [T("DM1-T2", "yes")], ["zoho-axi task DM1-T2 --comments --history --subtasks --images"]),
     ("a bug has no --history or --subtasks", "history and subtasks of DM1-I9", [B("DM1-I9")], ["zoho-axi bug DM1-I9"]),
     ("a bug gets comments and attachments", "comments and screenshots on DM1-I9", [B("DM1-I9")],
-     ["zoho-axi bug DM1-I9 --comments --attachments"]),
+     ["zoho-axi bug DM1-I9 --comments --images"]),
     ("slices apply per type", "DM1-T2 and DM1-I9: history and comments", [T("DM1-T2", "yes"), B("DM1-I9")],
      ["zoho-axi task DM1-T2 --comments --history", "zoho-axi bug DM1-I9 --comments"]),
     ("milestone without a key", "what is left in the sprint?", [], ["zoho-axi project --lists", EMPTY_HELP]),
@@ -134,7 +135,7 @@ WARM_CASES = [
     ("mixed prose, bug key, URL and slices",
      f"Customer says the screenshot in DM1-I9 matches {SAME}, see comments",
      [B("DM1-I9"), T("3001", "yes")],
-     ["zoho-axi bug DM1-I9 --comments --attachments", "zoho-axi task 3001 --comments --attachments"]),
+     ["zoho-axi bug DM1-I9 --comments --images", "zoho-axi task 3001 --comments --images"]),
 ]
 
 
@@ -218,17 +219,14 @@ def test_a_known_milestone_name_in_the_text_gives_the_exact_tasks_command(tmp_pa
     assert out == "found: 0 results\nhelp[2]{run}:\n  zoho-axi tasks --milestone 'Beta Release'\n  " + EMPTY_HELP
 
 
-def test_images_is_suggested_only_when_the_command_table_knows_the_flag(warm):
-    def with_images(spec):
-        return replace(spec, flags=(*spec.flags, Flag("--images", "download the images"))) if spec.name in ("task", "bug") \
-            else spec
+def test_images_falls_back_to_attachments_when_the_command_table_lacks_the_flag(warm):
+    def without_images(spec):
+        return replace(spec, flags=tuple(f for f in spec.flags if f.name != "--images"))
 
     code, out, _ = warm.run(["resolve", "the screenshot in DM1-T2 and DM1-I9"],
-                            registry=tuple(with_images(s) for s in REGISTRY))
+                            registry=tuple(without_images(s) for s in REGISTRY))
     assert (code, out) == (0, shape([T("DM1-T2", "yes"), B("DM1-I9")],
-                                    ["zoho-axi task DM1-T2 --images", "zoho-axi bug DM1-I9 --images"]))
-    code, out, _ = warm.run(["resolve", "the attached file in DM1-T2"], registry=tuple(with_images(s) for s in REGISTRY))
-    assert (code, out) == (0, shape([T("DM1-T2", "yes")], ["zoho-axi task DM1-T2 --attachments"]))
+                                    ["zoho-axi task DM1-T2 --attachments", "zoho-axi bug DM1-I9 --attachments"]))
 
 
 # --- determinism, formats, budget --------------------------------------------------------------------

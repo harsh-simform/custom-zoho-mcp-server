@@ -60,8 +60,8 @@ _SLICE_WORDS: tuple[tuple[str, re.Pattern[str]], ...] = tuple((name, re.compile(
     ("comments", r"\b(?:comments?|commented|said|discussion|discussed|replied|replies)\b"),
     ("history", r"\b(?:history|status changes?|status changed|changed status|moved)\b"),
     ("subtasks", r"\bsub-?\s?tasks?\b"),
-    ("attachments", r"\b(?:attach(?:ed|ments?)?|files?)\b"),
-    ("images", r"\b(?:screenshots?|screen shots?|images?|pictures?|photos?|png|jpe?g)\b"),
+    ("attachments", r"\b(?:attachments?|files?)\b"),
+    ("images", r"\b(?:attached|screenshots?|screen shots?|images?|pictures?|photos?|png|jpe?g)\b"),
 ))
 _MILESTONE_WORDS = re.compile(r"\b(?:milestones?|sprints?)\b", re.IGNORECASE)
 _SLICE_ORDER = ("comments", "history", "subtasks", "attachments", "images")  # the order `task --help` lists them
