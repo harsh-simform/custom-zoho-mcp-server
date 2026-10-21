@@ -1,4 +1,4 @@
-"""`zoho-axi tasks` (T10) at the product seam: argv in, rendered text + exit code + request count out.
+"""`zoho-projects-axi tasks` (T10) at the product seam: argv in, rendered text + exit code + request count out.
 Zoho is replayed below the gateway (tests/support/world.py); expected texts are hand-written literals.
 Token budget uses the same len/4 proxy as tests/test_cli.py.
 """
@@ -37,7 +37,7 @@ def test_tasks_lists_rows_with_totals_by_status(world):
         "  DM1-T2,Fix checkout validation,In Progress,Bea Fixture",
         "  DM1-T3,Archive old assets,Closed,Alex Sample",
         "help[1]{run}:",
-        "  zoho-axi task DM1-T1",
+        "  zoho-projects-axi task DM1-T1",
     ])
     assert world.requests(err) == 1
 
@@ -86,7 +86,7 @@ def test_empty_state_is_explicit_and_hints_a_broader_query(world):
     code, out, _ = world.run(["tasks", "--status", "blocked"], replay_of((f"{PR}/tasks", three(), PAGE)))
     assert code == 0
     assert out.splitlines()[:2] == ["counts: matched=0", "tasks: 0 results"]
-    assert "zoho-axi tasks" in out.splitlines()[-1]
+    assert "zoho-projects-axi tasks" in out.splitlines()[-1]
 
 
 def test_over_limit_rows_are_cut_with_a_hint_to_raise_the_limit(world):
@@ -107,7 +107,7 @@ def test_default_limit_is_20(world):
 def test_more_pages_on_the_server_produce_a_next_page_hint(world):
     body = tasks_body(task(1, "A"), has_next=True)
     _, out, _ = world.run(["tasks"], replay_of((f"{PR}/tasks", body, PAGE)))
-    assert "zoho-axi tasks --page 2" in out
+    assert "zoho-projects-axi tasks --page 2" in out
 
 
 def test_page_flag_requests_that_page_from_zoho(world):

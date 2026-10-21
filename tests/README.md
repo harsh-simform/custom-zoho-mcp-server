@@ -60,7 +60,7 @@ and review the diff. A missing golden fails until created that way.
 
 ## Live smoke (manual, never in the default suite)
 
-    ZOHO_AXI_LIVE=1 venv/bin/python -m pytest tests/live -q
+    ZOHO_PROJECTS_AXI_LIVE=1 venv/bin/python -m pytest tests/live -q
 
 Needs real credentials. Tests marked `live` are skipped without the switch, and with it the offline guard is
 lifted for those tests only. All calls are GETs through the gateway.

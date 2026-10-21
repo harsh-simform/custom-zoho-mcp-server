@@ -1,14 +1,14 @@
-"""Manual live smoke against the real Zoho API: read-only GETs only, skipped unless ZOHO_AXI_LIVE=1.
+"""Manual live smoke against the real Zoho API: read-only GETs only, skipped unless ZOHO_PROJECTS_AXI_LIVE=1.
 
-    ZOHO_AXI_LIVE=1 venv/bin/python -m pytest tests/live -q
+    ZOHO_PROJECTS_AXI_LIVE=1 venv/bin/python -m pytest tests/live -q
 
-Needs real credentials (config file or ZOHO_AXI_* environment variables). Never part of the default
+Needs real credentials (config file or ZOHO_PROJECTS_AXI_* environment variables). Never part of the default
 suite or CI; see tests/README.md. Prints nothing sensitive: assertions are on counts and keys only.
 """
 import pytest
 
-from zoho_axi.core.config import load_settings
-from zoho_axi.core.gateway import ZohoGateway
+from zoho_projects_axi.core.config import load_settings
+from zoho_projects_axi.core.gateway import ZohoGateway
 
 pytestmark = pytest.mark.live
 

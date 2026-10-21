@@ -1,8 +1,8 @@
 import json
 
-from zoho_axi.core.auth import ZohoAuth
-from zoho_axi.core.config import load_settings
-from zoho_axi.core.status import auth_status, login_help
+from zoho_projects_axi.core.auth import ZohoAuth
+from zoho_projects_axi.core.config import load_settings
+from zoho_projects_axi.core.status import auth_status, login_help
 
 from test_auth import SECRETS, FakePost, make_settings
 
@@ -40,7 +40,7 @@ def test_online_status_reports_network_failure_as_unreachable(tmp_path):
 
 def test_missing_credentials_are_listed_and_never_trigger_a_network_call(tmp_path):
     settings = load_settings(
-        env={"HOME": str(tmp_path), "ZOHO_AXI_CLIENT_ID": "only-id"}, legacy_env_file=tmp_path / "none.env"
+        env={"HOME": str(tmp_path), "ZOHO_PROJECTS_AXI_CLIENT_ID": "only-id"}, legacy_env_file=tmp_path / "none.env"
     )
     post = FakePost()
     result = auth_status(settings, auth=ZohoAuth(settings, post=post))
@@ -50,11 +50,11 @@ def test_missing_credentials_are_listed_and_never_trigger_a_network_call(tmp_pat
 
 
 def test_status_shows_where_each_setting_came_from(tmp_path):
-    result = auth_status(make_settings(tmp_path, ZOHO_AXI_DC="eu"), online=False)
+    result = auth_status(make_settings(tmp_path, ZOHO_PROJECTS_AXI_DC="eu"), online=False)
     assert result["settings"]["client_secret"] == "env"
     assert result["settings"]["dc"] == "env"
     assert result["settings"]["portal_id"] == "unset"
-    assert result["config_file"].endswith("zoho-axi/config.toml")
+    assert result["config_file"].endswith("zoho-projects-axi/config.toml")
     assert result["config_file_exists"] is False
 
 
@@ -84,6 +84,6 @@ def test_unexpected_exceptions_are_reported_not_raised(tmp_path):
 
 
 def test_login_help_points_at_the_console_for_the_configured_data_center(tmp_path):
-    text = login_help(make_settings(tmp_path, ZOHO_AXI_DC="eu"))
+    text = login_help(make_settings(tmp_path, ZOHO_PROJECTS_AXI_DC="eu"))
     assert "https://api-console.zoho.eu" in text
     assert "api-console.zoho.com" not in text

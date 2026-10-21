@@ -1,0 +1,10 @@
+{
+  "name": "zoho-projects-axi-skill",
+  "version": "0.3.0",
+  "description": "Read-only Zoho Projects for Claude: a skill, the zoho-projects-axi CLI on the Bash PATH (run through uv, no install), a session-start project snapshot and a login command.",
+  "author": { "name": "Harsh Makwana" },
+  "homepage": "https://github.com/harsh-simform/zoho-projects-axi",
+  "repository": "https://github.com/harsh-simform/zoho-projects-axi",
+  "license": "MIT",
+  "keywords": ["zoho", "zoho-projects", "cli", "skill"]
+}

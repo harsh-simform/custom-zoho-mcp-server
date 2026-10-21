@@ -1,8 +1,8 @@
-"""T15: `zoho-axi mcp`, the canonical MCP entry point.
+"""T15: `zoho-projects-axi mcp`, the canonical MCP entry point.
 
 Two seams. The selection logic is tested through the CLI product seam `main(argv, ...)` with an injected `serve`
 callable (a blocking stdio server cannot run in-process): `mcp` hands over to it and writes nothing to stdout,
-anything else never does. The real thing is a subprocess smoke: the installed `zoho-axi mcp` answers an MCP
+anything else never does. The real thing is a subprocess smoke: the installed `zoho-projects-axi mcp` answers an MCP
 initialize handshake and lists the six tools over stdio.
 """
 import asyncio
@@ -15,9 +15,9 @@ import pytest
 from mcp import Client
 from mcp.client.stdio import StdioServerParameters, stdio_client
 
-from zoho_axi.cli.main import main
-from zoho_axi.cli.registry import REGISTRY
-from zoho_axi.mcp_server.server import TOOLS
+from zoho_projects_axi.cli.main import main
+from zoho_projects_axi.cli.registry import REGISTRY
+from zoho_projects_axi.mcp_server.server import TOOLS
 
 SIX = ["bug", "people", "project", "resolve", "task", "tasks"]
 
@@ -54,7 +54,7 @@ def test_nothing_but_a_plain_mcp_command_starts_the_server(argv, tmp_path):
 
 def test_mcp_help_documents_the_command(tmp_path):
     _, out, _ = run(["mcp", "--help"], tmp_path, Recorder())
-    assert out.startswith("usage: zoho-axi mcp\n") and "stdio" in out
+    assert out.startswith("usage: zoho-projects-axi mcp\n") and "stdio" in out
 
 
 def test_an_unknown_flag_is_a_usage_error_and_does_not_start_the_server(tmp_path):
@@ -78,13 +78,13 @@ def test_mcp_is_a_cli_command_but_not_one_of_the_six_tools():
 
 
 def test_importing_the_cli_does_not_load_the_mcp_sdk():
-    script = "import sys, zoho_axi.cli.main\nassert 'mcp' not in sys.modules, 'the MCP SDK must load lazily'\n"
+    script = "import sys, zoho_projects_axi.cli.main\nassert 'mcp' not in sys.modules, 'the MCP SDK must load lazily'\n"
     done = subprocess.run([sys.executable, "-I", "-c", script], capture_output=True, text=True)
     assert done.returncode == 0, done.stderr
 
 
-def test_the_installed_zoho_axi_mcp_answers_an_initialize_handshake_over_stdio(tmp_path):
-    exe = Path(sys.executable).parent / "zoho-axi"
+def test_the_installed_zoho_projects_axi_mcp_answers_an_initialize_handshake_over_stdio(tmp_path):
+    exe = Path(sys.executable).parent / "zoho-projects-axi"
     assert exe.exists(), "install the package with `pip install -e .`"
     env = {"HOME": str(tmp_path), "PATH": "/usr/bin:/bin", "ZOHO_MCP_ENV_FILE": str(tmp_path / "none.env")}
     params = StdioServerParameters(command=str(exe), args=["mcp"], env=env, cwd=str(tmp_path))

@@ -10,5 +10,5 @@ attachments[2]{name,type,size}:
   checkout-error.png,image/png,179 KB
   design-review-notes.pdf,application/pdf,88 KB
 help[2]{run}:
-  zoho-axi task DM1-T2 --comments
-  zoho-axi task DM1-T2 --images
+  zoho-projects-axi task DM1-T2 --comments
+  zoho-projects-axi task DM1-T2 --images

@@ -18,7 +18,7 @@ It refuses to write if a credential is detected, and never records the OAuth tok
     --force                                  overwrite an existing fixture
 
 Real ids named portal/project/task/bug/tasklist/milestone are pinned to the canonical fake ids in
-tests/support/fixtures.py so tests can refer to them. Needs the usual zoho-axi credentials; it makes no
+tests/support/fixtures.py so tests can refer to them. Needs the usual zoho-projects-axi credentials; it makes no
 request that is not a GET. Unit-tested with the replay adapter only; running it live is a manual step.
 Review the output before committing: free text is scrubbed by pattern, not understood.
 """
@@ -38,11 +38,11 @@ from support.fixtures import CANONICAL_IDS, FIXTURE_ROOT  # noqa: E402
 from support.recording import RecordingTransport, build_fixture, write_fixture  # noqa: E402
 from support.sanitizer import SecretDetected, Sanitizer  # noqa: E402
 
-from zoho_axi.core.config import load_settings  # noqa: E402
-from zoho_axi.core.errors import ZohoAxiError  # noqa: E402
-from zoho_axi.core.gateway import ZohoGateway  # noqa: E402
-from zoho_axi.core.render import render_error  # noqa: E402
-from zoho_axi.core.resources import RESOURCES  # noqa: E402
+from zoho_projects_axi.core.config import load_settings  # noqa: E402
+from zoho_projects_axi.core.errors import ZohoAxiError  # noqa: E402
+from zoho_projects_axi.core.gateway import ZohoGateway  # noqa: E402
+from zoho_projects_axi.core.render import render_error  # noqa: E402
+from zoho_projects_axi.core.resources import RESOURCES  # noqa: E402
 
 DEFAULT_GROUPS = {"all": "recorded: live Zoho response, sanitized"}
 
@@ -142,7 +142,7 @@ def main(
                 pins[real] = CANONICAL_IDS[name]
 
     if transport is None:
-        from zoho_axi.core.http_transport import RequestsTransport
+        from zoho_projects_axi.core.http_transport import RequestsTransport
 
         transport = RequestsTransport()
     recorder = RecordingTransport(transport)

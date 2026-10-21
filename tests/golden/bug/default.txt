@@ -9,6 +9,6 @@ created: 2026-02-20
 task: DM1-T2
 counts: comments=1 attachments=2 images=1
 help[3]{run}:
-  zoho-axi bug DM1-I1 --comments
-  zoho-axi bug DM1-I1 --attachments
-  zoho-axi bug DM1-I1 --task
+  zoho-projects-axi bug DM1-I1 --comments
+  zoho-projects-axi bug DM1-I1 --attachments
+  zoho-projects-axi bug DM1-I1 --task

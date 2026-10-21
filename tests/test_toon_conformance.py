@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 
-from zoho_axi.core.toon import encode
+from zoho_projects_axi.core.toon import encode
 
 FIXTURE_DIR = Path(__file__).parent / "fixtures" / "toon"
 _COMPACT_EXTENSION = re.compile(r"\[\d*:\]|\{[^}\n]*\{")

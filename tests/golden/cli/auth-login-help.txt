@@ -1,9 +1,9 @@
-usage: zoho-axi auth login [--port N] [--no-browser]
+usage: zoho-projects-axi auth login [--port N] [--no-browser]
 sign in with your browser (OAuth) and save the refresh token to the config file
 options:
   --port N  local port for the redirect (default 8765)
   --no-browser  only print the sign-in URL, do not open a browser
-global flags: --project --fresh --json --full --debug --help (see `zoho-axi --help`)
+global flags: --project --fresh --json --full --debug --help (see `zoho-projects-axi --help`)
 examples:
-  zoho-axi auth login
-  zoho-axi auth login --no-browser --port 9000
+  zoho-projects-axi auth login
+  zoho-projects-axi auth login --no-browser --port 9000

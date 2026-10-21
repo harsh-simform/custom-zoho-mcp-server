@@ -10,7 +10,7 @@ from __future__ import annotations
 import json as jsonlib
 from typing import Any, Mapping, NamedTuple
 
-from zoho_axi.core.transport import PayloadTooLarge, TransportResponse
+from zoho_projects_axi.core.transport import PayloadTooLarge, TransportResponse
 
 
 class UnrecordedRequest(Exception):

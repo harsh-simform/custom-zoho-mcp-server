@@ -10,7 +10,7 @@ import json
 from pathlib import Path
 from typing import Any, Mapping
 
-from zoho_axi.core.transport import Transport, TransportResponse
+from zoho_projects_axi.core.transport import Transport, TransportResponse
 
 from .sanitizer import SecretDetected, Sanitizer, detect_secrets
 

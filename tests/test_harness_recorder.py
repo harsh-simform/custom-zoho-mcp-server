@@ -14,7 +14,7 @@ from support.fixtures import IDS, PORTAL, PROJECT, TASK
 from support.recording import RecordingTransport
 from support.replay import ReplayTransport
 
-from zoho_axi.core.gateway import ZohoGateway
+from zoho_projects_axi.core.gateway import ZohoGateway
 
 SCRIPT = Path(__file__).resolve().parent.parent / "scripts" / "record_fixture.py"
 
@@ -214,7 +214,7 @@ def test_usage_errors_exit_2_and_touch_nothing(tmp_path, argv):
 
 
 def test_missing_credentials_are_fatal_not_an_empty_recording(tmp_path):
-    from zoho_axi.core.config import load_settings
+    from zoho_projects_axi.core.config import load_settings
 
     script = load_script()
     out, err = io.StringIO(), io.StringIO()

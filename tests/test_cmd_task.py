@@ -1,9 +1,9 @@
-"""`zoho-axi task <KEY|ID>` (T08). The seam is the product seam: argv/env in, (exit code, stdout, stderr) out,
+"""`zoho-projects-axi task <KEY|ID>` (T08). The seam is the product seam: argv/env in, (exit code, stdout, stderr) out,
 with Zoho replayed below it from the synthetic fixtures (tests/fixtures/zoho) through the real gateway and
 the real cache (one per test, in tmp_path). Expected outputs are literals or hand-checked goldens under
 tests/golden/task, derived from the T08 ticket's illustrative output, never recomputed from the code.
 
-Request budget (documented in zoho_axi/core/commands/task.py): a numeric id costs 3 cold requests (task,
+Request budget (documented in zoho_projects_axi/core/commands/task.py): a numeric id costs 3 cold requests (task,
 comments, attachments), a key costs 4 (one Search call more) and a warm repeat costs 0.
 """
 import copy
@@ -18,7 +18,7 @@ from support.golden import assert_golden
 from support.replay import ReplayTransport
 from support.tokens import assert_token_budget
 
-from zoho_axi.cli.main import main
+from zoho_projects_axi.cli.main import main
 
 BASE = f"https://projectsapi.zoho.com/api/v3/portal/{PORTAL}/projects/{PROJECT}"
 LEGACY = f"https://projectsapi.zoho.com/restapi/portal/{PORTAL}/projects/{PROJECT}"
@@ -33,9 +33,9 @@ def run(argv, tmp_path, replay=None, *, env_extra=None, today=None):
     env = {
         "HOME": str(tmp_path),
         "ZOHO_MCP_ENV_FILE": str(tmp_path / "none.env"),
-        "ZOHO_AXI_PORTAL_ID": PORTAL,
-        "ZOHO_AXI_PROJECT_ID": PROJECT,
-        "ZOHO_AXI_CLIENT_ID": "cid", "ZOHO_AXI_CLIENT_SECRET": "csecret", "ZOHO_AXI_REFRESH_TOKEN": "rtoken",
+        "ZOHO_PROJECTS_AXI_PORTAL_ID": PORTAL,
+        "ZOHO_PROJECTS_AXI_PROJECT_ID": PROJECT,
+        "ZOHO_PROJECTS_AXI_CLIENT_ID": "cid", "ZOHO_PROJECTS_AXI_CLIENT_SECRET": "csecret", "ZOHO_PROJECTS_AXI_REFRESH_TOKEN": "rtoken",
         **(env_extra or {}),
     }
     gateway = make_gateway(tmp_path, replay if replay is not None else ReplayTransport())
@@ -118,7 +118,7 @@ def test_a_resolved_key_is_memoized_so_the_warm_run_needs_no_request(tmp_path):
 
 def test_fetching_by_id_teaches_the_key_so_a_later_key_lookup_skips_search(tmp_path):
     run(["task", TASK], tmp_path, replay_for(*DEFAULT_SET))
-    expired = {"ZOHO_AXI_TTL_TASK_SECONDS": "0", "ZOHO_AXI_TTL_COMMENT_SECONDS": "0"}  # key memo has the long TTL
+    expired = {"ZOHO_PROJECTS_AXI_TTL_TASK_SECONDS": "0", "ZOHO_PROJECTS_AXI_TTL_COMMENT_SECONDS": "0"}  # key memo has the long TTL
     code, _, _, gateway = run(["task", "DM1-T2"], tmp_path, replay_for(*DEFAULT_SET), env_extra=expired)
     assert code == 0
     assert gateway.request_count == 3  # task, comments, attachments: no search call
@@ -159,7 +159,7 @@ def test_project_flag_changes_where_a_key_is_searched(tmp_path):
 
 
 def test_no_project_configured_is_a_config_error_with_exit_3(tmp_path):
-    code, out, _, _ = run(["task", "DM1-T2"], tmp_path, env_extra={"ZOHO_AXI_PROJECT_ID": ""})
+    code, out, _, _ = run(["task", "DM1-T2"], tmp_path, env_extra={"ZOHO_PROJECTS_AXI_PROJECT_ID": ""})
     assert code == 3
     assert out.splitlines()[0] == "error: config.project_missing"
 
@@ -193,7 +193,7 @@ def test_help_suggests_subtasks_only_when_zoho_says_the_task_has_some(tmp_path):
     code, out, _, _ = run(["task", TASK_PARENT], tmp_path, parent)
     assert code == 0
     assert "subtasks=yes" in out
-    assert out.splitlines()[-2:] == ["help[1]{run}:", "  zoho-axi task DM1-T5 --subtasks"]
+    assert out.splitlines()[-2:] == ["help[1]{run}:", "  zoho-projects-axi task DM1-T5 --subtasks"]
 
 
 def test_json_output_carries_the_same_fields(tmp_path):
@@ -264,7 +264,7 @@ def test_comments_default_to_the_last_three_and_full_shows_all(tmp_path):
     assert [ln.split("Comment number ")[1].split(".")[0] for ln in rows] == ["28", "29", "30"]
     assert "comments[3]{by,at,text}:" in out
     assert "comments (+27 older, --full)" in out
-    assert out.splitlines()[-1] == "  zoho-axi task DM1-T2 --comments --full"
+    assert out.splitlines()[-1] == "  zoho-projects-axi task DM1-T2 --comments --full"
     assert_token_budget(out, BUDGET_COMMENTS, label="task --comments, 30 comments")
 
     code, full, _, _ = run(["task", TASK, "--comments", "--full"], tmp_path / "b", big_task_replay(30))

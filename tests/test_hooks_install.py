@@ -11,9 +11,9 @@ import sys
 import pytest
 from support.safe_home import real_home_is_off_limits  # noqa: F401  (autouse fixture)
 
-from zoho_axi.cli.main import main
+from zoho_projects_axi.cli.main import main
 
-OURS = {"type": "command", "command": "zoho-axi session-start", "timeout": 10}
+OURS = {"type": "command", "command": "zoho-projects-axi session-start", "timeout": 10}
 GROUP = {"matcher": "startup|resume|clear|compact", "hooks": [OURS]}
 
 ORIGINAL = {
@@ -61,8 +61,8 @@ def test_install_without_yes_prints_the_diff_and_changes_nothing(home):
     assert settings_path(home).read_text() == original
     assert not (settings_path(home).parent / "settings.json.bak").exists()
     assert "status: dry run" in out
-    assert "zoho-axi session-start" in out
-    assert "zoho-axi hooks install --yes" in out  # the next step, as a hint
+    assert "zoho-projects-axi session-start" in out
+    assert "zoho-projects-axi hooks install --yes" in out  # the next step, as a hint
 
 
 def test_the_cli_prints_the_diff_as_an_actual_unified_diff_not_toon_rows(home):
@@ -83,7 +83,7 @@ def test_the_cli_prints_the_diff_as_an_actual_unified_diff_not_toon_rows(home):
 +        "hooks": [
 +          {{
 +            "type": "command",
-+            "command": "zoho-axi session-start",
++            "command": "zoho-projects-axi session-start",
 +            "timeout": 10
 +          }}
 +        ]
@@ -95,7 +95,7 @@ def test_the_cli_prints_the_diff_as_an_actual_unified_diff_not_toon_rows(home):
     assert lines[:2] == [f"file: {path}", "status: dry run"]
     assert "\n".join(lines[2:2 + len(expected_diff.splitlines())]) == expected_diff  # verbatim lines, indentation intact
     assert "diff[" not in out and '"' not in lines[2]  # not quoted TOON rows
-    assert lines[-2:] == ["help[1]{run}:", "  zoho-axi hooks install --yes"]  # the next step stays after the diff
+    assert lines[-2:] == ["help[1]{run}:", "  zoho-projects-axi hooks install --yes"]  # the next step stays after the diff
 
 
 def test_json_keeps_the_diff_structured(home):
@@ -104,7 +104,7 @@ def test_json_keeps_the_diff_structured(home):
     doc = json.loads(out)
     assert code == 0 and doc["status"] == "dry run"
     assert doc["diff"][0] == {"text": f"--- {settings_path(home)}"}
-    assert {"text": '+            "command": "zoho-axi session-start",'} in doc["diff"]
+    assert {"text": '+            "command": "zoho-projects-axi session-start",'} in doc["diff"]
 
 
 def test_diff_lines_with_entities_and_tag_like_text_keep_their_indentation(home):
@@ -217,7 +217,7 @@ def test_uninstall_leaves_other_hooks_of_the_user_in_the_same_group(home):
 
 
 def test_an_installed_entry_that_the_user_wrote_by_hand_counts_as_installed(home):
-    doc = {"hooks": {"SessionStart": [{"hooks": [{"type": "command", "command": "/opt/bin/zoho-axi session-start"}]}]}}
+    doc = {"hooks": {"SessionStart": [{"hooks": [{"type": "command", "command": "/opt/bin/zoho-projects-axi session-start"}]}]}}
     original = write_settings(home, doc)
     code, out, _ = run(home, "hooks", "install", "--yes")
     assert code == 0 and "already installed" in out
@@ -311,7 +311,7 @@ def test_the_injected_home_is_used_not_the_process_home(home, real_home_is_off_l
 def test_it_never_prompts_even_with_stdin_closed(tmp_path):
     h = tmp_path / "h"
     (h / ".claude").mkdir(parents=True)
-    exe = os.path.join(os.path.dirname(sys.executable), "zoho-axi")
+    exe = os.path.join(os.path.dirname(sys.executable), "zoho-projects-axi")
     done = subprocess.run(
         ["/bin/sh", "-c", 'exec "$0" "$@" <&-', exe, "hooks", "install"],
         env={"HOME": str(h), "PATH": "/usr/bin:/bin", "ZOHO_MCP_ENV_FILE": str(h / "none.env")},

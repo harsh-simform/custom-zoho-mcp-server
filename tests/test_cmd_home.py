@@ -40,9 +40,9 @@ def test_home_shows_the_project_open_counts_by_status_and_what_is_due(world):
         "  DM1-T2,Fix checkout validation,2026-10-23,Bea Fixture",
         "  DM1-T6,Ship hotfix,2026-10-28,Chidi Anagonye",
         "help[3]{run}:",
-        "  zoho-axi task DM1-T1",
-        "  zoho-axi tasks",
-        "  zoho-axi project",
+        "  zoho-projects-axi task DM1-T1",
+        "  zoho-projects-axi tasks",
+        "  zoho-projects-axi project",
     ])
     assert world.requests(err) == 2  # cold: the project record and one page of tasks
 
@@ -64,7 +64,7 @@ def test_nothing_due_is_an_explicit_empty_state(world):
     _, out, _ = world.run([], replay_of((PR, project_rec()), (f"{PR}/tasks", body, PAGE)))
     assert "counts: open_tasks=1 overdue=0 due_soon=0 open=1" in out
     assert "due: 0 results" in out
-    assert "zoho-axi task " not in out
+    assert "zoho-projects-axi task " not in out
 
 
 def test_more_than_one_page_of_tasks_says_the_counts_are_partial(world):
@@ -87,12 +87,12 @@ def test_the_project_flag_overrides_the_default(world):
 
 
 def test_without_a_default_project_it_lists_projects_and_hints_project_use(tmp_path):
-    w = World(tmp_path, configured=False, ZOHO_AXI_PORTAL_ID="1100")
+    w = World(tmp_path, configured=False, ZOHO_PROJECTS_AXI_PORTAL_ID="1100")
     code, out, _ = w.run([], replay_of((f"{P}/projects", [project_rec(), project_rec("2201", "Mobile App")])))
     assert code == 0
     assert "warnings[1]{message}:" in out and "no default project is set" in out
     assert "projects[2]{id,name,status,portal}:" in out
-    assert "zoho-axi project use 'Demo Website Redesign'" in out
+    assert "zoho-projects-axi project use 'Demo Website Redesign'" in out
 
 
 def test_without_credentials_home_stays_offline_and_points_at_login_help(tmp_path):
@@ -101,7 +101,7 @@ def test_without_credentials_home_stays_offline_and_points_at_login_help(tmp_pat
     code, out, err = w.run([])
     assert code == 0 and w.requests(err) == 0
     assert 'credentials: "missing: client_id, client_secret, refresh_token"' in out
-    assert "zoho-axi auth login-help" in out
+    assert "zoho-projects-axi auth login-help" in out
 
 
 def test_a_missing_project_record_is_not_found_exit_4(world):

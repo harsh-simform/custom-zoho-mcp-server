@@ -3,7 +3,7 @@ Record shapes are invented-but-plausible; the spellings come from the legacy `_f
 from support.factories import API, Clock, make_settings
 from support.replay import ReplayTransport
 
-from zoho_axi.core.gateway import ZohoGateway
+from zoho_projects_axi.core.gateway import ZohoGateway
 
 IDS = {"portal": "11", "project": "22", "task": "33"}
 URL = f"{API}/portal/11/projects/22/tasks/33/attachments"

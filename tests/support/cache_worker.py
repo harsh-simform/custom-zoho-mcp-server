@@ -7,8 +7,8 @@ from pathlib import Path
 from support.factories import API, make_settings
 from support.replay import ReplayTransport
 
-from zoho_axi.core.cache import CachedGateway, CacheStore
-from zoho_axi.core.gateway import ZohoGateway
+from zoho_projects_axi.core.cache import CachedGateway, CacheStore
+from zoho_projects_axi.core.gateway import ZohoGateway
 
 TASKS = 40
 

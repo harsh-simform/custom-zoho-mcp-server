@@ -1,8 +1,8 @@
-"""`zoho-axi bug <KEY|ID>` (T09). Same seam as test_cmd_task.py: argv/env in, (exit code, stdout, stderr) out, Zoho
+"""`zoho-projects-axi bug <KEY|ID>` (T09). Same seam as test_cmd_task.py: argv/env in, (exit code, stdout, stderr) out, Zoho
 replayed below the CLI from the synthetic fixtures (tests/fixtures/zoho) through the real gateway and cache.
 Expected outputs are literals or hand-checked goldens under tests/golden/bug, never recomputed from the code.
 
-Request budget (zoho_axi/core/commands/bug.py): a numeric id costs 3 cold requests (bug, comments, attachments),
+Request budget (zoho_projects_axi/core/commands/bug.py): a numeric id costs 3 cold requests (bug, comments, attachments),
 a key costs 4 (one Search call more), `--task` one more when the bug links a task, a warm repeat costs 0.
 """
 import copy
@@ -17,7 +17,7 @@ from support.golden import assert_golden
 from support.replay import ReplayTransport
 from support.tokens import assert_token_budget
 
-from zoho_axi.cli.main import main
+from zoho_projects_axi.cli.main import main
 
 BASE = f"https://projectsapi.zoho.com/api/v3/portal/{PORTAL}/projects/{PROJECT}"
 LEGACY = f"https://projectsapi.zoho.com/restapi/portal/{PORTAL}/projects/{PROJECT}"
@@ -31,9 +31,9 @@ def run(argv, tmp_path, replay=None, *, env_extra=None, today=None):
     env = {
         "HOME": str(tmp_path),
         "ZOHO_MCP_ENV_FILE": str(tmp_path / "none.env"),
-        "ZOHO_AXI_PORTAL_ID": PORTAL,
-        "ZOHO_AXI_PROJECT_ID": PROJECT,
-        "ZOHO_AXI_CLIENT_ID": "cid", "ZOHO_AXI_CLIENT_SECRET": "csecret", "ZOHO_AXI_REFRESH_TOKEN": "rtoken",
+        "ZOHO_PROJECTS_AXI_PORTAL_ID": PORTAL,
+        "ZOHO_PROJECTS_AXI_PROJECT_ID": PROJECT,
+        "ZOHO_PROJECTS_AXI_CLIENT_ID": "cid", "ZOHO_PROJECTS_AXI_CLIENT_SECRET": "csecret", "ZOHO_PROJECTS_AXI_REFRESH_TOKEN": "rtoken",
         **(env_extra or {}),
     }
     gateway = make_gateway(tmp_path, replay if replay is not None else ReplayTransport())
@@ -97,7 +97,7 @@ def test_a_numeric_bug_id_that_does_not_exist_is_exit_4_too(tmp_path):
 
 def test_fetching_by_id_teaches_the_key_so_a_later_key_lookup_skips_search(tmp_path):
     run(["bug", BUG], tmp_path, replay_for(*DEFAULT_SET))
-    expired = {"ZOHO_AXI_TTL_TASK_SECONDS": "0", "ZOHO_AXI_TTL_COMMENT_SECONDS": "0"}  # key memo has the long TTL
+    expired = {"ZOHO_PROJECTS_AXI_TTL_TASK_SECONDS": "0", "ZOHO_PROJECTS_AXI_TTL_COMMENT_SECONDS": "0"}  # key memo has the long TTL
     code, _, _, gateway = run(["bug", "DM1-I1"], tmp_path, replay_for(*DEFAULT_SET), env_extra=expired)
     assert code == 0
     assert gateway.request_count == 3  # bug, comments, attachments: no search call
@@ -145,7 +145,7 @@ def test_comments_default_to_the_last_three_and_full_shows_all(tmp_path):
     assert code == 0
     assert [ln.split("Comment number ")[1].split(".")[0] for ln in rows] == ["28", "29", "30"]
     assert "comments (+27 older, --full)" in out
-    assert "  zoho-axi bug DM1-I1 --comments --full" in out.splitlines()
+    assert "  zoho-projects-axi bug DM1-I1 --comments --full" in out.splitlines()
     assert_token_budget(out, BUDGET_COMMENTS, label="bug --comments, 30 comments")
 
     code, full, _, _ = run(["bug", BUG, "--comments", "--full"], tmp_path / "b", big_bug_replay(30))
@@ -316,7 +316,7 @@ def test_project_flag_changes_where_a_bug_key_is_searched(tmp_path):
 
 
 def test_no_project_configured_is_a_config_error_with_exit_3(tmp_path):
-    code, out, _, _ = run(["bug", "DM1-I1"], tmp_path, env_extra={"ZOHO_AXI_PROJECT_ID": ""})
+    code, out, _, _ = run(["bug", "DM1-I1"], tmp_path, env_extra={"ZOHO_PROJECTS_AXI_PROJECT_ID": ""})
     assert code == 3
     assert out.splitlines()[0] == "error: config.project_missing"
 

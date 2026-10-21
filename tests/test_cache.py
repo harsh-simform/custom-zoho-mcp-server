@@ -14,10 +14,10 @@ from support import cache_worker
 from support.factories import API, make_settings
 from support.replay import ReplayTransport
 
-from zoho_axi.core.cache import CachedGateway, CacheStore, cache_clear, cache_status
-from zoho_axi.core.errors import NotFoundError, UsageError
-from zoho_axi.core.gateway import ZohoGateway
-from zoho_axi.core.render import render
+from zoho_projects_axi.core.cache import CachedGateway, CacheStore, cache_clear, cache_status
+from zoho_projects_axi.core.errors import NotFoundError, UsageError
+from zoho_projects_axi.core.gateway import ZohoGateway
+from zoho_projects_axi.core.render import render
 
 IDS = {"portal": "11", "project": "22"}
 TASK_URL = f"{API}/portal/11/projects/22/tasks/33"
@@ -77,7 +77,7 @@ def test_ttl_classes_expire_independently(tmp_path):
 def test_a_configured_ttl_overrides_the_default(tmp_path):
     clock = FakeClock()
     replay = ReplayTransport().get(TASK_URL, json=TASK_BODY, repeat=True)
-    cached = build(tmp_path, replay, clock=clock, ZOHO_AXI_TTL_TASK_SECONDS="10")
+    cached = build(tmp_path, replay, clock=clock, ZOHO_PROJECTS_AXI_TTL_TASK_SECONDS="10")
     cached.get("task", task="33", **IDS)
     clock.advance(11)
     cached.get("task", task="33", **IDS)
@@ -369,7 +369,7 @@ def test_two_processes_hammering_one_cache_do_not_corrupt_or_warn(tmp_path):
     assert after.request_count == 0 and not after.warnings
 
 
-# --- `zoho-axi cache status|clear` as plain functions returning a Result --------------------------
+# --- `zoho-projects-axi cache status|clear` as plain functions returning a Result --------------------------
 
 def test_status_reports_entries_and_the_oldest_one(tmp_path):
     clock = FakeClock()  # 1_800_000_000 == 2027-01-15T08:00:00Z
@@ -387,7 +387,7 @@ def test_status_reports_entries_and_the_oldest_one(tmp_path):
     assert result.counts["entries"] == 2
     assert result.counts["users"] == 3
     text = render(result).text
-    assert "entries=2" in text and "oldest: " in text and "zoho-axi cache clear --yes" in text
+    assert "entries=2" in text and "oldest: " in text and "zoho-projects-axi cache clear --yes" in text
 
 
 @pytest.mark.parametrize("odd", ["what?now", "a#b", "100%25 sure", "sp ace&amp=1", "q?mode=rw#x%3f"])

@@ -2,12 +2,12 @@ import os
 
 import pytest
 
-from zoho_axi.core.config import load_settings, resolve_project
-from zoho_axi.core.errors import AuthError, ConfigError
+from zoho_projects_axi.core.config import load_settings, resolve_project
+from zoho_projects_axi.core.errors import AuthError, ConfigError
 
 
 def write_config(tmp_path, text, mode=0o600):
-    path = tmp_path / "xdg" / "zoho-axi" / "config.toml"
+    path = tmp_path / "xdg" / "zoho-projects-axi" / "config.toml"
     path.parent.mkdir(parents=True)
     path.write_text(text)
     os.chmod(path, mode)
@@ -45,7 +45,7 @@ def test_owner_only_permissions_are_silent(tmp_path):
 
 def test_non_numeric_value_for_numeric_setting_is_a_config_error(tmp_path):
     with pytest.raises(ConfigError) as exc:
-        load(tmp_path, env={"ZOHO_AXI_MAX_IMAGES": "lots"})
+        load(tmp_path, env={"ZOHO_PROJECTS_AXI_MAX_IMAGES": "lots"})
     assert exc.value.code == "config.invalid"
     assert "max_images" in exc.value.message
 
@@ -61,7 +61,7 @@ def test_malformed_toml_is_a_config_error_naming_the_file(tmp_path):
 # --- credentials ---
 
 def test_missing_credentials_raise_auth_missing_naming_file_and_keys(tmp_path):
-    s = load(tmp_path, env={"ZOHO_AXI_CLIENT_ID": "id-only"})
+    s = load(tmp_path, env={"ZOHO_PROJECTS_AXI_CLIENT_ID": "id-only"})
     with pytest.raises(AuthError) as exc:
         s.require_credentials()
     err = exc.value
@@ -75,7 +75,7 @@ def test_missing_credentials_raise_auth_missing_naming_file_and_keys(tmp_path):
 
 def test_complete_credentials_are_returned(tmp_path):
     s = load(tmp_path, env={
-        "ZOHO_AXI_CLIENT_ID": "i", "ZOHO_AXI_CLIENT_SECRET": "s", "ZOHO_AXI_REFRESH_TOKEN": "r",
+        "ZOHO_PROJECTS_AXI_CLIENT_ID": "i", "ZOHO_PROJECTS_AXI_CLIENT_SECRET": "s", "ZOHO_PROJECTS_AXI_REFRESH_TOKEN": "r",
     })
     assert s.require_credentials() == ("i", "s", "r")
 
@@ -83,17 +83,17 @@ def test_complete_credentials_are_returned(tmp_path):
 # --- project resolution ---
 
 def test_project_flag_beats_config_default(tmp_path):
-    s = load(tmp_path, env={"ZOHO_AXI_PORTAL_ID": "p1", "ZOHO_AXI_PROJECT_ID": "default"})
+    s = load(tmp_path, env={"ZOHO_PROJECTS_AXI_PORTAL_ID": "p1", "ZOHO_PROJECTS_AXI_PROJECT_ID": "default"})
     assert resolve_project(s, "other") == ("p1", "other")
 
 
 def test_project_flag_can_carry_its_own_portal(tmp_path):
-    s = load(tmp_path, env={"ZOHO_AXI_PORTAL_ID": "p1"})
+    s = load(tmp_path, env={"ZOHO_PROJECTS_AXI_PORTAL_ID": "p1"})
     assert resolve_project(s, "222:pr9") == ("222", "pr9")
 
 
 def test_only_a_numeric_left_part_is_a_portal_id(tmp_path):
-    s = load(tmp_path, env={"ZOHO_AXI_PORTAL_ID": "p1"})
+    s = load(tmp_path, env={"ZOHO_PROJECTS_AXI_PORTAL_ID": "p1"})
     assert resolve_project(s, "2200:77") == ("2200", "77")
     assert resolve_project(s, "Demo: Site") == ("p1", "Demo: Site")
     assert resolve_project(s, "Acme: Web: v2") == ("p1", "Acme: Web: v2")
@@ -101,7 +101,7 @@ def test_only_a_numeric_left_part_is_a_portal_id(tmp_path):
 
 
 def test_config_default_is_used_without_a_flag(tmp_path):
-    s = load(tmp_path, env={"ZOHO_AXI_PORTAL_ID": "p1", "ZOHO_AXI_PROJECT_ID": "pr1"})
+    s = load(tmp_path, env={"ZOHO_PROJECTS_AXI_PORTAL_ID": "p1", "ZOHO_PROJECTS_AXI_PROJECT_ID": "pr1"})
     assert resolve_project(s) == ("p1", "pr1")
 
 
@@ -119,7 +119,7 @@ def test_no_project_anywhere_is_an_error_with_a_hint(tmp_path):
 @pytest.mark.parametrize("bad_dc", ["com.evil.test", "com/x#", "ca", "COM"])
 def test_unknown_data_center_is_rejected_so_credentials_cannot_go_to_arbitrary_hosts(tmp_path, bad_dc):
     with pytest.raises(ConfigError) as exc:
-        load(tmp_path, env={"ZOHO_AXI_DC": bad_dc})
+        load(tmp_path, env={"ZOHO_PROJECTS_AXI_DC": bad_dc})
     assert exc.value.code == "config.invalid"
     assert "dc" in exc.value.message
     assert "eu" in exc.value.hint  # the allowed values are listed
@@ -156,7 +156,7 @@ def test_zero_is_allowed_where_it_means_off(tmp_path):
 
 
 def test_default_legacy_dotenv_is_only_read_from_a_source_checkout(tmp_path, monkeypatch):
-    import zoho_axi.core.config as config
+    import zoho_projects_axi.core.config as config
 
     fake_root = tmp_path / "site-packages-parent"
     fake_root.mkdir()

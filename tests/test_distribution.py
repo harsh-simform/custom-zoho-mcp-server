@@ -1,7 +1,7 @@
 """T15: the packaging metadata and the docs cannot drift from the code.
 
 README.md and CHANGELOG.md are checked against what exists: every registered CLI command is documented, every
-`zoho-axi ...` line in a README code block parses against the real registry (the "link check" of the README's
+`zoho-projects-axi ...` line in a README code block parses against the real registry (the "link check" of the README's
 commands), the measured numbers it quotes are re-measured here, and the removed MCP tools are not mentioned.
 """
 import importlib
@@ -13,11 +13,11 @@ from pathlib import Path
 import pytest
 from test_mcp_server import list_tools
 
-from zoho_axi.cli.parser import parse
-from zoho_axi.cli.registry import GLOBAL_FLAGS, REGISTRY
-from zoho_axi.core.config import VALID_DATA_CENTERS, _SPEC
-from zoho_axi.core.errors import ZohoAxiError
-from zoho_axi.mcp_server.server import TOOLS
+from zoho_projects_axi.cli.parser import parse
+from zoho_projects_axi.cli.registry import GLOBAL_FLAGS, REGISTRY
+from zoho_projects_axi.core.config import VALID_DATA_CENTERS, _SPEC
+from zoho_projects_axi.core.errors import ZohoAxiError
+from zoho_projects_axi.mcp_server.server import TOOLS
 
 try:
     import tomllib
@@ -53,22 +53,23 @@ def test_python_floor_and_the_tomli_fallback_for_python_3_10():
     assert any(d.startswith("pytest") for d in project["optional-dependencies"]["dev"])
 
 
-@pytest.mark.parametrize("script", ["zoho-axi", "zoho"])
+@pytest.mark.parametrize("script", ["zoho-projects-axi", "zoho"])
 def test_every_console_script_points_at_a_real_callable(script):
     module, _, attr = PYPROJECT["project"]["scripts"][script].partition(":")
     assert callable(getattr(importlib.import_module(module), attr))
 
 
-def test_the_canonical_entry_is_zoho_axi_and_no_legacy_script_remains():
+def test_the_canonical_entry_is_zoho_projects_axi_and_no_legacy_script_remains():
     scripts = PYPROJECT["project"]["scripts"]
-    assert scripts["zoho-axi"] == "zoho_axi.cli.main:console_main"
-    assert set(scripts) == {"zoho-axi", "zoho"}
+    assert scripts["zoho-projects-axi"] == "zoho_projects_axi.cli.main:console_main"
+    assert scripts["zoho-axi"] == scripts["zoho"] == scripts["zoho-projects-axi"]  # zoho-axi: the pre-rename name
+    assert set(scripts) == {"zoho-projects-axi", "zoho", "zoho-axi"}
     assert not (ROOT / "zoho_mcp").exists()
 
 
 def test_the_skill_is_packaged():
-    assert PYPROJECT["tool"]["setuptools"]["package-data"]["zoho_axi"] == ["skills/*/SKILL.md"]
-    assert (ROOT / "zoho_axi" / "skills" / "zoho-axi" / "SKILL.md").is_file()
+    assert PYPROJECT["tool"]["setuptools"]["package-data"]["zoho_projects_axi"] == ["skills/*/SKILL.md"]
+    assert (ROOT / "zoho_projects_axi" / "skills" / "zoho-projects-axi" / "SKILL.md").is_file()
 
 
 # --- README: nothing stale ---------------------------------------------------------------------------------
@@ -89,7 +90,7 @@ def test_the_changelog_names_every_removed_tool():
 
 @pytest.mark.parametrize("spec", REGISTRY, ids=lambda s: s.name)
 def test_every_registered_command_is_in_the_readme_quick_reference(spec):
-    assert f"zoho-axi {spec.name}" in README
+    assert f"zoho-projects-axi {spec.name}" in README
 
 
 def test_every_global_flag_and_data_center_is_in_the_readme():
@@ -106,14 +107,14 @@ def test_every_setting_is_named_in_the_readme_or_the_example_it_points_at():
 
 
 def readme_commands():
-    """Every `zoho-axi ...` command the README shows: lines of fenced blocks and inline `code` spans. Lines with a
+    """Every `zoho-projects-axi ...` command the README shows: lines of fenced blocks and inline `code` spans. Lines with a
     pipe or a `<placeholder>` are templates, not runnable examples."""
     candidates = []
-    for block in re.findall(r"```(?:bash|sh|console)?\n(.*?)```", README, re.S):
+    for block in re.findall(r"```[a-z]*\n(.*?)```", README, re.S):
         candidates += [line.strip().removeprefix("$ ") for line in block.splitlines()]
-    candidates += re.findall(r"`(zoho-axi[^`]*)`", README)
+    candidates += re.findall(r"`(zoho-projects-axi[^`]*)`", README)
     for line in candidates:
-        if line.startswith("zoho-axi") and "|" not in line and "<" not in line:
+        if line.startswith("zoho-projects-axi") and "|" not in line and "<" not in line:
             yield line
 
 
@@ -122,7 +123,7 @@ def test_the_readme_has_a_real_set_of_runnable_command_examples():
 
 
 @pytest.mark.parametrize("line", sorted(set(readme_commands())))
-def test_every_zoho_axi_command_line_in_the_readme_parses_against_the_registry(line):
+def test_every_zoho_projects_axi_command_line_in_the_readme_parses_against_the_registry(line):
     argv = shlex.split(line)[1:]
     try:
         inv = parse(argv, REGISTRY)
@@ -149,7 +150,7 @@ def test_the_readme_sources_every_budget_it_quotes():
 def test_the_readme_documents_the_operational_topics():
     for needle in ("uv tool install git+", "pipx install git+", "claude mcp add --scope user",
                    "claude_desktop_config.json", "hooks install --yes", "skill install --yes",
-                   "cache clear --yes", "ZOHO_AXI_LIVE=1", "scripts/record_fixture.py", "chmod 600",
+                   "cache clear --yes", "ZOHO_PROJECTS_AXI_LIVE=1", "scripts/record_fixture.py", "chmod 600",
                    "project use", "rate_limited", "login-help"):
         assert needle in README, needle
 

@@ -11,9 +11,9 @@ from pathlib import Path
 
 import pytest
 
-from zoho_axi.core.errors import AuthError, ConfigError, UpstreamError, UsageError, ZohoAxiError
-from zoho_axi.core.render import render, render_error
-from zoho_axi.core.result import Hint, Result, Truncation
+from zoho_projects_axi.core.errors import AuthError, ConfigError, UpstreamError, UsageError, ZohoAxiError
+from zoho_projects_axi.core.render import render, render_error
+from zoho_projects_axi.core.result import Hint, Result, Truncation
 
 GOLDEN = Path(__file__).parent / "golden" / "render"
 
@@ -213,8 +213,8 @@ def test_cli_hints_are_copy_pasteable_commands():
     assert render(result, mode="cli").text == (
         "tasks: 0 results\n"
         "help[2]{run}:\n"
-        "  zoho-axi tasks --status 'In Progress' --limit 5\n"
-        "  zoho-axi task PROJ1-T1 --max-comments 3"
+        "  zoho-projects-axi tasks --status 'In Progress' --limit 5\n"
+        "  zoho-projects-axi task PROJ1-T1 --max-comments 3"
     )
 
 
@@ -253,9 +253,9 @@ def test_json_detail_is_the_same_information_as_the_toon_golden():
             {"by": "Ravi P", "at": "2026-10-19", "text": "Cleared the cookie jar and it still loops"},
         ],
         "help": [
-            "zoho-axi task PROJ1-T1000 --comments --full",
-            "zoho-axi task PROJ1-T1000 --history",
-            "zoho-axi task PROJ1-T1000 --images",
+            "zoho-projects-axi task PROJ1-T1000 --comments --full",
+            "zoho-projects-axi task PROJ1-T1000 --history",
+            "zoho-projects-axi task PROJ1-T1000 --images",
         ],
     }
 
@@ -263,7 +263,7 @@ def test_json_detail_is_the_same_information_as_the_toon_golden():
 def test_json_empty_list_and_truncated_text_keep_their_signals():
     empty = json.loads(render(Result(entity="task", payload=[], help=[Hint("tasks", {"status": "all"})]),
                               fmt="json").text)
-    assert empty == {"tasks": [], "help": ["zoho-axi tasks --status all"]}
+    assert empty == {"tasks": [], "help": ["zoho-projects-axi tasks --status all"]}
     cut = json.loads(render(minimal_task("a" * 1501), fmt="json", mode="mcp").text)
     assert cut["description"] == "a" * 1500 + " ... (+1 chars, full=true)"
 
@@ -300,10 +300,10 @@ def test_toon_and_json_carry_the_same_information(result, full):
 
 
 def test_json_error_has_the_same_fields_and_exit_code():
-    exc = _NotFound("not_found.task", "no such task", "try zoho-axi tasks")
+    exc = _NotFound("not_found.task", "no such task", "try zoho-projects-axi tasks")
     out = render_error(exc, fmt="json")
     assert json.loads(out.text) == {"error": "not_found.task", "message": "no such task",
-                                    "hint": "try zoho-axi tasks"}
+                                    "hint": "try zoho-projects-axi tasks"}
     assert out.exit_code == 4
 
 
@@ -330,7 +330,7 @@ def test_error_is_structured_toon_with_code_message_and_hint():
     exc = _NotFound(
         "not_found.task",
         "Task PROJ1-T9999 was not found in project PROJ1",
-        "Check the key, or run zoho-axi tasks to list tasks",
+        "Check the key, or run zoho-projects-axi tasks to list tasks",
     )
     out = render_error(exc)
     assert out.text == golden("error.txt")

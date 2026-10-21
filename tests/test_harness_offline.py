@@ -21,7 +21,7 @@ def test_zoho_environment_variables_are_removed_for_every_test():
 def test_live_marked_tests_are_skipped_unless_the_switch_is_on(pytester, monkeypatch):
     tests_dir = Path(__file__).parent
     monkeypatch.setenv("PYTHONPATH", str(tests_dir))
-    monkeypatch.delenv("ZOHO_AXI_LIVE", raising=False)
+    monkeypatch.delenv("ZOHO_PROJECTS_AXI_LIVE", raising=False)
     pytester.makeconftest((tests_dir / "conftest.py").read_text(encoding="utf-8"))
     pytester.makepyfile(
         test_sample="""
@@ -33,5 +33,5 @@ def test_live_marked_tests_are_skipped_unless_the_switch_is_on(pytester, monkeyp
         """
     )
     pytester.runpytest_subprocess().assert_outcomes(skipped=1)
-    monkeypatch.setenv("ZOHO_AXI_LIVE", "1")
+    monkeypatch.setenv("ZOHO_PROJECTS_AXI_LIVE", "1")
     pytester.runpytest_subprocess().assert_outcomes(passed=1)

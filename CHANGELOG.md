@@ -2,9 +2,27 @@
 
 ## [Unreleased]
 
+### Changed: renamed to zoho-projects-axi
+
+- The distribution, the command (`zoho-projects-axi`), the Python package (`zoho_projects_axi`), the MCP server name,
+  the config and cache directories (`~/.config/zoho-projects-axi`, `~/.cache/zoho-projects-axi`), the skill directory
+  and the environment prefix (`ZOHO_PROJECTS_AXI_*`) all dropped the old `zoho-axi` name.
+- Compatibility, deprecated and slated for removal: the `zoho-axi` script, `ZOHO_AXI_*` variables (below
+  `ZOHO_PROJECTS_AXI_*` and the config file in precedence) and a config at `~/.config/zoho-axi/` are still read, with a
+  warning; an old `zoho-axi session-start` hook is still recognized by `hooks install` / `hooks uninstall`.
+  Entries below this one name the commands as they were called at the time.
+
 ### Added
 
-- **`zoho-axi auth login`: browser sign-in.** Runs the OAuth authorization-code flow with PKCE and a loopback
+- **Two Claude Code plugins in one marketplace** (`/plugin marketplace add harsh-simform/zoho-projects-axi`):
+  `zoho-projects-axi-skill` (skill, `zoho-projects-axi` on the Bash PATH, SessionStart hook) and
+  `zoho-projects-axi-mcp` (the MCP server). Both run the tool through `uvx`, so nothing is installed by hand, and both
+  add a `login` command.
+- **A bundled OAuth client slot** (`zoho_projects_axi/core/bundled_client.py`): when the project's Zoho client id and secret are
+  filled in, `auth login` needs no registration. `client_id` / `client_secret` from the config or environment win.
+- `auth login` follows an account in another data center: the callback's `location` selects the token endpoint
+  (from the `dc` allowlist only) and the discovered `dc` is saved to the config.
+- **`zoho-projects-axi auth login`: browser sign-in.** Runs the OAuth authorization-code flow with PKCE and a loopback
   redirect (`http://localhost:8765/callback`, `--port N` to change, `--no-browser` to only print the URL), checks
   `state`, and saves the `refresh_token` into the config file without disturbing its comments or mode. Requests
   read scopes only. Replaces the manual Self Client code exchange; a one-time client registration (id and
