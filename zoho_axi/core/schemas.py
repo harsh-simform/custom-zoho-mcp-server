@@ -41,7 +41,7 @@ SCHEMAS: dict[str, Schema] = {s.name: s for s in (
         text_fields=("description",),
         id_field="key",
         sections={"comments": "comment", "history": "history", "subtasks": "task",
-                  "attachments": "attachment"},
+                  "attachments": "attachment", "images": "image"},
     ),
     Schema(
         "bug", "bugs",
@@ -49,12 +49,13 @@ SCHEMAS: dict[str, Schema] = {s.name: s for s in (
         detail_fields=("title", "status", "severity", "owner", "reporter", "module", "created", "due", "task"),
         text_fields=("description",),
         id_field="key",
-        sections={"comments": "comment", "attachments": "attachment", "linked_task": "task"},
+        sections={"comments": "comment", "attachments": "attachment", "images": "image", "linked_task": "task"},
         text_limit=1000,  # the bug default view has a 500-token budget (T09)
     ),
     Schema("comment", "comments", list_fields=("by", "at", "text")),
     Schema("history", "history", list_fields=("at", "by", "from", "to")),
     Schema("attachment", "attachments", list_fields=("name", "type", "size")),
+    Schema("image", "images", list_fields=("name", "bytes", "path")),  # `--images` (T12): files written to disk
     Schema(
         "project", "projects",
         list_fields=("id", "name", "status", "portal"),
