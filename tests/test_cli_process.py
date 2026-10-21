@@ -42,6 +42,8 @@ def test_every_wired_command_runs_with_stdin_closed(tmp_path):
     from zoho_axi.cli.registry import REGISTRY
 
     for spec in REGISTRY:
+        if spec.serve:  # `mcp` is a blocking stdio server, not a command; tests/test_mcp_command.py runs it for real
+            continue
         args = [*spec.name.split(), "--offline"] if spec.name == "auth status" else spec.name.split()
         done = run_installed("zoho-axi", args, tmp_path)
         expected = EXPECTED_WITHOUT_CONFIG.get(spec.name, 0)

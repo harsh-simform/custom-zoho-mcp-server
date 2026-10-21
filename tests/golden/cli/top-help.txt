@@ -18,6 +18,7 @@ commands:
   hooks install    add the SessionStart hook to ~/.claude/settings.json (shows the diff; --yes applies)
   hooks uninstall  remove the SessionStart hook again (shows the diff; --yes applies)
   skill install    copy the zoho-axi skill to ~/.claude/skills/zoho-axi/ (shows the change; --yes applies)
+  mcp              run the MCP server over stdio (launched by an MCP client, not for a terminal)
 global flags:
   --project P  project to use: PROJECT or PORTAL:PROJECT (default: config)
   --fresh      bypass the cache

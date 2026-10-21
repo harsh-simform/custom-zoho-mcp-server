@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from ..core.commands import auth, bug, cache, home, hooks, people, project, resolve, session, skill, task, tasks
+from ..core.commands import auth, bug, cache, home, hooks, people, project, resolve, serve, session, skill, task, tasks
 from ..core.commands.base import Command
 
 
@@ -40,6 +40,7 @@ class Spec:
     args: tuple[Arg, ...] = ()
     flags: tuple[Flag, ...] = ()
     hook: bool = False  # a Claude Code hook entrypoint: plain output, never an error, always exit 0 (see cli/main.py)
+    serve: bool = False  # `zoho-axi mcp`: hands the process to the blocking stdio MCP server (see cli/main.py)
     stdin: bool = False  # may read standard input (when its text argument is `-`); only such a command is given stdin
 
 
@@ -121,4 +122,7 @@ REGISTRY: tuple[Spec, ...] = (
     Spec("skill install", "copy the zoho-axi skill to ~/.claude/skills/zoho-axi/ (shows the change; --yes applies)",
          skill.install, flags=(Flag("--yes", "apply the change (without it nothing is written)"),),
          examples=("zoho-axi skill install", "zoho-axi skill install --yes")),
+    Spec("mcp", "run the MCP server over stdio (launched by an MCP client, not for a terminal)",
+         serve.mcp, serve=True,
+         examples=("zoho-axi mcp", "claude mcp add --scope user zoho -- zoho-axi mcp")),
 )
