@@ -19,6 +19,7 @@ class Resource:
     many: bool = False  # collection (list of entities) or a single entity
     keys: tuple[str, ...] = ()  # keys a response may wrap its list under
     aliases: Mapping[str, tuple[str, ...]] = field(default_factory=dict)  # canonical field -> fallback spellings
+    lift: Mapping[str, Mapping[str, str]] = field(default_factory=dict)  # nested object -> {inner key: canonical field}
 
     @property
     def id_names(self) -> frozenset[str]:
@@ -36,9 +37,15 @@ _PR = "/portal/{portal}/projects/{project}"
 # context_builders `_first` helper; the first non-empty spelling wins, in this order.
 _ATTACHMENT_ALIASES = {
     "file_name": ("filename", "name"),
-    "content_type": ("mime_type", "type"),
-    "download_url": ("url", "link", "file_url"),
+    "content_type": ("mime_type", "file_type", "type"),
+    "download_url": ("url", "link", "file_url", "file_uri"),
+    "size": ("file_size",),
 }
+# v3 issue attachments nest name/type/size under `file_info`; a top-level spelling still wins.
+_ATTACHMENT_LIFT = {"file_info": {"name": "file_name", "type": "content_type", "size": "size"}}
+# Task comment text is `comment` in v3 and `content` in the legacy API (bug comments use `comment` in both).
+_COMMENT_ALIASES = {"comment": ("content",)}
+_ATTACHMENT_KEYS = ("attachments", "attachment", "attachment_details")
 
 RESOURCES: dict[str, Resource] = {
     "portals": Resource("/portals", many=True, keys=("portals",)),
@@ -55,21 +62,23 @@ RESOURCES: dict[str, Resource] = {
     "tasks": Resource(f"{_PR}/tasks", many=True, keys=("tasks",)),
     "task": Resource(f"{_PR}/tasks/{{task}}", keys=("tasks",)),
     "task_comments": Resource(
-        f"{_PR}/tasks/{{task}}/comments", f"{_PR}/tasks/{{task}}/comments/", many=True, keys=("comments",)
+        f"{_PR}/tasks/{{task}}/comments", f"{_PR}/tasks/{{task}}/comments/", many=True, keys=("comments",),
+        aliases=_COMMENT_ALIASES,
     ),
     "task_attachments": Resource(
         f"{_PR}/tasks/{{task}}/attachments", f"{_PR}/tasks/{{task}}/attachments/", many=True,
-        keys=("attachments", "attachment"), aliases=_ATTACHMENT_ALIASES,
+        keys=_ATTACHMENT_KEYS, aliases=_ATTACHMENT_ALIASES, lift=_ATTACHMENT_LIFT,
     ),
     # Ignores task scoping server-side: callers filter by task id themselves.
     "task_status_history": Resource(f"{_PR}/taskstatushistory", many=True, keys=("task_status_history", "history")),
     "bug": Resource(f"{_PR}/bugs/{{bug}}", keys=("bugs",)),
     "bug_comments": Resource(
-        f"{_PR}/bugs/{{bug}}/comments", f"{_PR}/bugs/{{bug}}/comments/", many=True, keys=("comments",)
+        f"{_PR}/bugs/{{bug}}/comments", f"{_PR}/bugs/{{bug}}/comments/", many=True, keys=("comments",),
+        aliases=_COMMENT_ALIASES,
     ),
     "bug_attachments": Resource(
         f"{_PR}/bugs/{{bug}}/attachments", f"{_PR}/bugs/{{bug}}/attachments/", many=True,
-        keys=("attachments", "attachment"), aliases=_ATTACHMENT_ALIASES,
+        keys=_ATTACHMENT_KEYS, aliases=_ATTACHMENT_ALIASES, lift=_ATTACHMENT_LIFT,
     ),
 }
 
@@ -87,8 +96,13 @@ def _snake(key: str) -> str:
     return _CAMEL_BOUNDARY.sub("_", key).lower()
 
 
-def normalize_record(record: Mapping[str, Any], aliases: Mapping[str, tuple[str, ...]] | None = None) -> dict:
-    """Top-level keys to lower snake_case (FILENAME -> filename, downloadUrl -> download_url), then
+def normalize_record(
+    record: Mapping[str, Any],
+    aliases: Mapping[str, tuple[str, ...]] | None = None,
+    lift: Mapping[str, Mapping[str, str]] | None = None,
+) -> dict:
+    """Top-level keys to lower snake_case (FILENAME -> filename, downloadUrl -> download_url), nested
+    objects named in `lift` surrender fields to the top level (only where it has no value yet), then
     each canonical field takes the first non-empty of its spellings and the spellings are dropped.
     `id` is always a string (Zoho mixes numbers and strings). Nested values are left alone."""
     out: dict[str, Any] = {}
@@ -96,6 +110,12 @@ def normalize_record(record: Mapping[str, Any], aliases: Mapping[str, tuple[str,
         name = _snake(str(key))
         if name not in out or (not out[name] and value):
             out[name] = value
+    for nested, mapping in (lift or {}).items():
+        inner = out.get(nested)
+        if isinstance(inner, Mapping):
+            for inner_key, canonical in mapping.items():
+                if inner.get(inner_key) and not out.get(canonical):
+                    out[canonical] = inner[inner_key]
     for canonical, fallbacks in (aliases or {}).items():
         spellings = (canonical, *fallbacks)
         chosen = next((out[s] for s in spellings if out.get(s)), out.get(canonical))
@@ -123,7 +143,7 @@ def normalize(resource: Resource, payload: Any) -> Any:
     collection resource, or one record (possibly empty) for a single-entity resource."""
     if resource.many:
         page = Page(
-            normalize_record(r, resource.aliases) for r in _records(payload, resource.keys) if isinstance(r, dict)
+            normalize_record(r, resource.aliases, resource.lift) for r in _records(payload, resource.keys) if isinstance(r, dict)
         )
         info = payload.get("page_info") if isinstance(payload, dict) else None
         flag = info.get("has_next_page") if isinstance(info, dict) else None
@@ -134,9 +154,9 @@ def normalize(resource: Resource, payload: Any) -> Any:
         wrapped = next((payload[k] for k in resource.keys if isinstance(payload.get(k), list)), None)
         if wrapped is not None:
             first = next((r for r in wrapped if isinstance(r, dict)), {})
-            return normalize_record(first, resource.aliases)
-        return normalize_record(payload, resource.aliases)
+            return normalize_record(first, resource.aliases, resource.lift)
+        return normalize_record(payload, resource.aliases, resource.lift)
     if isinstance(payload, list):
         first = next((r for r in payload if isinstance(r, dict)), {})
-        return normalize_record(first, resource.aliases)
+        return normalize_record(first, resource.aliases, resource.lift)
     return {}

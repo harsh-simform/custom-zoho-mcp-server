@@ -138,20 +138,12 @@ def test_the_bug_attachments_fallback_sequence_is_v3_404_then_legacy(tmp_path):
         f"{API}{PB}/bugs/{BUG}/attachments", f"{LEGACY}{PB}/bugs/{BUG}/attachments/"]
 
 
-# Known gaps the research notes found between Zoho's documented shapes and the T02 gateway's resource
-# table. They are strict xfails: when the gateway learns these shapes the test flips to XPASS and fails,
-# which is the cue to delete the marker.
-GATEWAY_GAP = "gateway does not normalize this documented Zoho shape yet (zoho_axi/core/resources.py)"
-
-
-@pytest.mark.xfail(strict=True, reason=GATEWAY_GAP + ": legacy bug attachments wrap the list in `attachment_details`")
 def test_legacy_bug_attachment_details_wrapper_is_unwrapped(tmp_path):
     records = make_gateway(tmp_path, replay_for("bug_attachments/v3_404_legacy_attachment_details")).get(
         "bug_attachments", bug=BUG, **IDS)
     assert [r["file_name"] for r in records] == ["checkout-500.png", "SessionValidation.java"]
 
 
-@pytest.mark.xfail(strict=True, reason=GATEWAY_GAP + ": v3 bug attachments nest name and type under `file_info`")
 def test_v3_bug_attachment_name_and_type_are_lifted_out_of_file_info(tmp_path):
     records = make_gateway(tmp_path, replay_for("bug_attachments/v3_nested_file_info")).get(
         "bug_attachments", bug=BUG, **IDS)

@@ -49,3 +49,40 @@ def test_attachment_lists_may_be_wrapped_under_any_known_key_or_bare(tmp_path):
         replay = ReplayTransport().get(URL, json=body)
         gateway = ZohoGateway(make_settings(tmp_path), transport=replay, token_provider=lambda: "t")
         assert gateway.get("task_attachments", **IDS) == [{"file_name": "x"}]
+
+
+# --- shapes found by the T04 research (v3 `file_info` nesting, legacy file_* spellings) and T08 ------
+
+
+def test_v3_file_info_nesting_is_lifted_to_the_canonical_fields(tmp_path):
+    [record] = attachments(tmp_path, [{
+        "id": "9", "download_url": "https://download.zoho.com/v1/workdrive/download/x",
+        "file_info": {"name": "a.png", "type": "image/png", "size": "2048", "id": "wd1"},
+    }])
+    assert (record["file_name"], record["content_type"], record["size"]) == ("a.png", "image/png", "2048")
+
+
+def test_a_top_level_spelling_wins_over_the_nested_one(tmp_path):
+    [record] = attachments(tmp_path, [{"file_name": "top.png", "file_info": {"name": "nested.png"}}])
+    assert record["file_name"] == "top.png"
+
+
+def test_legacy_lower_case_file_spellings_collapse_to_the_canonical_fields(tmp_path):
+    [record] = attachments(tmp_path, [
+        {"file_name": "b.java", "file_type": "text/x-java", "file_size": 3618, "file_uri": "https://projects.zoho.com/f/1"}
+    ])
+    assert record == {"file_name": "b.java", "content_type": "text/x-java", "size": 3618,
+                      "download_url": "https://projects.zoho.com/f/1"}
+
+
+def test_legacy_attachment_details_wrapper_is_unwrapped(tmp_path):
+    replay = ReplayTransport().get(URL, json={"attachment_details": [{"file_name": "x"}]})
+    gateway = ZohoGateway(make_settings(tmp_path), transport=replay, token_provider=lambda: "t")
+    assert gateway.get("task_attachments", **IDS) == [{"file_name": "x"}]
+
+
+def test_task_and_bug_comment_text_is_always_called_comment(tmp_path):
+    body = {"comments": [{"content": "legacy task text"}, {"comment": "v3 text"}, {"comment": "wins", "content": "x"}]}
+    replay = ReplayTransport().get(f"{API}/portal/11/projects/22/tasks/33/comments", json=body)
+    gateway = ZohoGateway(make_settings(tmp_path), transport=replay, token_provider=lambda: "t")
+    assert [c["comment"] for c in gateway.get("task_comments", **IDS)] == ["legacy task text", "v3 text", "wins"]
