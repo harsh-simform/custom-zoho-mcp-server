@@ -24,9 +24,9 @@ The default suite is offline and credential-free: `conftest.py` blocks every non
   or `recorded` (a real, sanitized recording). There is no Zoho access in this repo's CI or dev setup, so the
   committed set is synthetic: bodies follow the documented shapes, values are made up, and the sanitizer
   pipeline was applied so ids are the canonical fakes. Replace a file with a real recording when you can.
-- **Known gaps** found while building the set (strict xfails in `test_harness_fixtures.py`): the gateway does
-  not yet unwrap legacy `attachment_details` or lift v3 `file_info` name/type, and its search resource does
-  not know the documented legacy bug-hit wrapper `issue`. The v3 docs call bugs `issues` and milestones
+- **Known gaps** found while building the set (strict xfails in `test_harness_fixtures.py`): the gateway's
+  search resource does not know the documented legacy bug-hit wrapper `issue` (the attachment shapes
+  `attachment_details` and `file_info` were closed by T08). The v3 docs call bugs `issues` and milestones
   `phases`; the gateway keeps the legacy-proven `/bugs` and `/milestones` paths and the fixtures follow it.
 
 ## Recording real fixtures (dev-only, read-only)

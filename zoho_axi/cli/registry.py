@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from ..core.commands import auth, cache, home, hooks, people, project, session, skill, tasks
+from ..core.commands import auth, cache, home, hooks, people, project, session, skill, task, tasks
 from ..core.commands.base import Command
 
 
@@ -83,6 +83,13 @@ REGISTRY: tuple[Spec, ...] = (
              Flag("--page", "Zoho page of 100 tasks (default 1)", metavar="N"),
          ),
          examples=("zoho-axi tasks --status open --owner asha", "zoho-axi tasks --tasklist Auth --limit 50")),
+    Spec("task", "one task: status, owner, counts; add slices for comments, history, subtasks, attachments", task.task,
+         args=(Arg("ref", "task key (PROJ1-T1000) or numeric id"),),
+         flags=(Flag("--comments", "show the last 3 comments (--full: all)"),
+                Flag("--history", "show the task's status changes"),
+                Flag("--subtasks", "list subtasks (unverified: Zoho cannot filter by parent)"),
+                Flag("--attachments", "list attachment names, types and sizes")),
+         examples=("zoho-axi task PROJ1-T1000", "zoho-axi task 4000000012345 --comments --full")),
     Spec("cache status", "cache size, entry counts and the oldest entry", cache.status,
          examples=("zoho-axi cache status", "zoho-axi cache status --json")),
     Spec("cache clear", "delete the cache and derived index (needs --yes; never prompts)", cache.clear,

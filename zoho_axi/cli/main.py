@@ -93,7 +93,7 @@ def main(
         if inv.spec is not None and inv.spec.hook:  # reached with a global flag in front (`--json session-start`)
             return _run_hook(inv.spec, env, stdout, gateway, today)
         fmt = "json" if inv.json else "toon"
-        ctx = Context(load_settings(env), inv.params or {}, project=inv.project, fresh=inv.fresh,
+        ctx = Context(load_settings(env), inv.params or {}, project=inv.project, fresh=inv.fresh, full=inv.full,
                       _gateway=gateway, env=env, today=today)
         assert inv.spec is not None  # only top-level help has no spec, and it returned above
         result = inv.spec.run(ctx)

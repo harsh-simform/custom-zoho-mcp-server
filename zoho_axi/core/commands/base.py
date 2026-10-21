@@ -26,6 +26,7 @@ class Context:
     params: Mapping[str, Any] = field(default_factory=dict)  # the command's own arguments and flags
     project: str | None = None  # --project / `project` arg; None means "the configured default"
     fresh: bool = False  # bypass cache reads (the response is still stored)
+    full: bool = False  # --full: the renderer shows every field untruncated; commands lift their row caps
     _gateway: "ZohoGateway | None" = field(default=None, repr=False)
     env: Mapping[str, str] | None = field(default=None, repr=False)  # locates the cache file; None = os.environ
     today: date | None = None  # "today" for due-date logic; None = the current UTC date (tests pin it)
