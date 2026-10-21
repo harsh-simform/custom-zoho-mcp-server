@@ -69,5 +69,5 @@ tally; that is a cached snapshot, so run `zoho-axi` for live numbers.
 
 ## Not configured?
 
-If a command says credentials are missing, run `zoho-axi auth login-help` and relay the steps to the user.
+If a command says credentials are missing, run `zoho-axi auth login-help` and relay the steps to the user. If only the refresh token is missing or invalid, tell the user to run `zoho-axi auth login` (it opens their browser; do not run it for them unless asked).
 Never ask the user to paste secrets into the chat.

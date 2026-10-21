@@ -43,6 +43,9 @@ class Context:
     # `ImageFile`s are appended here for the front-end to return inline; None (the CLI) saves files and lists paths.
     image_sink: "list[ImageFile] | None" = field(default=None, repr=False)
 
+    # Progress lines for the person at the terminal (the sign-in URL); the CLI wires stderr. None = say nothing.
+    notify: Callable[[str], None] | None = field(default=None, repr=False)
+
     @property
     def gateway(self) -> "ZohoGateway":
         """One gateway per invocation, created on first use so commands that stay offline never build it."""

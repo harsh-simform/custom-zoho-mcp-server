@@ -1,5 +1,15 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- **`zoho-axi auth login`: browser sign-in.** Runs the OAuth authorization-code flow with PKCE and a loopback
+  redirect (`http://localhost:8765/callback`, `--port N` to change, `--no-browser` to only print the URL), checks
+  `state`, and saves the `refresh_token` into the config file without disturbing its comments or mode. Requests
+  read scopes only. Replaces the manual Self Client code exchange; a one-time client registration (id and
+  secret) in the Zoho API console is still needed because Zoho has no dynamic client registration.
+
 ## [0.2.0] - 2026-10-21
 
 0.2.0 is a rewrite around a shared command layer. The new `zoho-axi` CLI and the MCP server run the same

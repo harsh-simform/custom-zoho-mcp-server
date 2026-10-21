@@ -71,24 +71,10 @@ For development, clone the repo and run `uv venv venv && uv pip install --python
 All settings live in one TOML file, `~/.config/zoho-axi/config.toml` (or `$XDG_CONFIG_HOME/zoho-axi/config.toml`).
 [`config.example.toml`](config.example.toml) lists every setting, commented, with its default.
 
-1. Create a Zoho **Self Client** at <https://api-console.zoho.com> (use `.eu`, `.in`, `.com.au` or `.jp` for your
-   data center). `zoho-axi auth login-help` prints these steps with your data center filled in.
-2. Request read scopes: `ZohoProjects.<module>.READ` for portals, projects, tasks, tasklists, milestones, bugs,
-   users and tags, plus `ZohoProjects.search.READ`, which is needed to resolve keys like `PROJ1-T1000` to ids. As a
-   single scope string:
-   `ZohoProjects.portals.READ,ZohoProjects.projects.READ,ZohoProjects.tasks.READ,ZohoProjects.tasklists.READ,ZohoProjects.milestones.READ,ZohoProjects.bugs.READ,ZohoProjects.users.READ,ZohoProjects.tags.READ,ZohoProjects.search.READ`.
-   Only read scopes are needed and only read scopes should be granted.
-3. Generate the code in the Self Client, then exchange it once for a refresh token (the code is short-lived and
-   single-use; use your data center's `accounts.zoho.<dc>` host):
-
-   ```bash
-   curl -s -X POST https://accounts.zoho.com/oauth/v2/token \
-     -d grant_type=authorization_code -d client_id=YOUR_CLIENT_ID \
-     -d client_secret=YOUR_CLIENT_SECRET -d code=THE_GENERATED_CODE
-   ```
-
-   The response contains `refresh_token`. Treat it like a password.
-4. Write the values to the config file and lock it down:
+1. Register a client once at <https://api-console.zoho.com> (use `.eu`, `.in`, `.com.au` or `.jp` for your data
+   center): add a **Server-based Applications** client with the Authorized Redirect URI
+   `http://localhost:8765/callback`. `zoho-axi auth login-help` prints these steps with your data center filled in.
+2. Put the client's id and secret in the config file and lock it down (the refresh token is added for you in step 3):
 
    ```bash
    mkdir -p ~/.config/zoho-axi
@@ -97,8 +83,24 @@ All settings live in one TOML file, `~/.config/zoho-axi/config.toml` (or `$XDG_C
    chmod 600 ~/.config/zoho-axi/config.toml
    ```
 
-   Edit `client_id`, `client_secret`, `refresh_token`, and `dc` if your account is not on `com`.
-5. Check it, pick a default project and look around:
+   Edit `client_id`, `client_secret`, and `dc` if your account is not on `com`. Or skip the file and set
+   `ZOHO_AXI_CLIENT_ID` / `ZOHO_AXI_CLIENT_SECRET`.
+3. Sign in:
+
+   ```bash
+   zoho-axi auth login
+   ```
+
+   It opens Zoho's consent page in your browser (the URL is also printed, for `--no-browser` or a remote shell),
+   catches the redirect on a one-shot listener bound to `127.0.0.1` (PKCE and a `state` check protect the code), and
+   saves the `refresh_token` into the config file, keeping its comments and mode 600. Only read scopes are requested:
+   `ZohoProjects.{portals,projects,tasks,tasklists,milestones,bugs,users,tags,search}.READ`. Use `--port N` if 8765
+   is taken (register `http://localhost:N/callback` too).
+
+   No browser (ssh, CI)? Create a **Self Client** in the same console instead, exchange its code once at
+   `https://accounts.zoho.<dc>/oauth/v2/token` (`grant_type=authorization_code`, `client_id`, `client_secret`,
+   `code`) and put the `refresh_token` in the config yourself. Treat it like a password.
+4. Check it, pick a default project and look around:
 
    ```bash
    zoho-axi auth status
@@ -115,7 +117,8 @@ All settings live in one TOML file, `~/.config/zoho-axi/config.toml` (or `$XDG_C
 
 | Key | Default | Meaning |
 |---|---|---|
-| `client_id`, `client_secret`, `refresh_token` | none (required) | Self Client credentials |
+| `client_id`, `client_secret` | none (required) | the client you registered in the Zoho API console |
+| `refresh_token` | none (required) | written by `zoho-axi auth login` (or a Self Client's token, by hand) |
 | `dc` | `com` | Zoho data center: `com`, `eu`, `in`, `com.au` or `jp`. An allowlist, because it is placed in the hostnames that receive your credentials |
 | `portal_id`, `project_id` | none | default project (set by `project use`) |
 | `max_images` | 5 | images per `--images` call; 0 disables |
@@ -151,7 +154,8 @@ running. Unknown flags fail with exit code 2 and a "did you mean" hint, and noth
 | `zoho-axi bug <KEY or id>` | one bug; slices `--comments`, `--attachments`, `--images`, `--task` (linked task) |
 | `zoho-axi resolve <text or ->` | find task/bug keys, ids and Zoho links in free text, offline; `--check` confirms them |
 | `zoho-axi auth status` | config and credential check, verifies the token with Zoho (`--offline` skips the network) |
-| `zoho-axi auth login-help` | the Self Client steps and where the values go |
+| `zoho-axi auth login` | sign in with your browser (OAuth); saves the refresh token to the config file (`--port N`, `--no-browser`) |
+| `zoho-axi auth login-help` | the one-time client registration steps and where the values go |
 | `zoho-axi cache status` | cache size, entry counts, oldest entry |
 | `zoho-axi cache clear` | delete the cache (needs `--yes`) |
 | `zoho-axi hooks install` / `zoho-axi hooks uninstall` | add or remove the Claude Code SessionStart hook |
@@ -263,7 +267,7 @@ and needs `--yes`. Images saved by `--images` go to `~/.cache/zoho-axi/attachmen
   and where each value comes from, then `zoho-axi auth login-help`. Environment variables override the file, which is
   a common reason a changed value seems ignored.
 - **Token problems.** `zoho-axi auth status` verifies the token online: `valid`, `invalid` (revoked or wrong
-  credentials; create a new Self Client code and refresh token), or `unreachable` (network, or a wrong `dc`). A
+  credentials; run `zoho-axi auth login` again), or `unreachable` (network, or a wrong `dc`). A
   refresh token can mint only a limited number of access tokens per ten minutes, so do not loop on a failing login.
 - **Config permissions warning.** `... is readable by other users; run chmod 600 ...`. Run
   `chmod 600 ~/.config/zoho-axi/config.toml`.

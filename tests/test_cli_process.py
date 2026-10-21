@@ -35,7 +35,7 @@ def test_bare_command_shows_home_with_stdin_closed(command, tmp_path):
 # With no config and no credentials, the commands that need Zoho end in a structured config/auth error
 # (exit 3) and `project use` / `cache clear` in a usage error (exit 2: no argument / no --yes); every
 # other command works offline. What matters for this test is that none of them reads stdin or crashes.
-EXPECTED_WITHOUT_CONFIG = {"project use": 2, "cache clear": 2, "project": 3, "project list": 3, "people": 3, "tasks": 3, "task": 2, "bug": 2, "resolve": 2}
+EXPECTED_WITHOUT_CONFIG = {"auth login": 3, "project use": 2, "cache clear": 2, "project": 3, "project list": 3, "people": 3, "tasks": 3, "task": 2, "bug": 2, "resolve": 2}
 
 
 def test_every_wired_command_runs_with_stdin_closed(tmp_path):
